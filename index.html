@@ -564,6 +564,12 @@
         .asset-change.profit { color: var(--profit); }
         .asset-change.loss { color: var(--loss); }
 
+        .asset-secondary {
+            font-size: 11px;
+            color: var(--text-secondary);
+            text-align: right;
+        }
+
         /* Empty State */
         .empty-state {
             text-align: center;
@@ -2038,7 +2044,7 @@
         // ========== COMPREHENSIVE STOCK DATABASE ==========
         const STOCK_DB = {
             bist: [
-                { s: 'THYAO', n: 'Türk Hava Yolları' },
+                { s: 'THYAO', n: 'T��rk Hava Yolları' },
                 { s: 'GARAN', n: 'Garanti BBVA Bankası' },
                 { s: 'AKBNK', n: 'Akbank' },
                 { s: 'YKBNK', n: 'Yapı Kredi Bankası' },
@@ -6882,7 +6888,7 @@
         }
 
         function formatUSD(v) {
-            return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 }).format(v);
+            return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(v);
         }
 
         function updatePeriodCard(elementId, perf) {
@@ -6906,15 +6912,19 @@
                 .slice(0, 5);
 
             container.innerHTML = recent.map((asset, i) => {
-                const value = calcValue(asset);
-                const cost = calcCost(asset);
-                const pl = value - cost;
-                const plPct = cost > 0 ? (pl / cost) * 100 : 0;
+                const nativeValue = calcNativeValue(asset);
+                const nativeCost = calcNativeCost(asset);
+                const pl = nativeValue - nativeCost;
+                const plPct = nativeCost > 0 ? (pl / nativeCost) * 100 : 0;
                 const isPl = pl >= 0;
+                const isUSD = isUSDAsset(asset);
 
                 const dateStr = asset.purchaseDate ?
                     new Date(asset.purchaseDate).toLocaleDateString('tr-TR', { day: 'numeric', month: 'short' }) :
                     '-';
+
+                // USD assets show $, TL assets show ₺
+                const valueStr = isUSD ? formatUSD(nativeValue) : formatCur(nativeValue);
 
                 return `
                     <div class="asset-card" onclick="editAsset('${asset.id}')" style="animation-delay: ${i * 0.03}s">
@@ -6924,7 +6934,7 @@
                             <div class="asset-details">${asset.symbol} • ${dateStr}</div>
                         </div>
                         <div class="asset-values">
-                            <div class="asset-total">${formatCur(value)}</div>
+                            <div class="asset-total">${valueStr}</div>
                             <div class="asset-change ${isPl ? 'profit' : 'loss'}">
                                 <i class="fas fa-arrow-${isPl ? 'up' : 'down'}"></i>
                                 ${isPl ? '+' : ''}${plPct.toFixed(1)}%
@@ -6978,17 +6988,32 @@
 
         function renderCategoryBreakdown(byType, totalValue) {
             const container = document.getElementById('categoryBreakdown');
+            const usdRate = cachedUSDTRY;
 
             if (Object.keys(byType).length === 0) {
                 container.innerHTML = '<div class="empty-state"><p>Henüz varlık eklenmedi.</p></div>';
                 return;
             }
 
+            // Calculate native values for USD types (us, etf)
+            const nativeByType = {};
+            portfolio.forEach(asset => {
+                if (!nativeByType[asset.type]) nativeByType[asset.type] = 0;
+                nativeByType[asset.type] += calcNativeValue(asset);
+            });
+
             const entries = Object.entries(byType).sort((a, b) => b[1] - a[1]);
 
-            container.innerHTML = entries.map(([type, value]) => {
-                const pct = totalValue > 0 ? ((value / totalValue) * 100).toFixed(1) : 0;
+            container.innerHTML = entries.map(([type, valueTL]) => {
+                const pct = totalValue > 0 ? ((valueTL / totalValue) * 100).toFixed(1) : 0;
                 const count = portfolio.filter(a => a.type === type).length;
+                const isUSD = type === 'us' || type === 'etf';
+                const nativeValue = nativeByType[type] || 0;
+
+                // USD types: show $ value primarily, TL below
+                // TL types: show TL value
+                const primaryValue = isUSD ? formatUSD(nativeValue) : formatCur(valueTL);
+                const secondaryValue = isUSD ? `≈ ${formatCur(valueTL)}` : '';
 
                 return `
                     <div class="asset-card" onclick="filterCategory('${type}'); switchTab('portfolio');">
@@ -6998,7 +7023,8 @@
                             <div class="asset-details">${count} varlık • %${pct}</div>
                         </div>
                         <div class="asset-values">
-                            <div class="asset-total">${formatCur(value)}</div>
+                            <div class="asset-total">${primaryValue}</div>
+                            ${secondaryValue ? `<div class="asset-secondary">${secondaryValue}</div>` : ''}
                         </div>
                     </div>
                 `;
