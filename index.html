@@ -1441,6 +1441,21 @@
                     </div>
                 </div>
 
+                <div class="form-group">
+                    <label class="form-label">💾 Veri Yedekleme</label>
+                    <div style="display: flex; gap: 10px;">
+                        <button type="button" class="submit-btn" style="flex: 1; background: var(--accent);" onclick="exportJSON()">
+                            <i class="fas fa-download"></i> Yedekle (JSON)
+                        </button>
+                        <button type="button" class="submit-btn" style="flex: 1; background: #6366f1;" onclick="importJSON()">
+                            <i class="fas fa-upload"></i> Geri Yükle
+                        </button>
+                    </div>
+                    <p style="margin-top: 8px; font-size: 11px; color: var(--text-secondary);">
+                        💡 Verileriniz otomatik olarak tarayıcıda saklanır. Tarayıcı verisi silinirse, JSON yedekten geri yükleyebilirsiniz.
+                    </p>
+                </div>
+
                 <button type="button" class="submit-btn" onclick="testApiConnection()">
                     <i class="fas fa-plug"></i> Bağlantıyı Test Et
                 </button>
@@ -1788,10 +1803,82 @@
         let selectedType = 'bist';
         let editingId = null;
         let selectedPeriod = 'all'; // 'week', 'month', 'all'
+        let db = null; // IndexedDB reference
+
+        // ========== DATABASE (IndexedDB) ==========
+        const DB_NAME = 'PortfolioTrackerDB';
+        const DB_VERSION = 1;
+        const STORE_NAME = 'portfolio';
+
+        async function initDB() {
+            return new Promise((resolve) => {
+                try {
+                    const request = indexedDB.open(DB_NAME, DB_VERSION);
+
+                    request.onerror = () => {
+                        console.log('IndexedDB not available');
+                        resolve(false);
+                    };
+
+                    request.onsuccess = (event) => {
+                        db = event.target.result;
+                        console.log('IndexedDB ready');
+                        resolve(true);
+                    };
+
+                    request.onupgradeneeded = (event) => {
+                        const database = event.target.result;
+                        if (!database.objectStoreNames.contains(STORE_NAME)) {
+                            database.createObjectStore(STORE_NAME, { keyPath: 'id' });
+                        }
+                    };
+                } catch (e) {
+                    console.log('IndexedDB error:', e);
+                    resolve(false);
+                }
+            });
+        }
+
+        async function saveToDB() {
+            if (!db) return;
+            try {
+                const tx = db.transaction([STORE_NAME], 'readwrite');
+                const store = tx.objectStore(STORE_NAME);
+                store.clear();
+                portfolio.forEach(asset => store.put(asset));
+            } catch (e) {
+                console.log('Save error:', e);
+            }
+        }
+
+        async function loadFromDB() {
+            if (!db) return [];
+            return new Promise((resolve) => {
+                try {
+                    const tx = db.transaction([STORE_NAME], 'readonly');
+                    const store = tx.objectStore(STORE_NAME);
+                    const req = store.getAll();
+                    req.onsuccess = () => resolve(req.result || []);
+                    req.onerror = () => resolve([]);
+                } catch (e) {
+                    resolve([]);
+                }
+            });
+        }
 
         // ========== INIT ==========
-        function init() {
+        async function init() {
             initTheme();
+
+            // Initialize database and load data
+            const dbReady = await initDB();
+            if (dbReady) {
+                portfolio = await loadFromDB();
+                if (portfolio.length > 0) {
+                    showToast(`${portfolio.length} varlık yüklendi`, 'success');
+                }
+            }
+
             renderSuggestions();
             renderPortfolio();
             updateSummary();
@@ -1868,6 +1955,7 @@
 
             await Promise.all(pricePromises);
 
+            saveToDB(); // Save updated prices to IndexedDB
             btn.classList.remove('refreshing');
             renderPortfolio();
             updateSummary();
@@ -2732,6 +2820,7 @@
                 portfolio.push(asset);
             }
 
+            saveToDB(); // Save to IndexedDB
             renderPortfolio();
             updateSummary();
             updatePerformance();
@@ -2790,6 +2879,7 @@
         function deleteAsset() {
             if (editingId) {
                 portfolio = portfolio.filter(a => a.id !== editingId);
+                saveToDB(); // Save to IndexedDB
                 renderPortfolio();
                 updateSummary();
                 updatePerformance();
@@ -2825,6 +2915,69 @@
             a.click();
             URL.revokeObjectURL(url);
             showToast('CSV olarak indirildi!', 'success');
+        }
+
+        // ========== JSON BACKUP ==========
+        function exportJSON() {
+            if (portfolio.length === 0) {
+                showToast('Yedeklenecek varlık yok!', 'error');
+                return;
+            }
+
+            const data = {
+                version: 1,
+                exportDate: new Date().toISOString(),
+                portfolio: portfolio
+            };
+
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `portfolio_backup_${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+            showToast('JSON yedek indirildi!', 'success');
+        }
+
+        function importJSON() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json';
+            input.onchange = async (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+
+                try {
+                    const text = await file.text();
+                    const data = JSON.parse(text);
+
+                    if (!data.portfolio || !Array.isArray(data.portfolio)) {
+                        showToast('Geçersiz dosya formatı!', 'error');
+                        return;
+                    }
+
+                    // Validate each asset has required fields
+                    const validAssets = data.portfolio.filter(a =>
+                        a.id && a.type && a.symbol && typeof a.amount === 'number'
+                    );
+
+                    if (validAssets.length === 0) {
+                        showToast('Geçerli varlık bulunamadı!', 'error');
+                        return;
+                    }
+
+                    portfolio = validAssets;
+                    saveToDB();
+                    renderPortfolio();
+                    updateSummary();
+                    updatePerformance();
+                    showToast(`${validAssets.length} varlık içe aktarıldı!`, 'success');
+                } catch (err) {
+                    showToast('Dosya okunamadı: ' + err.message, 'error');
+                }
+            };
+            input.click();
         }
 
         // ========== UTILITIES ==========
