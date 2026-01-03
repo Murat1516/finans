@@ -314,6 +314,45 @@
         .perf-value.profit { color: var(--profit); }
         .perf-value.loss { color: var(--loss); }
 
+        .perf-sub {
+            font-size: 11px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+
+        /* Period Selector */
+        .period-selector {
+            display: flex;
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 4px;
+            margin-bottom: 16px;
+            border: 1px solid var(--border);
+        }
+
+        .period-btn {
+            flex: 1;
+            padding: 10px 12px;
+            border: none;
+            background: transparent;
+            color: var(--text-secondary);
+            font-family: inherit;
+            font-size: 13px;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .period-btn.active {
+            background: var(--accent);
+            color: #000;
+        }
+
+        .perf-card.full {
+            grid-column: 1 / -1;
+        }
+
         /* Pie Chart */
         .chart-container {
             position: relative;
@@ -791,6 +830,87 @@
             color: var(--accent);
         }
 
+        /* Symbol Validation */
+        .symbol-validation {
+            margin-top: 8px;
+            padding: 10px 14px;
+            border-radius: 10px;
+            font-size: 13px;
+            display: none;
+        }
+
+        .symbol-validation.valid {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: var(--profit);
+        }
+
+        .symbol-validation.invalid {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: var(--loss);
+        }
+
+        .symbol-validation.loading {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+        }
+
+        .symbol-validation i {
+            font-size: 14px;
+        }
+
+        /* Interest Preview */
+        .interest-preview {
+            margin-top: 10px;
+            padding: 12px 14px;
+            border-radius: 10px;
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            font-size: 12px;
+            display: none;
+        }
+
+        .interest-preview.show {
+            display: block;
+        }
+
+        .interest-preview .preview-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 6px;
+        }
+
+        .interest-preview .preview-row:last-child {
+            margin-bottom: 0;
+            padding-top: 6px;
+            border-top: 1px solid rgba(16, 185, 129, 0.2);
+            font-weight: 600;
+            color: var(--profit);
+        }
+
+        .interest-preview .preview-label {
+            color: var(--text-secondary);
+        }
+
+        /* Asset price detail */
+        .asset-price {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: var(--text-secondary);
+            margin-top: 2px;
+        }
+
         /* Buttons */
         .submit-btn {
             width: 100%;
@@ -939,7 +1059,7 @@
         <div class="tab-content active" id="portfolioTab">
             <!-- Summary -->
             <div class="summary-card">
-                <div class="summary-label">Toplam Portföy Değeri</div>
+                <div class="summary-label">Toplam Portföy Değeri (TL)</div>
                 <div class="summary-value" id="totalValue">₺0,00</div>
                 <div class="summary-stats">
                     <div class="stat-badge profit" id="totalProfit">
@@ -950,6 +1070,9 @@
                         <i class="fas fa-coins"></i>
                         <span>Maliyet: ₺0</span>
                     </div>
+                </div>
+                <div class="summary-sub" id="totalUSDValue" style="margin-top: 10px; font-size: 13px; color: var(--text-secondary);">
+                    <span>🇺🇸 USD: $0.00</span>
                 </div>
             </div>
 
@@ -1003,37 +1126,119 @@
 
         <!-- Performance Tab -->
         <div class="tab-content" id="performanceTab">
+            <!-- Time Period Selector -->
+            <div class="period-selector">
+                <button class="period-btn" data-period="week" onclick="selectPeriod('week')">Haftalık</button>
+                <button class="period-btn" data-period="month" onclick="selectPeriod('month')">Aylık</button>
+                <button class="period-btn active" data-period="all" onclick="selectPeriod('all')">Tümü</button>
+            </div>
+
+            <!-- Daily Gain Cards -->
+            <div class="section-header" style="margin-bottom: 12px;">
+                <h2 class="section-title">📊 Günlük Kazanç</h2>
+            </div>
+            <div class="performance-grid" style="margin-bottom: 20px;">
+                <div class="perf-card">
+                    <div class="perf-title">🇹🇷 TL Bazında</div>
+                    <div class="perf-value" id="dailyGainTL">₺0</div>
+                    <div class="perf-sub" id="dailyGainTLPct">%0</div>
+                </div>
+                <div class="perf-card">
+                    <div class="perf-title">🇺🇸 USD Bazında</div>
+                    <div class="perf-value" id="dailyGainUSD">$0</div>
+                    <div class="perf-sub" id="dailyGainUSDPct">%0</div>
+                </div>
+            </div>
+
+            <!-- TL Portfolio Section -->
+            <div class="section-header" style="margin-bottom: 12px;">
+                <h2 class="section-title">🇹🇷 TL Portföy</h2>
+            </div>
+            <div class="summary-card currency-card" style="margin-bottom: 16px;">
+                <div class="summary-label">BIST, VİOP, Altın, Gümüş, Mevduat, Nakit TL</div>
+                <div class="summary-value" id="perfTLValue">₺0,00</div>
+                <div class="summary-stats">
+                    <div class="stat-badge profit" id="perfTLPL">
+                        <i class="fas fa-arrow-up"></i>
+                        <span>₺0 (0%)</span>
+                    </div>
+                    <div class="stat-badge neutral" id="perfTLCost">
+                        <i class="fas fa-coins"></i>
+                        <span>Maliyet: ₺0</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- USD Portfolio Section -->
+            <div class="section-header" style="margin-bottom: 12px;">
+                <h2 class="section-title">🇺🇸 USD Portföy</h2>
+            </div>
+            <div class="summary-card currency-card" style="margin-bottom: 16px;">
+                <div class="summary-label">ABD Hisseleri, ETF</div>
+                <div class="summary-value" id="perfUSDValue">$0.00</div>
+                <div class="summary-stats">
+                    <div class="stat-badge profit" id="perfUSDPL">
+                        <i class="fas fa-arrow-up"></i>
+                        <span>$0 (0%)</span>
+                    </div>
+                    <div class="stat-badge neutral" id="perfUSDCost">
+                        <i class="fas fa-coins"></i>
+                        <span>Maliyet: $0</span>
+                    </div>
+                </div>
+                <div class="perf-sub" style="margin-top: 10px; font-size: 12px;">
+                    <span id="perfUSDinTL">TL karşılığı: ₺0</span>
+                </div>
+            </div>
+
+            <!-- Total Portfolio -->
+            <div class="section-header" style="margin-bottom: 12px;">
+                <h2 class="section-title">💼 Toplam Portföy</h2>
+            </div>
+            <div class="performance-grid" style="margin-bottom: 16px;">
+                <div class="perf-card">
+                    <div class="perf-title">🇹🇷 TL Toplam</div>
+                    <div class="perf-value" id="perfTotalTL">₺0</div>
+                    <div class="perf-sub" id="perfTotalTLPL">Kar/Zarar: ₺0</div>
+                </div>
+                <div class="perf-card">
+                    <div class="perf-title">🇺🇸 USD Toplam</div>
+                    <div class="perf-value" id="perfTotalUSD">$0</div>
+                    <div class="perf-sub" id="perfTotalUSDPL">Kar/Zarar: $0</div>
+                </div>
+            </div>
+
+            <!-- Period Stats Grid -->
+            <div class="section-header" style="margin-bottom: 12px;">
+                <h2 class="section-title">📈 Dönem Performansı</h2>
+            </div>
             <div class="performance-grid">
                 <div class="perf-card">
-                    <div class="perf-title">Toplam Kar/Zarar</div>
-                    <div class="perf-value profit" id="perfTotalPL">₺0</div>
+                    <div class="perf-title">📅 Haftalık</div>
+                    <div class="perf-value" id="perfWeekly">-</div>
+                    <div class="perf-sub" id="perfWeeklyCount">0 varlık</div>
                 </div>
                 <div class="perf-card">
-                    <div class="perf-title">Getiri Oranı</div>
-                    <div class="perf-value profit" id="perfReturn">%0</div>
+                    <div class="perf-title">📆 Aylık</div>
+                    <div class="perf-value" id="perfMonthly">-</div>
+                    <div class="perf-sub" id="perfMonthlyCount">0 varlık</div>
                 </div>
                 <div class="perf-card">
-                    <div class="perf-title">En Kârlı</div>
+                    <div class="perf-title">🏆 En Kârlı</div>
                     <div class="perf-value profit" id="perfBest">-</div>
                 </div>
                 <div class="perf-card">
-                    <div class="perf-title">En Zararlı</div>
+                    <div class="perf-title">📉 En Zararlı</div>
                     <div class="perf-value loss" id="perfWorst">-</div>
                 </div>
-                <div class="perf-card full">
-                    <div class="perf-title">Varlık Dağılımı</div>
-                    <div class="chart-container">
-                        <div class="pie-chart" id="pieChart"></div>
-                        <div class="chart-legend" id="chartLegend"></div>
-                    </div>
-                </div>
-                <div class="perf-card">
-                    <div class="perf-title">Toplam Maliyet</div>
-                    <div class="perf-value" id="perfCost">₺0</div>
-                </div>
-                <div class="perf-card">
-                    <div class="perf-title">Güncel Değer</div>
-                    <div class="perf-value" id="perfValue">₺0</div>
+            </div>
+
+            <!-- Pie Chart -->
+            <div class="perf-card full" style="margin: 16px 0;">
+                <div class="perf-title">📊 Varlık Dağılımı</div>
+                <div class="chart-container">
+                    <div class="pie-chart" id="pieChart"></div>
+                    <div class="chart-legend" id="chartLegend"></div>
                 </div>
             </div>
 
@@ -1042,6 +1247,12 @@
                 <h2 class="section-title">Kategori Bazında</h2>
             </div>
             <div class="asset-list" id="categoryBreakdown"></div>
+
+            <!-- Recent Transactions -->
+            <div class="section-header" style="margin-top: 20px;">
+                <h2 class="section-title">Son Eklenen Varlıklar</h2>
+            </div>
+            <div class="asset-list" id="recentAssets"></div>
         </div>
     </div>
 
@@ -1101,16 +1312,9 @@
 
                 <!-- Symbol & Name -->
                 <div class="form-group" id="symbolGroup">
-                    <div class="form-row">
-                        <div>
-                            <label class="form-label">Sembol</label>
-                            <input type="text" class="form-input" id="symbolInput" placeholder="THYAO" style="text-transform: uppercase;">
-                        </div>
-                        <div>
-                            <label class="form-label">İsim (Opsiyonel)</label>
-                            <input type="text" class="form-input" id="nameInput" placeholder="Türk Hava Yolları">
-                        </div>
-                    </div>
+                    <label class="form-label">Sembol</label>
+                    <input type="text" class="form-input" id="symbolInput" placeholder="THYAO" style="text-transform: uppercase;" oninput="validateSymbol()">
+                    <div id="symbolValidation" class="symbol-validation"></div>
                     <div class="suggestions" id="suggestions"></div>
                 </div>
 
@@ -1128,6 +1332,12 @@
                     </div>
                 </div>
 
+                <!-- Purchase Date -->
+                <div class="form-group">
+                    <label class="form-label">Alış Tarihi</label>
+                    <input type="date" class="form-input" id="purchaseDateInput">
+                </div>
+
                 <!-- Current Price -->
                 <div class="form-group">
                     <label class="form-label" id="currentPriceLabel">Güncel Fiyat (₺)</label>
@@ -1135,10 +1345,19 @@
                     <p class="form-hint" id="priceHint">Güncel fiyatı girin. "Güncelle" butonuyla simüle edilir.</p>
                 </div>
 
-                <!-- Interest Rate (for deposit) -->
+                <!-- Interest Rate & Duration (for deposit) -->
                 <div class="form-group" id="interestGroup" style="display: none;">
-                    <label class="form-label">Faiz Oranı (%)</label>
-                    <input type="number" class="form-input" id="interestInput" placeholder="45" step="any" min="0">
+                    <div class="form-row">
+                        <div>
+                            <label class="form-label">Faiz Oranı (%)</label>
+                            <input type="number" class="form-input" id="interestInput" placeholder="45" step="any" min="0">
+                        </div>
+                        <div>
+                            <label class="form-label">Vade (Gün)</label>
+                            <input type="number" class="form-input" id="durationInput" placeholder="90" step="1" min="1">
+                        </div>
+                    </div>
+                    <div id="interestPreview" class="interest-preview"></div>
                 </div>
 
                 <button type="button" class="submit-btn" id="submitBtn" onclick="saveAsset()">
@@ -1196,8 +1415,8 @@
                             <span><strong>Döviz Kurları</strong> - Aktif</span>
                         </div>
                         <div style="display: flex; align-items: center; gap: 8px;">
-                            <span style="width: 10px; height: 10px; border-radius: 50%; background: var(--warning);"></span>
-                            <span><strong>VİOP</strong> - Simülasyon</span>
+                            <span style="width: 10px; height: 10px; border-radius: 50%; background: var(--profit);"></span>
+                            <span><strong>VİOP</strong> - Aktif (Spot proxy)</span>
                         </div>
                     </div>
                 </div>
@@ -1207,6 +1426,7 @@
                     <div style="padding: 14px; background: var(--bg-input); border-radius: 12px; font-size: 12px; color: var(--text-secondary); line-height: 1.6;">
                         <p style="margin-bottom: 8px;">• <strong>API key gerekmez</strong> - Tüm fiyatlar Yahoo Finance'ten çekilir</p>
                         <p style="margin-bottom: 8px;">• <strong>BIST:</strong> Sembol.IS formatında (THYAO.IS)</p>
+                        <p style="margin-bottom: 8px;">• <strong>VİOP:</strong> Dayanak varlık fiyatları kullanılır</p>
                         <p style="margin-bottom: 8px;">• <strong>Altın:</strong> USD/ons fiyatı TL'ye çevrilir</p>
                         <p style="margin-bottom: 8px;">• <strong>Önbellek:</strong> 5 dakika (gereksiz istek önlenir)</p>
                         <p>• <strong>Fallback:</strong> API hata verirse simülasyon kullanılır</p>
@@ -1332,6 +1552,30 @@
                     case 'us':
                     case 'etf':
                         yahooSymbol = symbol;
+                        break;
+
+                    case 'viop':
+                        // VİOP futures - use underlying assets as proxy
+                        if (symbol === 'F_XU030' || symbol === 'XU030') {
+                            yahooSymbol = 'XU030.IS'; // BIST 30 Index
+                        } else if (symbol === 'F_XU100' || symbol === 'XU100') {
+                            yahooSymbol = 'XU100.IS'; // BIST 100 Index
+                        } else if (symbol === 'F_USDTRY' || symbol.includes('USD')) {
+                            yahooSymbol = 'USDTRY=X';
+                        } else if (symbol === 'F_EURTRY' || symbol.includes('EUR')) {
+                            yahooSymbol = 'EURTRY=X';
+                        } else if (symbol === 'F_XAUTRY' || symbol.includes('XAU') || symbol.includes('ALTIN')) {
+                            // Gold futures in TRY
+                            yahooSymbol = 'GC=F';
+                            needsTRYConversion = true;
+                            multiplier = 1 / 31.1035; // Per gram
+                        } else if (symbol.startsWith('F_')) {
+                            // Try to find underlying BIST stock
+                            const underlying = symbol.replace('F_', '');
+                            yahooSymbol = `${underlying}.IS`;
+                        } else {
+                            yahooSymbol = `${symbol}.IS`;
+                        }
                         break;
 
                     case 'gold':
@@ -1498,7 +1742,10 @@
                 { s: 'F_XU100', n: 'BIST 100 Vadeli' },
                 { s: 'F_USDTRY', n: 'Dolar/TL Vadeli' },
                 { s: 'F_EURTRY', n: 'Euro/TL Vadeli' },
-                { s: 'F_XAUTRY', n: 'Altın/TL Vadeli' }
+                { s: 'F_XAUTRY', n: 'Altın/TL Vadeli' },
+                { s: 'F_THYAO', n: 'THY Vadeli' },
+                { s: 'F_GARAN', n: 'Garanti Vadeli' },
+                { s: 'F_AKBNK', n: 'Akbank Vadeli' }
             ],
             gold: [
                 { s: 'XAU', n: 'Gram Altın' },
@@ -1540,6 +1787,7 @@
         let currentCategory = 'all';
         let selectedType = 'bist';
         let editingId = null;
+        let selectedPeriod = 'all'; // 'week', 'month', 'all'
 
         // ========== INIT ==========
         function init() {
@@ -1593,6 +1841,9 @@
                 if (asset.type === 'deposit') {
                     return; // Skip deposits
                 }
+
+                // Save previous price for daily gain calculation
+                asset.previousPrice = asset.currentPrice;
 
                 try {
                     const newPrice = await fetchPrice(asset.symbol, asset.type);
@@ -1674,18 +1925,53 @@
                 const plPct = cost > 0 ? (pl / cost) * 100 : 0;
                 const isPl = pl >= 0;
 
+                // Format details based on type
+                let detailsLine = '';
+                let priceLine = '';
+                const isUSD = asset.type === 'us' || asset.type === 'etf';
+                const formatValue = isUSD ? formatUSD : formatCur;
+
+                if (asset.type === 'deposit') {
+                    // For deposits, show duration and interest info
+                    const maturityDate = getMaturityDate(asset);
+                    const expectedInterest = calcExpectedInterest(asset);
+                    detailsLine = `%${asset.interestRate || 0} • ${asset.duration || 0} gün`;
+                    priceLine = `Vade: ${maturityDate} • +${formatCur(expectedInterest)}`;
+                } else if (asset.type === 'cash') {
+                    if (asset.symbol === 'TRY') {
+                        detailsLine = `${formatNum(asset.amount)} ₺`;
+                        priceLine = '';
+                    } else {
+                        detailsLine = `${formatNum(asset.amount)} ${asset.symbol}`;
+                        priceLine = `Kur: ${formatCur(asset.currentPrice)}`;
+                    }
+                } else if (isUSD) {
+                    // For US/ETF stocks, show in USD
+                    detailsLine = `${formatNum(asset.amount)} adet ${asset.priceSource === 'api' ? '<span style="color: var(--profit);">●</span>' : ''}`;
+                    priceLine = `Fiyat: ${formatUSD(asset.currentPrice)}`;
+                } else {
+                    // For TL stocks (BIST, VİOP, Gold, Silver)
+                    detailsLine = `${formatNum(asset.amount)} adet ${asset.priceSource === 'api' ? '<span style="color: var(--profit);">●</span>' : ''}`;
+                    priceLine = `Fiyat: ${formatCur(asset.currentPrice)}`;
+                }
+
+                // Calculate native currency values for USD assets
+                const nativeValue = isUSD ? value : value;
+                const nativePL = isUSD ? pl : pl;
+
                 return `
                     <div class="asset-card" onclick="editAsset('${asset.id}')" style="animation-delay: ${i * 0.03}s">
                         <div class="asset-icon ${asset.type}">${getIconContent(asset)}</div>
                         <div class="asset-info">
                             <div class="asset-name">${asset.name || asset.symbol}</div>
-                            <div class="asset-details">${asset.symbol} • ${formatNum(asset.amount)} adet ${asset.priceSource === 'api' ? '<span style="color: var(--profit);">●</span>' : ''}</div>
+                            <div class="asset-details">${detailsLine}</div>
+                            ${priceLine ? `<div class="asset-price">${priceLine}</div>` : ''}
                         </div>
                         <div class="asset-values">
-                            <div class="asset-total">${formatCur(value)}</div>
+                            <div class="asset-total">${formatValue(nativeValue)}</div>
                             <div class="asset-change ${isPl ? 'profit' : 'loss'}">
                                 <i class="fas fa-arrow-${isPl ? 'up' : 'down'}"></i>
-                                ${isPl ? '+' : ''}${formatCur(pl)} (${plPct >= 0 ? '+' : ''}${plPct.toFixed(1)}%)
+                                ${isPl ? '+' : ''}${formatValue(nativePL)} (${plPct >= 0 ? '+' : ''}${plPct.toFixed(1)}%)
                             </div>
                         </div>
                     </div>
@@ -1705,56 +1991,275 @@
 
         function calcValue(asset) {
             if (asset.type === 'cash' && asset.symbol === 'TRY') return asset.amount;
+            if (asset.type === 'deposit') {
+                // For deposits, include expected interest
+                return asset.amount + calcExpectedInterest(asset);
+            }
             return asset.amount * asset.currentPrice;
         }
 
         function calcCost(asset) {
             if (asset.type === 'cash' && asset.symbol === 'TRY') return asset.amount;
+            if (asset.type === 'deposit') {
+                // For deposits, cost is the principal (buyPrice is not used)
+                return asset.amount;
+            }
             return asset.amount * asset.buyPrice;
         }
 
+        // Deposit helper functions
+        function getMaturityDate(asset) {
+            if (!asset.purchaseDate || !asset.duration) return '-';
+            const start = new Date(asset.purchaseDate);
+            start.setDate(start.getDate() + asset.duration);
+            return start.toLocaleDateString('tr-TR', { day: 'numeric', month: 'short' });
+        }
+
+        function calcExpectedInterest(asset) {
+            if (!asset.amount || !asset.interestRate || !asset.duration) return 0;
+            return asset.amount * (asset.interestRate / 100) * (asset.duration / 365);
+        }
+
         function updateSummary() {
-            let totalValue = 0, totalCost = 0;
+            const usdRate = cachedUSDTRY;
+
+            // Calculate TL and USD portfolios separately
+            let tlValue = 0, tlCost = 0;
+            let usdValue = 0, usdCost = 0;
 
             portfolio.forEach(asset => {
-                totalValue += calcValue(asset);
-                totalCost += calcCost(asset);
+                const value = calcNativeValue(asset);
+                const cost = calcNativeCost(asset);
+
+                if (isUSDAsset(asset)) {
+                    usdValue += value;
+                    usdCost += cost;
+                } else {
+                    tlValue += value;
+                    tlCost += cost;
+                }
             });
 
-            const pl = totalValue - totalCost;
-            const plPct = totalCost > 0 ? (pl / totalCost) * 100 : 0;
-            const isPl = pl >= 0;
+            // Total in TL (convert USD to TL)
+            const totalTL = tlValue + (usdValue * usdRate);
+            const totalCostTL = tlCost + (usdCost * usdRate);
+            const plTL = totalTL - totalCostTL;
+            const plPctTL = totalCostTL > 0 ? (plTL / totalCostTL) * 100 : 0;
+            const isPl = plTL >= 0;
 
-            document.getElementById('totalValue').textContent = formatCur(totalValue);
+            // Total in USD (convert TL to USD)
+            const totalUSD = (tlValue / usdRate) + usdValue;
+
+            document.getElementById('totalValue').textContent = formatCur(totalTL);
 
             const profitEl = document.getElementById('totalProfit');
             profitEl.className = `stat-badge ${isPl ? 'profit' : 'loss'}`;
             profitEl.innerHTML = `
                 <i class="fas fa-arrow-${isPl ? 'up' : 'down'}"></i>
-                <span>${isPl ? '+' : ''}${formatCur(pl)} (${plPct >= 0 ? '+' : ''}${plPct.toFixed(2)}%)</span>
+                <span>${isPl ? '+' : ''}${formatCur(plTL)} (${plPctTL >= 0 ? '+' : ''}${plPctTL.toFixed(2)}%)</span>
             `;
 
             document.getElementById('totalCost').innerHTML = `
                 <i class="fas fa-coins"></i>
-                <span>Maliyet: ${formatCur(totalCost)}</span>
+                <span>Maliyet: ${formatCur(totalCostTL)}</span>
             `;
+
+            // Update USD total
+            document.getElementById('totalUSDValue').innerHTML = `
+                <span>🇺🇸 USD karşılığı: ${formatUSD(totalUSD)}</span>
+            `;
+        }
+
+        // ========== PERIOD SELECTOR ==========
+        function selectPeriod(period) {
+            selectedPeriod = period;
+            document.querySelectorAll('.period-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.period === period);
+            });
+            updatePerformance();
+        }
+
+        // Get assets filtered by date period
+        function getAssetsForPeriod(period) {
+            const now = new Date();
+            const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+            let cutoffDate;
+            switch (period) {
+                case 'week':
+                    cutoffDate = new Date(today);
+                    cutoffDate.setDate(cutoffDate.getDate() - 7);
+                    break;
+                case 'month':
+                    cutoffDate = new Date(today);
+                    cutoffDate.setMonth(cutoffDate.getMonth() - 1);
+                    break;
+                default:
+                    return portfolio; // 'all' - return everything
+            }
+
+            return portfolio.filter(asset => {
+                if (!asset.purchaseDate) return true; // Include assets without date
+                const purchaseDate = new Date(asset.purchaseDate);
+                return purchaseDate >= cutoffDate;
+            });
+        }
+
+        // Calculate performance for a given set of assets
+        function calcPeriodPerformance(assets) {
+            let totalValue = 0, totalCost = 0;
+            assets.forEach(asset => {
+                totalValue += calcValue(asset);
+                totalCost += calcCost(asset);
+            });
+            const pl = totalValue - totalCost;
+            const pct = totalCost > 0 ? (pl / totalCost) * 100 : 0;
+            return { totalValue, totalCost, pl, pct, count: assets.length };
+        }
+
+        // Check if asset is USD-based
+        function isUSDAsset(asset) {
+            return asset.type === 'us' || asset.type === 'etf';
+        }
+
+        // Calculate value in native currency (USD for us/etf, TL for others)
+        function calcNativeValue(asset) {
+            if (asset.type === 'deposit') {
+                return asset.amount + calcExpectedInterest(asset);
+            }
+            if (asset.type === 'cash' && asset.symbol === 'TRY') {
+                return asset.amount;
+            }
+            return asset.amount * asset.currentPrice;
+        }
+
+        function calcNativeCost(asset) {
+            if (asset.type === 'deposit') {
+                return asset.amount;
+            }
+            if (asset.type === 'cash' && asset.symbol === 'TRY') {
+                return asset.amount;
+            }
+            return asset.amount * asset.buyPrice;
         }
 
         // ========== PERFORMANCE ==========
         function updatePerformance() {
-            let totalValue = 0, totalCost = 0;
-            const byType = {};
+            const usdRate = cachedUSDTRY;
+
+            // Separate assets by currency
+            const tlAssets = portfolio.filter(a => !isUSDAsset(a));
+            const usdAssets = portfolio.filter(a => isUSDAsset(a));
+
+            // Calculate TL portfolio (in TL)
+            let tlValue = 0, tlCost = 0;
+            tlAssets.forEach(asset => {
+                tlValue += calcNativeValue(asset);
+                tlCost += calcNativeCost(asset);
+            });
+            const tlPL = tlValue - tlCost;
+            const tlPct = tlCost > 0 ? (tlPL / tlCost) * 100 : 0;
+
+            // Calculate USD portfolio (in USD)
+            let usdValue = 0, usdCost = 0;
+            usdAssets.forEach(asset => {
+                usdValue += calcNativeValue(asset);
+                usdCost += calcNativeCost(asset);
+            });
+            const usdPL = usdValue - usdCost;
+            const usdPct = usdCost > 0 ? (usdPL / usdCost) * 100 : 0;
+
+            // Convert USD to TL for totals
+            const usdValueInTL = usdValue * usdRate;
+            const usdCostInTL = usdCost * usdRate;
+            const usdPLInTL = usdValueInTL - usdCostInTL;
+
+            // Total in TL
+            const totalTL = tlValue + usdValueInTL;
+            const totalCostTL = tlCost + usdCostInTL;
+            const totalPLTL = totalTL - totalCostTL;
+
+            // Total in USD
+            const totalUSD = (tlValue / usdRate) + usdValue;
+            const totalCostUSD = (tlCost / usdRate) + usdCost;
+            const totalPLUSD = totalUSD - totalCostUSD;
+
+            // Daily gain calculation (based on previousPrice if available)
+            let dailyGainTL = 0, dailyGainUSD = 0;
+            let prevTotalTL = 0, prevTotalUSD = 0;
+
+            portfolio.forEach(asset => {
+                const prevPrice = asset.previousPrice || asset.currentPrice;
+                const currentValue = calcNativeValue(asset);
+                const prevValue = asset.type === 'deposit' ? currentValue :
+                    (asset.type === 'cash' && asset.symbol === 'TRY') ? asset.amount :
+                    asset.amount * prevPrice;
+
+                const dailyChange = currentValue - prevValue;
+
+                if (isUSDAsset(asset)) {
+                    dailyGainUSD += dailyChange;
+                    dailyGainTL += dailyChange * usdRate;
+                    prevTotalUSD += prevValue;
+                } else {
+                    dailyGainTL += dailyChange;
+                    dailyGainUSD += dailyChange / usdRate;
+                    prevTotalTL += prevValue;
+                }
+            });
+
+            const dailyPctTL = (prevTotalTL + prevTotalUSD * usdRate) > 0 ?
+                (dailyGainTL / (prevTotalTL + prevTotalUSD * usdRate)) * 100 : 0;
+            const dailyPctUSD = (prevTotalUSD + prevTotalTL / usdRate) > 0 ?
+                (dailyGainUSD / (prevTotalUSD + prevTotalTL / usdRate)) * 100 : 0;
+
+            // Update Daily Gain UI
+            updateGainCard('dailyGainTL', dailyGainTL, dailyPctTL, true);
+            updateGainCard('dailyGainUSD', dailyGainUSD, dailyPctUSD, false);
+
+            // Update TL Portfolio UI
+            document.getElementById('perfTLValue').textContent = formatCur(tlValue);
+            updatePLBadge('perfTLPL', tlPL, tlPct, true);
+            document.getElementById('perfTLCost').innerHTML = `<i class="fas fa-coins"></i><span>Maliyet: ${formatCur(tlCost)}</span>`;
+
+            // Update USD Portfolio UI
+            document.getElementById('perfUSDValue').textContent = formatUSD(usdValue);
+            updatePLBadge('perfUSDPL', usdPL, usdPct, false);
+            document.getElementById('perfUSDCost').innerHTML = `<i class="fas fa-coins"></i><span>Maliyet: ${formatUSD(usdCost)}</span>`;
+            document.getElementById('perfUSDinTL').textContent = `TL karşılığı: ${formatCur(usdValueInTL)}`;
+
+            // Update Total Portfolio UI
+            document.getElementById('perfTotalTL').textContent = formatCur(totalTL);
+            const tlTotalProfit = totalPLTL >= 0;
+            document.getElementById('perfTotalTL').className = `perf-value ${tlTotalProfit ? 'profit' : 'loss'}`;
+            document.getElementById('perfTotalTLPL').textContent = `Kar/Zarar: ${tlTotalProfit ? '+' : ''}${formatCur(totalPLTL)}`;
+
+            document.getElementById('perfTotalUSD').textContent = formatUSD(totalUSD);
+            const usdTotalProfit = totalPLUSD >= 0;
+            document.getElementById('perfTotalUSD').className = `perf-value ${usdTotalProfit ? 'profit' : 'loss'}`;
+            document.getElementById('perfTotalUSDPL').textContent = `Kar/Zarar: ${usdTotalProfit ? '+' : ''}${formatUSD(totalPLUSD)}`;
+
+            // Period performance
+            const weekAssets = getAssetsForPeriod('week');
+            const monthAssets = getAssetsForPeriod('month');
+            const weekPerf = calcPeriodPerformance(weekAssets);
+            const monthPerf = calcPeriodPerformance(monthAssets);
+
+            updatePeriodCard('perfWeekly', weekPerf);
+            document.getElementById('perfWeeklyCount').textContent = `${weekPerf.count} varlık`;
+            updatePeriodCard('perfMonthly', monthPerf);
+            document.getElementById('perfMonthlyCount').textContent = `${monthPerf.count} varlık`;
+
+            // Find best and worst assets
             let bestAsset = null, worstAsset = null;
             let bestPL = -Infinity, worstPL = Infinity;
+            const byType = {};
 
             portfolio.forEach(asset => {
                 const value = calcValue(asset);
                 const cost = calcCost(asset);
                 const pl = value - cost;
                 const plPct = cost > 0 ? (pl / cost) * 100 : 0;
-
-                totalValue += value;
-                totalCost += cost;
 
                 if (!byType[asset.type]) byType[asset.type] = 0;
                 byType[asset.type] += value;
@@ -1763,29 +2268,91 @@
                 if (plPct < worstPL) { worstPL = plPct; worstAsset = asset; }
             });
 
-            const totalPL = totalValue - totalCost;
-            const returnPct = totalCost > 0 ? (totalPL / totalCost) * 100 : 0;
-            const isProfit = totalPL >= 0;
-
-            // Update cards
-            const plEl = document.getElementById('perfTotalPL');
-            plEl.textContent = (isProfit ? '+' : '') + formatCur(totalPL);
-            plEl.className = `perf-value ${isProfit ? 'profit' : 'loss'}`;
-
-            const retEl = document.getElementById('perfReturn');
-            retEl.textContent = (returnPct >= 0 ? '+' : '') + returnPct.toFixed(2) + '%';
-            retEl.className = `perf-value ${isProfit ? 'profit' : 'loss'}`;
-
             document.getElementById('perfBest').textContent = bestAsset ? `${bestAsset.symbol} (+${bestPL.toFixed(1)}%)` : '-';
             document.getElementById('perfWorst').textContent = worstAsset ? `${worstAsset.symbol} (${worstPL.toFixed(1)}%)` : '-';
-            document.getElementById('perfCost').textContent = formatCur(totalCost);
-            document.getElementById('perfValue').textContent = formatCur(totalValue);
 
             // Pie Chart
-            renderPieChart(byType, totalValue);
+            renderPieChart(byType, totalTL);
 
             // Category Breakdown
-            renderCategoryBreakdown(byType, totalValue);
+            renderCategoryBreakdown(byType, totalTL);
+
+            // Recent Assets
+            renderRecentAssets();
+        }
+
+        function updateGainCard(elementId, value, pct, isTL) {
+            const el = document.getElementById(elementId);
+            const pctEl = document.getElementById(elementId + 'Pct');
+            const isProfit = value >= 0;
+
+            el.textContent = isTL ? formatCur(value) : formatUSD(value);
+            el.className = `perf-value ${isProfit ? 'profit' : 'loss'}`;
+            pctEl.textContent = `${isProfit ? '+' : ''}${pct.toFixed(2)}%`;
+        }
+
+        function updatePLBadge(elementId, pl, pct, isTL) {
+            const el = document.getElementById(elementId);
+            const isProfit = pl >= 0;
+            el.className = `stat-badge ${isProfit ? 'profit' : 'loss'}`;
+            el.innerHTML = `
+                <i class="fas fa-arrow-${isProfit ? 'up' : 'down'}"></i>
+                <span>${isProfit ? '+' : ''}${isTL ? formatCur(pl) : formatUSD(pl)} (${pct >= 0 ? '+' : ''}${pct.toFixed(2)}%)</span>
+            `;
+        }
+
+        function formatUSD(v) {
+            return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 }).format(v);
+        }
+
+        function updatePeriodCard(elementId, perf) {
+            const el = document.getElementById(elementId);
+            const isProfit = perf.pl >= 0;
+            el.textContent = perf.count > 0 ? `${isProfit ? '+' : ''}${perf.pct.toFixed(1)}%` : '-';
+            el.className = `perf-value ${perf.count > 0 ? (isProfit ? 'profit' : 'loss') : ''}`;
+        }
+
+        function renderRecentAssets() {
+            const container = document.getElementById('recentAssets');
+
+            if (portfolio.length === 0) {
+                container.innerHTML = '<div class="empty-state"><p>Henüz varlık eklenmedi.</p></div>';
+                return;
+            }
+
+            // Sort by addedAt (most recent first), take last 5
+            const recent = [...portfolio]
+                .sort((a, b) => (b.addedAt || 0) - (a.addedAt || 0))
+                .slice(0, 5);
+
+            container.innerHTML = recent.map((asset, i) => {
+                const value = calcValue(asset);
+                const cost = calcCost(asset);
+                const pl = value - cost;
+                const plPct = cost > 0 ? (pl / cost) * 100 : 0;
+                const isPl = pl >= 0;
+
+                const dateStr = asset.purchaseDate ?
+                    new Date(asset.purchaseDate).toLocaleDateString('tr-TR', { day: 'numeric', month: 'short' }) :
+                    '-';
+
+                return `
+                    <div class="asset-card" onclick="editAsset('${asset.id}')" style="animation-delay: ${i * 0.03}s">
+                        <div class="asset-icon ${asset.type}">${getIconContent(asset)}</div>
+                        <div class="asset-info">
+                            <div class="asset-name">${asset.name || asset.symbol}</div>
+                            <div class="asset-details">${asset.symbol} • ${dateStr}</div>
+                        </div>
+                        <div class="asset-values">
+                            <div class="asset-total">${formatCur(value)}</div>
+                            <div class="asset-change ${isPl ? 'profit' : 'loss'}">
+                                <i class="fas fa-arrow-${isPl ? 'up' : 'down'}"></i>
+                                ${isPl ? '+' : ''}${plPct.toFixed(1)}%
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
         }
 
         function renderPieChart(byType, totalValue) {
@@ -1892,12 +2459,20 @@
         }
 
         function resetForm() {
-            ['symbolInput', 'nameInput', 'amountInput', 'buyPriceInput', 'currentPriceInput', 'interestInput'].forEach(id => {
+            ['symbolInput', 'amountInput', 'buyPriceInput', 'currentPriceInput', 'interestInput', 'durationInput'].forEach(id => {
                 document.getElementById(id).value = '';
             });
+            // Set today as default purchase date
+            document.getElementById('purchaseDateInput').value = new Date().toISOString().split('T')[0];
             document.querySelectorAll('.type-btn').forEach(btn => {
                 btn.classList.toggle('active', btn.dataset.type === 'bist');
             });
+
+            // Reset validation
+            validatedSymbol = null;
+            document.getElementById('symbolValidation').className = 'symbol-validation';
+            document.getElementById('interestPreview').className = 'interest-preview';
+
             renderSuggestions();
         }
 
@@ -1906,6 +2481,13 @@
             document.querySelectorAll('.type-btn').forEach(btn => {
                 btn.classList.toggle('active', btn.dataset.type === type);
             });
+
+            // Reset validation when type changes
+            validatedSymbol = null;
+            document.getElementById('symbolValidation').className = 'symbol-validation';
+            document.getElementById('symbolInput').value = '';
+            document.getElementById('interestPreview').className = 'interest-preview';
+
             updateFormForType();
             renderSuggestions();
         }
@@ -1942,22 +2524,169 @@
 
         function selectSuggestion(symbol, name) {
             document.getElementById('symbolInput').value = symbol;
-            document.getElementById('nameInput').value = name;
+            validatedSymbol = { symbol, name, valid: true };
+            showSymbolValidation(true, name);
+        }
+
+        // ========== SYMBOL VALIDATION ==========
+        let validatedSymbol = null;
+        let validationTimeout = null;
+
+        function validateSymbol() {
+            const symbol = document.getElementById('symbolInput').value.trim().toUpperCase();
+            const validationEl = document.getElementById('symbolValidation');
+
+            if (!symbol) {
+                validationEl.className = 'symbol-validation';
+                validatedSymbol = null;
+                return;
+            }
+
+            // Check in suggestions first (instant validation)
+            const suggestions = SUGGESTIONS[selectedType] || [];
+            const found = suggestions.find(s => s.s === symbol);
+
+            if (found) {
+                validatedSymbol = { symbol: found.s, name: found.n, valid: true };
+                showSymbolValidation(true, found.n);
+                return;
+            }
+
+            // For deposit and cash, only allow predefined symbols
+            if (selectedType === 'deposit' || selectedType === 'cash') {
+                validatedSymbol = null;
+                showSymbolValidation(false, 'Geçersiz sembol. Önerilerden seçin.');
+                return;
+            }
+
+            // For stocks/ETF, try to validate via API (debounced)
+            clearTimeout(validationTimeout);
+            validationEl.className = 'symbol-validation loading';
+            validationEl.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <span>Kontrol ediliyor...</span>';
+
+            validationTimeout = setTimeout(() => {
+                validateSymbolViaAPI(symbol);
+            }, 500);
+        }
+
+        async function validateSymbolViaAPI(symbol) {
+            const validationEl = document.getElementById('symbolValidation');
+
+            try {
+                // Try to fetch price - if successful, symbol is valid
+                const price = await fetchPrice(symbol, selectedType);
+
+                if (price !== null) {
+                    // Try to get company name from Yahoo Finance
+                    const name = await fetchCompanyName(symbol, selectedType);
+                    validatedSymbol = { symbol, name: name || symbol, valid: true };
+                    showSymbolValidation(true, name || symbol);
+                } else {
+                    validatedSymbol = null;
+                    showSymbolValidation(false, 'Sembol bulunamadı. Kodu kontrol edin.');
+                }
+            } catch (e) {
+                validatedSymbol = null;
+                showSymbolValidation(false, 'Doğrulama hatası. Tekrar deneyin.');
+            }
+        }
+
+        async function fetchCompanyName(symbol, type) {
+            try {
+                let yahooSymbol = symbol;
+                if (type === 'bist') yahooSymbol = `${symbol}.IS`;
+
+                const url = `${API_CONFIG.corsProxy}${encodeURIComponent(API_CONFIG.yahooFinance + yahooSymbol)}`;
+                const response = await fetch(url, { signal: AbortSignal.timeout(5000) });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    const meta = data?.chart?.result?.[0]?.meta;
+                    if (meta?.shortName || meta?.longName) {
+                        return meta.shortName || meta.longName;
+                    }
+                }
+            } catch (e) {
+                console.log('Name fetch error:', e.message);
+            }
+            return null;
+        }
+
+        function showSymbolValidation(isValid, message) {
+            const validationEl = document.getElementById('symbolValidation');
+            if (isValid) {
+                validationEl.className = 'symbol-validation valid';
+                validationEl.innerHTML = `<i class="fas fa-check-circle"></i> <span>${message}</span>`;
+            } else {
+                validationEl.className = 'symbol-validation invalid';
+                validationEl.innerHTML = `<i class="fas fa-exclamation-circle"></i> <span>${message}</span>`;
+            }
+        }
+
+        // ========== INTEREST CALCULATION ==========
+        function updateInterestPreview() {
+            const preview = document.getElementById('interestPreview');
+            const principal = parseFloat(document.getElementById('amountInput').value) || 0;
+            const rate = parseFloat(document.getElementById('interestInput').value) || 0;
+            const days = parseInt(document.getElementById('durationInput').value) || 0;
+            const startDate = document.getElementById('purchaseDateInput').value;
+
+            if (principal > 0 && rate > 0 && days > 0) {
+                const interest = principal * (rate / 100) * (days / 365);
+                const total = principal + interest;
+
+                let maturityStr = '-';
+                if (startDate) {
+                    const maturity = new Date(startDate);
+                    maturity.setDate(maturity.getDate() + days);
+                    maturityStr = maturity.toLocaleDateString('tr-TR', { day: 'numeric', month: 'short', year: 'numeric' });
+                }
+
+                preview.className = 'interest-preview show';
+                preview.innerHTML = `
+                    <div class="preview-row">
+                        <span class="preview-label">Anapara:</span>
+                        <span>${formatCur(principal)}</span>
+                    </div>
+                    <div class="preview-row">
+                        <span class="preview-label">Faiz Geliri:</span>
+                        <span style="color: var(--profit);">+${formatCur(interest)}</span>
+                    </div>
+                    <div class="preview-row">
+                        <span class="preview-label">Vade Tarihi:</span>
+                        <span>${maturityStr}</span>
+                    </div>
+                    <div class="preview-row">
+                        <span class="preview-label">Vade Sonu Toplam:</span>
+                        <span>${formatCur(total)}</span>
+                    </div>
+                `;
+            } else {
+                preview.className = 'interest-preview';
+            }
         }
 
         // ========== SAVE ASSET ==========
         function saveAsset() {
             const symbol = document.getElementById('symbolInput').value.trim().toUpperCase();
-            const name = document.getElementById('nameInput').value.trim();
             const amount = parseFloat(document.getElementById('amountInput').value);
             const buyPrice = parseFloat(document.getElementById('buyPriceInput').value);
             const currentPrice = parseFloat(document.getElementById('currentPriceInput').value);
             const interest = parseFloat(document.getElementById('interestInput').value) || 0;
+            const duration = parseInt(document.getElementById('durationInput').value) || 0;
 
+            // Validate symbol
             if (!symbol) {
                 showToast('Lütfen sembol girin!', 'error');
                 return;
             }
+
+            // Check if symbol is validated (except for editing existing assets)
+            if (!editingId && !validatedSymbol) {
+                showToast('Lütfen geçerli bir sembol seçin!', 'error');
+                return;
+            }
+
             if (!amount || amount <= 0) {
                 showToast('Lütfen geçerli miktar girin!', 'error');
                 return;
@@ -1971,6 +2700,17 @@
                 return;
             }
 
+            // For deposits, require duration
+            if (selectedType === 'deposit' && (!duration || duration <= 0)) {
+                showToast('Lütfen vade süresini girin!', 'error');
+                return;
+            }
+
+            const purchaseDate = document.getElementById('purchaseDateInput').value || new Date().toISOString().split('T')[0];
+
+            // Get name from validation or existing asset
+            const name = validatedSymbol?.name || (editingId ? portfolio.find(a => a.id === editingId)?.name : symbol);
+
             const asset = {
                 id: editingId || Date.now().toString(),
                 type: selectedType,
@@ -1979,7 +2719,10 @@
                 amount: amount,
                 buyPrice: buyPrice || 1,
                 currentPrice: currentPrice || buyPrice || 1,
-                interestRate: interest
+                interestRate: interest,
+                duration: duration,
+                purchaseDate: purchaseDate,
+                addedAt: editingId ? (portfolio.find(a => a.id === editingId)?.addedAt || Date.now()) : Date.now()
             };
 
             if (editingId) {
@@ -2016,11 +2759,21 @@
             renderSuggestions();
 
             document.getElementById('symbolInput').value = asset.symbol;
-            document.getElementById('nameInput').value = asset.name || '';
             document.getElementById('amountInput').value = asset.amount;
             document.getElementById('buyPriceInput').value = asset.buyPrice;
             document.getElementById('currentPriceInput').value = asset.currentPrice;
             document.getElementById('interestInput').value = asset.interestRate || '';
+            document.getElementById('durationInput').value = asset.duration || '';
+            document.getElementById('purchaseDateInput').value = asset.purchaseDate || '';
+
+            // Set validation for existing asset
+            validatedSymbol = { symbol: asset.symbol, name: asset.name, valid: true };
+            showSymbolValidation(true, asset.name || asset.symbol);
+
+            // Update interest preview if deposit
+            if (asset.type === 'deposit') {
+                updateInterestPreview();
+            }
 
             document.getElementById('addModal').classList.add('active');
         }
@@ -2185,6 +2938,11 @@
         // Add haptic to buttons
         document.querySelectorAll('button, .asset-card, .category-pill, .suggestion-chip').forEach(el => {
             el.addEventListener('touchstart', haptic, { passive: true });
+        });
+
+        // Interest preview listeners
+        ['amountInput', 'interestInput', 'durationInput', 'purchaseDateInput'].forEach(id => {
+            document.getElementById(id).addEventListener('input', updateInterestPreview);
         });
 
         // Initialize
