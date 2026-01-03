@@ -2,8 +2,22 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Portföy Takip</title>
+
+    <!-- PWA Meta Tags -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Portföy">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#08080c" media="(prefers-color-scheme: dark)">
+    <meta name="theme-color" content="#f8fafc" media="(prefers-color-scheme: light)">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="msapplication-tap-highlight" content="no">
+
+    <!-- iOS Splash Screens -->
+    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect fill='%2310b981' width='100' height='100' rx='20'/><text x='50' y='65' font-size='50' text-anchor='middle' fill='white'>📊</text></svg>">
+
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -40,21 +54,46 @@
             padding: 0;
             box-sizing: border-box;
             -webkit-tap-highlight-color: transparent;
+            -webkit-touch-callout: none;
+        }
+
+        html {
+            height: 100%;
+            overflow: hidden;
         }
 
         body {
             font-family: 'Outfit', sans-serif;
             background: var(--bg-primary);
             color: var(--text-primary);
-            min-height: 100vh;
-            overflow-x: hidden;
+            height: 100%;
+            overflow: hidden;
+            overscroll-behavior: none;
+            -webkit-overflow-scrolling: touch;
+            position: fixed;
+            width: 100%;
+            /* Prevent text selection like native apps */
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        /* Allow text selection in inputs */
+        input, textarea {
+            -webkit-user-select: text;
+            user-select: text;
         }
 
         .app-container {
             max-width: 500px;
             margin: 0 auto;
             padding: 16px;
+            padding-top: max(16px, env(safe-area-inset-top));
             padding-bottom: 100px;
+            height: 100%;
+            overflow-y: auto;
+            overflow-x: hidden;
+            overscroll-behavior: contain;
+            -webkit-overflow-scrolling: touch;
         }
 
         /* Header */
@@ -527,11 +566,19 @@
             background: var(--bg-secondary);
             border-top: 1px solid var(--border);
             padding: 12px 20px;
-            padding-bottom: max(12px, env(safe-area-inset-bottom));
+            padding-bottom: max(16px, calc(env(safe-area-inset-bottom) + 8px));
             display: flex;
             justify-content: center;
             gap: 12px;
             z-index: 100;
+            /* iOS blur effect */
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            background: rgba(15, 15, 21, 0.85);
+        }
+
+        .light .bottom-nav {
+            background: rgba(255, 255, 255, 0.85);
         }
 
         .nav-btn {
@@ -568,10 +615,12 @@
             inset: 0;
             background: rgba(0,0,0,0.75);
             backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
             display: none;
             align-items: flex-end;
             justify-content: center;
             z-index: 200;
+            padding-bottom: env(safe-area-inset-bottom);
         }
 
         .modal-overlay.active {
@@ -583,9 +632,12 @@
             border-radius: 24px 24px 0 0;
             width: 100%;
             max-width: 500px;
-            max-height: 92vh;
+            max-height: calc(92vh - env(safe-area-inset-top));
             overflow-y: auto;
-            animation: slideUp 0.3s ease-out;
+            overflow-x: hidden;
+            overscroll-behavior: contain;
+            -webkit-overflow-scrolling: touch;
+            animation: slideUp 0.3s cubic-bezier(0.32, 0.72, 0, 1);
         }
 
         @keyframes slideUp {
@@ -595,9 +647,8 @@
 
         .modal-header {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 20px 24px;
+            flex-direction: column;
+            padding: 12px 24px 16px;
             border-bottom: 1px solid var(--border);
             position: sticky;
             top: 0;
@@ -625,6 +676,16 @@
 
         .modal-body {
             padding: 24px;
+            padding-bottom: max(24px, calc(env(safe-area-inset-bottom) + 16px));
+        }
+
+        /* Modal drag handle */
+        .modal-handle {
+            width: 36px;
+            height: 5px;
+            background: var(--border);
+            border-radius: 3px;
+            margin: 0 auto 8px;
         }
 
         /* Form */
@@ -995,10 +1056,13 @@
     <div class="modal-overlay" id="addModal">
         <div class="modal">
             <div class="modal-header">
-                <h3 class="modal-title" id="modalTitle">Varlık Ekle</h3>
-                <button class="modal-close" onclick="closeModal()">
-                    <i class="fas fa-times"></i>
-                </button>
+                <div class="modal-handle"></div>
+                <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                    <h3 class="modal-title" id="modalTitle">Varlık Ekle</h3>
+                    <button class="modal-close" onclick="closeModal()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
             </div>
             <div class="modal-body">
                 <!-- Type Selection -->
@@ -1714,6 +1778,59 @@
             toast.classList.add('show');
             setTimeout(() => toast.classList.remove('show'), 2500);
         }
+
+        // ========== PWA / NATIVE APP BEHAVIOR ==========
+
+        // Prevent pull-to-refresh - handled by CSS overscroll-behavior
+
+        // Prevent double-tap zoom
+        let lastTouchEnd = 0;
+        document.addEventListener('touchend', function(e) {
+            const now = Date.now();
+            if (now - lastTouchEnd <= 300) {
+                e.preventDefault();
+            }
+            lastTouchEnd = now;
+        }, { passive: false });
+
+        // Prevent pinch zoom
+        document.addEventListener('gesturestart', function(e) {
+            e.preventDefault();
+        });
+
+        // Handle keyboard on iOS - scroll input into view
+        document.querySelectorAll('input').forEach(input => {
+            input.addEventListener('focus', function() {
+                setTimeout(() => {
+                    this.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }, 300);
+            });
+        });
+
+        // Close modal on backdrop tap
+        document.getElementById('addModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+
+        document.getElementById('confirmModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeConfirm();
+            }
+        });
+
+        // Haptic feedback simulation (vibration if supported)
+        function haptic() {
+            if (navigator.vibrate) {
+                navigator.vibrate(10);
+            }
+        }
+
+        // Add haptic to buttons
+        document.querySelectorAll('button, .asset-card, .category-pill, .suggestion-chip').forEach(el => {
+            el.addEventListener('touchstart', haptic, { passive: true });
+        });
 
         // Initialize
         init();
