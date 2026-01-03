@@ -1,1722 +1,1722 @@
-+    1 <!DOCTYPE html>
-+    2 <html lang="tr">
-+    3 <head>
-+    4     <meta charset="UTF-8">
-+    5     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-+    6     <title>Portföy Takip</title>
-+    7     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-+    8     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-+    9     <style>
-+   10         :root {
-+   11             --bg-primary: #08080c;
-+   12             --bg-secondary: #0f0f15;
-+   13             --bg-card: #16161f;
-+   14             --bg-input: #1e1e2a;
-+   15             --text-primary: #f5f5f8;
-+   16             --text-secondary: #7a7a8c;
-+   17             --accent: #10b981;
-+   18             --accent-light: #34d399;
-+   19             --accent-glow: rgba(16, 185, 129, 0.25);
-+   20             --profit: #10b981;
-+   21             --loss: #ef4444;
-+   22             --warning: #f59e0b;
-+   23             --border: rgba(255,255,255,0.06);
-+   24             --shadow: 0 8px 32px rgba(0,0,0,0.5);
-+   25         }
-+   26 
-+   27         .light {
-+   28             --bg-primary: #f8fafc;
-+   29             --bg-secondary: #ffffff;
-+   30             --bg-card: #ffffff;
-+   31             --bg-input: #f1f5f9;
-+   32             --text-primary: #0f172a;
-+   33             --text-secondary: #64748b;
-+   34             --border: rgba(0,0,0,0.06);
-+   35             --shadow: 0 8px 32px rgba(0,0,0,0.08);
-+   36         }
-+   37 
-+   38         * {
-+   39             margin: 0;
-+   40             padding: 0;
-+   41             box-sizing: border-box;
-+   42             -webkit-tap-highlight-color: transparent;
-+   43         }
-+   44 
-+   45         body {
-+   46             font-family: 'Outfit', sans-serif;
-+   47             background: var(--bg-primary);
-+   48             color: var(--text-primary);
-+   49             min-height: 100vh;
-+   50             overflow-x: hidden;
-+   51         }
-+   52 
-+   53         .app-container {
-+   54             max-width: 500px;
-+   55             margin: 0 auto;
-+   56             padding: 16px;
-+   57             padding-bottom: 100px;
-+   58         }
-+   59 
-+   60         /* Header */
-+   61         .header {
-+   62             display: flex;
-+   63             justify-content: space-between;
-+   64             align-items: center;
-+   65             margin-bottom: 20px;
-+   66             padding: 8px 0;
-+   67         }
-+   68 
-+   69         .logo {
-+   70             display: flex;
-+   71             align-items: center;
-+   72             gap: 12px;
-+   73         }
-+   74 
-+   75         .logo-icon {
-+   76             width: 44px;
-+   77             height: 44px;
-+   78             background: linear-gradient(135deg, var(--accent), var(--accent-light));
-+   79             border-radius: 14px;
-+   80             display: flex;
-+   81             align-items: center;
-+   82             justify-content: center;
-+   83             font-size: 20px;
-+   84             color: #000;
-+   85             box-shadow: 0 4px 20px var(--accent-glow);
-+   86         }
-+   87 
-+   88         .logo-text {
-+   89             font-size: 24px;
-+   90             font-weight: 700;
-+   91             background: linear-gradient(135deg, var(--accent), var(--accent-light));
-+   92             -webkit-background-clip: text;
-+   93             -webkit-text-fill-color: transparent;
-+   94             background-clip: text;
-+   95         }
-+   96 
-+   97         .header-actions {
-+   98             display: flex;
-+   99             gap: 10px;
-+  100         }
-+  101 
-+  102         .icon-btn {
-+  103             width: 44px;
-+  104             height: 44px;
-+  105             border-radius: 12px;
-+  106             border: 1px solid var(--border);
-+  107             background: var(--bg-card);
-+  108             color: var(--text-secondary);
-+  109             display: flex;
-+  110             align-items: center;
-+  111             justify-content: center;
-+  112             cursor: pointer;
-+  113             transition: all 0.2s;
-+  114             font-size: 16px;
-+  115         }
-+  116 
-+  117         .icon-btn:hover, .icon-btn:active {
-+  118             border-color: var(--accent);
-+  119             color: var(--accent);
-+  120             transform: scale(0.95);
-+  121         }
-+  122 
-+  123         .icon-btn.refreshing i {
-+  124             animation: spin 1s linear infinite;
-+  125         }
-+  126 
-+  127         @keyframes spin {
-+  128             from { transform: rotate(0deg); }
-+  129             to { transform: rotate(360deg); }
-+  130         }
-+  131 
-+  132         /* Tab Navigation */
-+  133         .tab-nav {
-+  134             display: flex;
-+  135             background: var(--bg-card);
-+  136             border-radius: 14px;
-+  137             padding: 4px;
-+  138             margin-bottom: 20px;
-+  139             border: 1px solid var(--border);
-+  140         }
-+  141 
-+  142         .tab-btn {
-+  143             flex: 1;
-+  144             padding: 12px 16px;
-+  145             border: none;
-+  146             background: transparent;
-+  147             color: var(--text-secondary);
-+  148             font-family: inherit;
-+  149             font-size: 14px;
-+  150             font-weight: 600;
-+  151             border-radius: 10px;
-+  152             cursor: pointer;
-+  153             transition: all 0.2s;
-+  154             display: flex;
-+  155             align-items: center;
-+  156             justify-content: center;
-+  157             gap: 8px;
-+  158         }
-+  159 
-+  160         .tab-btn.active {
-+  161             background: var(--accent);
-+  162             color: #000;
-+  163         }
-+  164 
-+  165         .tab-content {
-+  166             display: none;
-+  167         }
-+  168 
-+  169         .tab-content.active {
-+  170             display: block;
-+  171         }
-+  172 
-+  173         /* Summary Card */
-+  174         .summary-card {
-+  175             background: linear-gradient(135deg, var(--bg-card), var(--bg-secondary));
-+  176             border-radius: 20px;
-+  177             padding: 24px;
-+  178             border: 1px solid var(--border);
-+  179             margin-bottom: 20px;
-+  180             position: relative;
-+  181             overflow: hidden;
-+  182         }
-+  183 
-+  184         .summary-card::before {
-+  185             content: '';
-+  186             position: absolute;
-+  187             top: -50%;
-+  188             right: -50%;
-+  189             width: 200px;
-+  190             height: 200px;
-+  191             background: radial-gradient(circle, var(--accent-glow), transparent);
-+  192             opacity: 0.6;
-+  193         }
-+  194 
-+  195         .summary-label {
-+  196             font-size: 13px;
-+  197             color: var(--text-secondary);
-+  198             margin-bottom: 6px;
-+  199             font-weight: 500;
-+  200         }
-+  201 
-+  202         .summary-value {
-+  203             font-family: 'JetBrains Mono', monospace;
-+  204             font-size: 32px;
-+  205             font-weight: 700;
-+  206             margin-bottom: 12px;
-+  207             position: relative;
-+  208         }
-+  209 
-+  210         .summary-stats {
-+  211             display: flex;
-+  212             gap: 16px;
-+  213             flex-wrap: wrap;
-+  214         }
-+  215 
-+  216         .stat-badge {
-+  217             display: inline-flex;
-+  218             align-items: center;
-+  219             gap: 6px;
-+  220             padding: 8px 14px;
-+  221             border-radius: 10px;
-+  222             font-size: 13px;
-+  223             font-weight: 600;
-+  224         }
-+  225 
-+  226         .stat-badge.profit {
-+  227             background: rgba(16, 185, 129, 0.15);
-+  228             color: var(--profit);
-+  229         }
-+  230 
-+  231         .stat-badge.loss {
-+  232             background: rgba(239, 68, 68, 0.15);
-+  233             color: var(--loss);
-+  234         }
-+  235 
-+  236         .stat-badge.neutral {
-+  237             background: var(--bg-input);
-+  238             color: var(--text-secondary);
-+  239         }
-+  240 
-+  241         /* Performance Section */
-+  242         .performance-grid {
-+  243             display: grid;
-+  244             grid-template-columns: repeat(2, 1fr);
-+  245             gap: 12px;
-+  246             margin-bottom: 20px;
-+  247         }
-+  248 
-+  249         .perf-card {
-+  250             background: var(--bg-card);
-+  251             border-radius: 16px;
-+  252             padding: 16px;
-+  253             border: 1px solid var(--border);
-+  254         }
-+  255 
-+  256         .perf-card.full {
-+  257             grid-column: 1 / -1;
-+  258         }
-+  259 
-+  260         .perf-title {
-+  261             font-size: 12px;
-+  262             color: var(--text-secondary);
-+  263             margin-bottom: 8px;
-+  264             font-weight: 500;
-+  265             text-transform: uppercase;
-+  266             letter-spacing: 0.5px;
-+  267         }
-+  268 
-+  269         .perf-value {
-+  270             font-family: 'JetBrains Mono', monospace;
-+  271             font-size: 20px;
-+  272             font-weight: 600;
-+  273         }
-+  274 
-+  275         .perf-value.profit { color: var(--profit); }
-+  276         .perf-value.loss { color: var(--loss); }
-+  277 
-+  278         /* Pie Chart */
-+  279         .chart-container {
-+  280             position: relative;
-+  281             width: 100%;
-+  282             padding-top: 20px;
-+  283         }
-+  284 
-+  285         .pie-chart {
-+  286             width: 180px;
-+  287             height: 180px;
-+  288             margin: 0 auto 20px;
-+  289             border-radius: 50%;
-+  290             position: relative;
-+  291         }
-+  292 
-+  293         .pie-center {
-+  294             position: absolute;
-+  295             top: 50%;
-+  296             left: 50%;
-+  297             transform: translate(-50%, -50%);
-+  298             width: 100px;
-+  299             height: 100px;
-+  300             background: var(--bg-card);
-+  301             border-radius: 50%;
-+  302             display: flex;
-+  303             flex-direction: column;
-+  304             align-items: center;
-+  305             justify-content: center;
-+  306         }
-+  307 
-+  308         .pie-center-label {
-+  309             font-size: 11px;
-+  310             color: var(--text-secondary);
-+  311         }
-+  312 
-+  313         .pie-center-value {
-+  314             font-size: 14px;
-+  315             font-weight: 700;
-+  316         }
-+  317 
-+  318         .chart-legend {
-+  319             display: flex;
-+  320             flex-wrap: wrap;
-+  321             gap: 8px;
-+  322             justify-content: center;
-+  323         }
-+  324 
-+  325         .legend-item {
-+  326             display: flex;
-+  327             align-items: center;
-+  328             gap: 6px;
-+  329             font-size: 12px;
-+  330             padding: 6px 10px;
-+  331             background: var(--bg-input);
-+  332             border-radius: 8px;
-+  333         }
-+  334 
-+  335         .legend-color {
-+  336             width: 10px;
-+  337             height: 10px;
-+  338             border-radius: 3px;
-+  339         }
-+  340 
-+  341         /* Category Pills */
-+  342         .category-scroll {
-+  343             display: flex;
-+  344             gap: 8px;
-+  345             overflow-x: auto;
-+  346             padding: 4px 0 12px;
-+  347             scrollbar-width: none;
-+  348             -ms-overflow-style: none;
-+  349         }
-+  350 
-+  351         .category-scroll::-webkit-scrollbar {
-+  352             display: none;
-+  353         }
-+  354 
-+  355         .category-pill {
-+  356             flex-shrink: 0;
-+  357             padding: 10px 16px;
-+  358             border-radius: 12px;
-+  359             border: 1px solid var(--border);
-+  360             background: var(--bg-card);
-+  361             color: var(--text-secondary);
-+  362             font-size: 13px;
-+  363             font-weight: 500;
-+  364             cursor: pointer;
-+  365             transition: all 0.2s;
-+  366             display: flex;
-+  367             align-items: center;
-+  368             gap: 6px;
-+  369         }
-+  370 
-+  371         .category-pill.active {
-+  372             background: var(--accent);
-+  373             color: #000;
-+  374             border-color: var(--accent);
-+  375         }
-+  376 
-+  377         /* Asset List */
-+  378         .section-header {
-+  379             display: flex;
-+  380             justify-content: space-between;
-+  381             align-items: center;
-+  382             margin-bottom: 14px;
-+  383         }
-+  384 
-+  385         .section-title {
-+  386             font-size: 16px;
-+  387             font-weight: 600;
-+  388         }
-+  389 
-+  390         .asset-count {
-+  391             font-size: 12px;
-+  392             color: var(--text-secondary);
-+  393             background: var(--bg-input);
-+  394             padding: 4px 10px;
-+  395             border-radius: 8px;
-+  396         }
-+  397 
-+  398         .asset-list {
-+  399             display: flex;
-+  400             flex-direction: column;
-+  401             gap: 10px;
-+  402         }
-+  403 
-+  404         .asset-card {
-+  405             background: var(--bg-card);
-+  406             border-radius: 14px;
-+  407             padding: 14px 16px;
-+  408             border: 1px solid var(--border);
-+  409             display: flex;
-+  410             align-items: center;
-+  411             gap: 12px;
-+  412             cursor: pointer;
-+  413             transition: all 0.2s;
-+  414             animation: fadeIn 0.3s ease-out;
-+  415         }
-+  416 
-+  417         @keyframes fadeIn {
-+  418             from { opacity: 0; transform: translateY(8px); }
-+  419             to { opacity: 1; transform: translateY(0); }
-+  420         }
-+  421 
-+  422         .asset-card:active {
-+  423             transform: scale(0.98);
-+  424         }
-+  425 
-+  426         .asset-icon {
-+  427             width: 44px;
-+  428             height: 44px;
-+  429             border-radius: 12px;
-+  430             display: flex;
-+  431             align-items: center;
-+  432             justify-content: center;
-+  433             font-size: 14px;
-+  434             font-weight: 700;
-+  435             flex-shrink: 0;
-+  436         }
-+  437 
-+  438         .asset-icon.bist { background: linear-gradient(135deg, #ef4444, #dc2626); color: #fff; }
-+  439         .asset-icon.us { background: linear-gradient(135deg, #3b82f6, #2563eb); color: #fff; }
-+  440         .asset-icon.etf { background: linear-gradient(135deg, #8b5cf6, #7c3aed); color: #fff; }
-+  441         .asset-icon.viop { background: linear-gradient(135deg, #f97316, #ea580c); color: #fff; }
-+  442         .asset-icon.gold { background: linear-gradient(135deg, #fbbf24, #f59e0b); color: #000; }
-+  443         .asset-icon.silver { background: linear-gradient(135deg, #9ca3af, #6b7280); color: #fff; }
-+  444         .asset-icon.deposit { background: linear-gradient(135deg, #10b981, #059669); color: #fff; }
-+  445         .asset-icon.cash { background: linear-gradient(135deg, #6366f1, #4f46e5); color: #fff; }
-+  446 
-+  447         .asset-info {
-+  448             flex: 1;
-+  449             min-width: 0;
-+  450         }
-+  451 
-+  452         .asset-name {
-+  453             font-size: 14px;
-+  454             font-weight: 600;
-+  455             margin-bottom: 3px;
-+  456             white-space: nowrap;
-+  457             overflow: hidden;
-+  458             text-overflow: ellipsis;
-+  459         }
-+  460 
-+  461         .asset-details {
-+  462             font-size: 12px;
-+  463             color: var(--text-secondary);
-+  464         }
-+  465 
-+  466         .asset-values {
-+  467             text-align: right;
-+  468         }
-+  469 
-+  470         .asset-total {
-+  471             font-family: 'JetBrains Mono', monospace;
-+  472             font-size: 14px;
-+  473             font-weight: 600;
-+  474             margin-bottom: 3px;
-+  475         }
-+  476 
-+  477         .asset-change {
-+  478             font-size: 12px;
-+  479             font-weight: 500;
-+  480             display: flex;
-+  481             align-items: center;
-+  482             justify-content: flex-end;
-+  483             gap: 4px;
-+  484         }
-+  485 
-+  486         .asset-change.profit { color: var(--profit); }
-+  487         .asset-change.loss { color: var(--loss); }
-+  488 
-+  489         /* Empty State */
-+  490         .empty-state {
-+  491             text-align: center;
-+  492             padding: 50px 20px;
-+  493             color: var(--text-secondary);
-+  494         }
-+  495 
-+  496         .empty-state i {
-+  497             font-size: 48px;
-+  498             margin-bottom: 16px;
-+  499             opacity: 0.4;
-+  500         }
-+  501 
-+  502         .empty-state p {
-+  503             font-size: 14px;
-+  504             line-height: 1.6;
-+  505         }
-+  506 
-+  507         /* Last Update */
-+  508         .last-update {
-+  509             text-align: center;
-+  510             font-size: 11px;
-+  511             color: var(--text-secondary);
-+  512             margin-top: 16px;
-+  513             display: flex;
-+  514             align-items: center;
-+  515             justify-content: center;
-+  516             gap: 6px;
-+  517         }
-+  518 
-+  519         .last-update i { color: var(--accent); }
-+  520 
-+  521         /* Bottom Nav */
-+  522         .bottom-nav {
-+  523             position: fixed;
-+  524             bottom: 0;
-+  525             left: 0;
-+  526             right: 0;
-+  527             background: var(--bg-secondary);
-+  528             border-top: 1px solid var(--border);
-+  529             padding: 12px 20px;
-+  530             padding-bottom: max(12px, env(safe-area-inset-bottom));
-+  531             display: flex;
-+  532             justify-content: center;
-+  533             gap: 12px;
-+  534             z-index: 100;
-+  535         }
-+  536 
-+  537         .nav-btn {
-+  538             flex: 1;
-+  539             max-width: 160px;
-+  540             padding: 14px 20px;
-+  541             border-radius: 14px;
-+  542             border: none;
-+  543             background: var(--bg-input);
-+  544             color: var(--text-secondary);
-+  545             font-family: inherit;
-+  546             font-size: 14px;
-+  547             font-weight: 600;
-+  548             cursor: pointer;
-+  549             transition: all 0.2s;
-+  550             display: flex;
-+  551             align-items: center;
-+  552             justify-content: center;
-+  553             gap: 8px;
-+  554         }
-+  555 
-+  556         .nav-btn.primary {
-+  557             background: var(--accent);
-+  558             color: #000;
-+  559         }
-+  560 
-+  561         .nav-btn:active {
-+  562             transform: scale(0.96);
-+  563         }
-+  564 
-+  565         /* Modal */
-+  566         .modal-overlay {
-+  567             position: fixed;
-+  568             inset: 0;
-+  569             background: rgba(0,0,0,0.75);
-+  570             backdrop-filter: blur(8px);
-+  571             display: none;
-+  572             align-items: flex-end;
-+  573             justify-content: center;
-+  574             z-index: 200;
-+  575         }
-+  576 
-+  577         .modal-overlay.active {
-+  578             display: flex;
-+  579         }
-+  580 
-+  581         .modal {
-+  582             background: var(--bg-secondary);
-+  583             border-radius: 24px 24px 0 0;
-+  584             width: 100%;
-+  585             max-width: 500px;
-+  586             max-height: 92vh;
-+  587             overflow-y: auto;
-+  588             animation: slideUp 0.3s ease-out;
-+  589         }
-+  590 
-+  591         @keyframes slideUp {
-+  592             from { transform: translateY(100%); }
-+  593             to { transform: translateY(0); }
-+  594         }
-+  595 
-+  596         .modal-header {
-+  597             display: flex;
-+  598             justify-content: space-between;
-+  599             align-items: center;
-+  600             padding: 20px 24px;
-+  601             border-bottom: 1px solid var(--border);
-+  602             position: sticky;
-+  603             top: 0;
-+  604             background: var(--bg-secondary);
-+  605             z-index: 10;
-+  606         }
-+  607 
-+  608         .modal-title {
-+  609             font-size: 18px;
-+  610             font-weight: 600;
-+  611         }
-+  612 
-+  613         .modal-close {
-+  614             width: 36px;
-+  615             height: 36px;
-+  616             border-radius: 10px;
-+  617             border: none;
-+  618             background: var(--bg-input);
-+  619             color: var(--text-secondary);
-+  620             cursor: pointer;
-+  621             display: flex;
-+  622             align-items: center;
-+  623             justify-content: center;
-+  624         }
-+  625 
-+  626         .modal-body {
-+  627             padding: 24px;
-+  628         }
-+  629 
-+  630         /* Form */
-+  631         .form-group {
-+  632             margin-bottom: 18px;
-+  633         }
-+  634 
-+  635         .form-label {
-+  636             display: block;
-+  637             font-size: 13px;
-+  638             font-weight: 500;
-+  639             color: var(--text-secondary);
-+  640             margin-bottom: 8px;
-+  641         }
-+  642 
-+  643         .form-input {
-+  644             width: 100%;
-+  645             padding: 14px 16px;
-+  646             border-radius: 12px;
-+  647             border: 1px solid var(--border);
-+  648             background: var(--bg-input);
-+  649             color: var(--text-primary);
-+  650             font-family: inherit;
-+  651             font-size: 16px;
-+  652             transition: all 0.2s;
-+  653         }
-+  654 
-+  655         .form-input:focus {
-+  656             outline: none;
-+  657             border-color: var(--accent);
-+  658             box-shadow: 0 0 0 3px var(--accent-glow);
-+  659         }
-+  660 
-+  661         .form-input::placeholder {
-+  662             color: var(--text-secondary);
-+  663         }
-+  664 
-+  665         .form-row {
-+  666             display: grid;
-+  667             grid-template-columns: 1fr 1fr;
-+  668             gap: 12px;
-+  669         }
-+  670 
-+  671         .form-hint {
-+  672             font-size: 11px;
-+  673             color: var(--text-secondary);
-+  674             margin-top: 6px;
-+  675         }
-+  676 
-+  677         /* Type Grid */
-+  678         .type-grid {
-+  679             display: grid;
-+  680             grid-template-columns: repeat(4, 1fr);
-+  681             gap: 8px;
-+  682         }
-+  683 
-+  684         .type-btn {
-+  685             padding: 12px 6px;
-+  686             border-radius: 10px;
-+  687             border: 1px solid var(--border);
-+  688             background: var(--bg-input);
-+  689             color: var(--text-secondary);
-+  690             font-family: inherit;
-+  691             font-size: 10px;
-+  692             font-weight: 600;
-+  693             cursor: pointer;
-+  694             transition: all 0.2s;
-+  695             display: flex;
-+  696             flex-direction: column;
-+  697             align-items: center;
-+  698             gap: 5px;
-+  699         }
-+  700 
-+  701         .type-btn i { font-size: 16px; }
-+  702 
-+  703         .type-btn.active {
-+  704             background: var(--accent);
-+  705             color: #000;
-+  706             border-color: var(--accent);
-+  707         }
-+  708 
-+  709         /* Suggestions */
-+  710         .suggestions {
-+  711             display: flex;
-+  712             flex-wrap: wrap;
-+  713             gap: 6px;
-+  714             margin-top: 8px;
-+  715         }
-+  716 
-+  717         .suggestion-chip {
-+  718             padding: 6px 12px;
-+  719             border-radius: 8px;
-+  720             background: var(--bg-input);
-+  721             border: 1px solid var(--border);
-+  722             color: var(--text-secondary);
-+  723             font-size: 12px;
-+  724             cursor: pointer;
-+  725             transition: all 0.2s;
-+  726         }
-+  727 
-+  728         .suggestion-chip:hover {
-+  729             border-color: var(--accent);
-+  730             color: var(--accent);
-+  731         }
-+  732 
-+  733         /* Buttons */
-+  734         .submit-btn {
-+  735             width: 100%;
-+  736             padding: 16px;
-+  737             border-radius: 14px;
-+  738             border: none;
-+  739             background: var(--accent);
-+  740             color: #000;
-+  741             font-family: inherit;
-+  742             font-size: 16px;
-+  743             font-weight: 600;
-+  744             cursor: pointer;
-+  745             transition: all 0.2s;
-+  746         }
-+  747 
-+  748         .submit-btn:active {
-+  749             transform: scale(0.98);
-+  750         }
-+  751 
-+  752         .delete-btn {
-+  753             width: 100%;
-+  754             padding: 14px;
-+  755             border-radius: 14px;
-+  756             border: 1px solid var(--loss);
-+  757             background: transparent;
-+  758             color: var(--loss);
-+  759             font-family: inherit;
-+  760             font-size: 14px;
-+  761             font-weight: 500;
-+  762             cursor: pointer;
-+  763             margin-top: 12px;
-+  764         }
-+  765 
-+  766         /* Confirm Modal */
-+  767         .confirm-modal {
-+  768             position: fixed;
-+  769             inset: 0;
-+  770             background: rgba(0,0,0,0.75);
-+  771             backdrop-filter: blur(8px);
-+  772             display: none;
-+  773             align-items: center;
-+  774             justify-content: center;
-+  775             z-index: 300;
-+  776             padding: 20px;
-+  777         }
-+  778 
-+  779         .confirm-modal.active { display: flex; }
-+  780 
-+  781         .confirm-box {
-+  782             background: var(--bg-secondary);
-+  783             border-radius: 20px;
-+  784             padding: 28px;
-+  785             max-width: 320px;
-+  786             width: 100%;
-+  787             text-align: center;
-+  788         }
-+  789 
-+  790         .confirm-box h3 { margin-bottom: 12px; font-size: 18px; }
-+  791         .confirm-box p { color: var(--text-secondary); margin-bottom: 24px; font-size: 14px; }
-+  792 
-+  793         .confirm-actions {
-+  794             display: flex;
-+  795             gap: 12px;
-+  796         }
-+  797 
-+  798         .confirm-actions button {
-+  799             flex: 1;
-+  800             padding: 12px 16px;
-+  801             border-radius: 12px;
-+  802             font-family: inherit;
-+  803             font-size: 14px;
-+  804             font-weight: 500;
-+  805             cursor: pointer;
-+  806         }
-+  807 
-+  808         .confirm-cancel {
-+  809             background: var(--bg-input);
-+  810             border: 1px solid var(--border);
-+  811             color: var(--text-primary);
-+  812         }
-+  813 
-+  814         .confirm-delete {
-+  815             background: var(--loss);
-+  816             border: none;
-+  817             color: #fff;
-+  818         }
-+  819 
-+  820         /* Toast */
-+  821         .toast {
-+  822             position: fixed;
-+  823             top: 20px;
-+  824             left: 50%;
-+  825             transform: translateX(-50%) translateY(-100px);
-+  826             background: var(--bg-card);
-+  827             border: 1px solid var(--border);
-+  828             border-radius: 12px;
-+  829             padding: 14px 20px;
-+  830             z-index: 400;
-+  831             display: flex;
-+  832             align-items: center;
-+  833             gap: 10px;
-+  834             box-shadow: var(--shadow);
-+  835             transition: transform 0.3s ease;
-+  836         }
-+  837 
-+  838         .toast.show {
-+  839             transform: translateX(-50%) translateY(0);
-+  840         }
-+  841 
-+  842         .toast.success i { color: var(--profit); }
-+  843         .toast.error i { color: var(--loss); }
-+  844     </style>
-+  845 </head>
-+  846 <body>
-+  847     <div class="app-container">
-+  848         <!-- Header -->
-+  849         <div class="header">
-+  850             <div class="logo">
-+  851                 <div class="logo-icon"><i class="fas fa-chart-pie"></i></div>
-+  852                 <span class="logo-text">Portföy</span>
-+  853             </div>
-+  854             <div class="header-actions">
-+  855                 <button class="icon-btn" onclick="toggleTheme()" title="Tema">
-+  856                     <i class="fas fa-moon" id="themeIcon"></i>
-+  857                 </button>
-+  858                 <button class="icon-btn" id="refreshBtn" onclick="refreshPrices()" title="Güncelle">
-+  859                     <i class="fas fa-sync-alt"></i>
-+  860                 </button>
-+  861             </div>
-+  862         </div>
-+  863 
-+  864         <!-- Tab Navigation -->
-+  865         <div class="tab-nav">
-+  866             <button class="tab-btn active" onclick="switchTab('portfolio')">
-+  867                 <i class="fas fa-wallet"></i> Portföy
-+  868             </button>
-+  869             <button class="tab-btn" onclick="switchTab('performance')">
-+  870                 <i class="fas fa-chart-line"></i> Performans
-+  871             </button>
-+  872         </div>
-+  873 
-+  874         <!-- Portfolio Tab -->
-+  875         <div class="tab-content active" id="portfolioTab">
-+  876             <!-- Summary -->
-+  877             <div class="summary-card">
-+  878                 <div class="summary-label">Toplam Portföy Değeri</div>
-+  879                 <div class="summary-value" id="totalValue">₺0,00</div>
-+  880                 <div class="summary-stats">
-+  881                     <div class="stat-badge profit" id="totalProfit">
-+  882                         <i class="fas fa-arrow-up"></i>
-+  883                         <span>₺0 (0%)</span>
-+  884                     </div>
-+  885                     <div class="stat-badge neutral" id="totalCost">
-+  886                         <i class="fas fa-coins"></i>
-+  887                         <span>Maliyet: ₺0</span>
-+  888                     </div>
-+  889                 </div>
-+  890             </div>
-+  891 
-+  892             <!-- Category Filter -->
-+  893             <div class="category-scroll">
-+  894                 <button class="category-pill active" data-category="all" onclick="filterCategory('all')">
-+  895                     <i class="fas fa-layer-group"></i> Tümü
-+  896                 </button>
-+  897                 <button class="category-pill" data-category="bist" onclick="filterCategory('bist')">
-+  898                     <i class="fas fa-flag"></i> BIST
-+  899                 </button>
-+  900                 <button class="category-pill" data-category="us" onclick="filterCategory('us')">
-+  901                     <i class="fas fa-globe-americas"></i> ABD
-+  902                 </button>
-+  903                 <button class="category-pill" data-category="etf" onclick="filterCategory('etf')">
-+  904                     <i class="fas fa-cubes"></i> ETF
-+  905                 </button>
-+  906                 <button class="category-pill" data-category="viop" onclick="filterCategory('viop')">
-+  907                     <i class="fas fa-chart-bar"></i> VİOP
-+  908                 </button>
-+  909                 <button class="category-pill" data-category="gold" onclick="filterCategory('gold')">
-+  910                     <i class="fas fa-coins"></i> Altın
-+  911                 </button>
-+  912                 <button class="category-pill" data-category="silver" onclick="filterCategory('silver')">
-+  913                     <i class="fas fa-ring"></i> Gümüş
-+  914                 </button>
-+  915                 <button class="category-pill" data-category="deposit" onclick="filterCategory('deposit')">
-+  916                     <i class="fas fa-piggy-bank"></i> Faiz
-+  917                 </button>
-+  918                 <button class="category-pill" data-category="cash" onclick="filterCategory('cash')">
-+  919                     <i class="fas fa-money-bill"></i> Nakit
-+  920                 </button>
-+  921             </div>
-+  922 
-+  923             <!-- Asset List -->
-+  924             <div class="section-header">
-+  925                 <h2 class="section-title">Varlıklarım</h2>
-+  926                 <span class="asset-count" id="assetCount">0 varlık</span>
-+  927             </div>
-+  928             <div class="asset-list" id="assetList">
-+  929                 <div class="empty-state" id="emptyState">
-+  930                     <i class="fas fa-wallet"></i>
-+  931                     <p>Henüz varlık eklenmedi.<br>Başlamak için "Varlık Ekle" butonuna tıklayın.</p>
-+  932                 </div>
-+  933             </div>
-+  934             <div class="last-update" id="lastUpdate" style="display: none;">
-+  935                 <i class="fas fa-clock"></i>
-+  936                 <span>Son güncelleme: --:--</span>
-+  937             </div>
-+  938         </div>
-+  939 
-+  940         <!-- Performance Tab -->
-+  941         <div class="tab-content" id="performanceTab">
-+  942             <div class="performance-grid">
-+  943                 <div class="perf-card">
-+  944                     <div class="perf-title">Toplam Kar/Zarar</div>
-+  945                     <div class="perf-value profit" id="perfTotalPL">₺0</div>
-+  946                 </div>
-+  947                 <div class="perf-card">
-+  948                     <div class="perf-title">Getiri Oranı</div>
-+  949                     <div class="perf-value profit" id="perfReturn">%0</div>
-+  950                 </div>
-+  951                 <div class="perf-card">
-+  952                     <div class="perf-title">En Kârlı</div>
-+  953                     <div class="perf-value profit" id="perfBest">-</div>
-+  954                 </div>
-+  955                 <div class="perf-card">
-+  956                     <div class="perf-title">En Zararlı</div>
-+  957                     <div class="perf-value loss" id="perfWorst">-</div>
-+  958                 </div>
-+  959                 <div class="perf-card full">
-+  960                     <div class="perf-title">Varlık Dağılımı</div>
-+  961                     <div class="chart-container">
-+  962                         <div class="pie-chart" id="pieChart"></div>
-+  963                         <div class="chart-legend" id="chartLegend"></div>
-+  964                     </div>
-+  965                 </div>
-+  966                 <div class="perf-card">
-+  967                     <div class="perf-title">Toplam Maliyet</div>
-+  968                     <div class="perf-value" id="perfCost">₺0</div>
-+  969                 </div>
-+  970                 <div class="perf-card">
-+  971                     <div class="perf-title">Güncel Değer</div>
-+  972                     <div class="perf-value" id="perfValue">₺0</div>
-+  973                 </div>
-+  974             </div>
-+  975 
-+  976             <!-- Category Breakdown -->
-+  977             <div class="section-header">
-+  978                 <h2 class="section-title">Kategori Bazında</h2>
-+  979             </div>
-+  980             <div class="asset-list" id="categoryBreakdown"></div>
-+  981         </div>
-+  982     </div>
-+  983 
-+  984     <!-- Bottom Navigation -->
-+  985     <div class="bottom-nav">
-+  986         <button class="nav-btn" onclick="exportData()">
-+  987             <i class="fas fa-download"></i> Dışa Aktar
-+  988         </button>
-+  989         <button class="nav-btn primary" onclick="openAddModal()">
-+  990             <i class="fas fa-plus"></i> Varlık Ekle
-+  991         </button>
-+  992     </div>
-+  993 
-+  994     <!-- Add/Edit Modal -->
-+  995     <div class="modal-overlay" id="addModal">
-+  996         <div class="modal">
-+  997             <div class="modal-header">
-+  998                 <h3 class="modal-title" id="modalTitle">Varlık Ekle</h3>
-+  999                 <button class="modal-close" onclick="closeModal()">
-+ 1000                     <i class="fas fa-times"></i>
-+ 1001                 </button>
-+ 1002             </div>
-+ 1003             <div class="modal-body">
-+ 1004                 <!-- Type Selection -->
-+ 1005                 <div class="form-group">
-+ 1006                     <label class="form-label">Varlık Tipi</label>
-+ 1007                     <div class="type-grid">
-+ 1008                         <button type="button" class="type-btn active" data-type="bist" onclick="selectType('bist')">
-+ 1009                             <i class="fas fa-flag"></i> BIST
-+ 1010                         </button>
-+ 1011                         <button type="button" class="type-btn" data-type="us" onclick="selectType('us')">
-+ 1012                             <i class="fas fa-globe-americas"></i> ABD
-+ 1013                         </button>
-+ 1014                         <button type="button" class="type-btn" data-type="etf" onclick="selectType('etf')">
-+ 1015                             <i class="fas fa-cubes"></i> ETF
-+ 1016                         </button>
-+ 1017                         <button type="button" class="type-btn" data-type="viop" onclick="selectType('viop')">
-+ 1018                             <i class="fas fa-chart-bar"></i> VİOP
-+ 1019                         </button>
-+ 1020                         <button type="button" class="type-btn" data-type="gold" onclick="selectType('gold')">
-+ 1021                             <i class="fas fa-coins"></i> Altın
-+ 1022                         </button>
-+ 1023                         <button type="button" class="type-btn" data-type="silver" onclick="selectType('silver')">
-+ 1024                             <i class="fas fa-ring"></i> Gümüş
-+ 1025                         </button>
-+ 1026                         <button type="button" class="type-btn" data-type="deposit" onclick="selectType('deposit')">
-+ 1027                             <i class="fas fa-piggy-bank"></i> Faiz
-+ 1028                         </button>
-+ 1029                         <button type="button" class="type-btn" data-type="cash" onclick="selectType('cash')">
-+ 1030                             <i class="fas fa-money-bill"></i> Nakit
-+ 1031                         </button>
-+ 1032                     </div>
-+ 1033                 </div>
-+ 1034 
-+ 1035                 <!-- Symbol & Name -->
-+ 1036                 <div class="form-group" id="symbolGroup">
-+ 1037                     <div class="form-row">
-+ 1038                         <div>
-+ 1039                             <label class="form-label">Sembol</label>
-+ 1040                             <input type="text" class="form-input" id="symbolInput" placeholder="THYAO" style="text-transform: uppercase;">
-+ 1041                         </div>
-+ 1042                         <div>
-+ 1043                             <label class="form-label">İsim (Opsiyonel)</label>
-+ 1044                             <input type="text" class="form-input" id="nameInput" placeholder="Türk Hava Yolları">
-+ 1045                         </div>
-+ 1046                     </div>
-+ 1047                     <div class="suggestions" id="suggestions"></div>
-+ 1048                 </div>
-+ 1049 
-+ 1050                 <!-- Amount & Price -->
-+ 1051                 <div class="form-group">
-+ 1052                     <div class="form-row">
-+ 1053                         <div>
-+ 1054                             <label class="form-label" id="amountLabel">Adet</label>
-+ 1055                             <input type="number" class="form-input" id="amountInput" placeholder="100" step="any" min="0">
-+ 1056                         </div>
-+ 1057                         <div>
-+ 1058                             <label class="form-label" id="buyPriceLabel">Alış Fiyatı (₺)</label>
-+ 1059                             <input type="number" class="form-input" id="buyPriceInput" placeholder="150.00" step="any" min="0">
-+ 1060                         </div>
-+ 1061                     </div>
-+ 1062                 </div>
-+ 1063 
-+ 1064                 <!-- Current Price -->
-+ 1065                 <div class="form-group">
-+ 1066                     <label class="form-label" id="currentPriceLabel">Güncel Fiyat (₺)</label>
-+ 1067                     <input type="number" class="form-input" id="currentPriceInput" placeholder="165.00" step="any" min="0">
-+ 1068                     <p class="form-hint" id="priceHint">Güncel fiyatı girin. "Güncelle" butonuyla simüle edilir.</p>
-+ 1069                 </div>
-+ 1070 
-+ 1071                 <!-- Interest Rate (for deposit) -->
-+ 1072                 <div class="form-group" id="interestGroup" style="display: none;">
-+ 1073                     <label class="form-label">Faiz Oranı (%)</label>
-+ 1074                     <input type="number" class="form-input" id="interestInput" placeholder="45" step="any" min="0">
-+ 1075                 </div>
-+ 1076 
-+ 1077                 <button type="button" class="submit-btn" id="submitBtn" onclick="saveAsset()">
-+ 1078                     <i class="fas fa-plus"></i> Varlık Ekle
-+ 1079                 </button>
-+ 1080                 <button type="button" class="delete-btn" id="deleteBtn" style="display: none;" onclick="confirmDelete()">
-+ 1081                     <i class="fas fa-trash"></i> Varlığı Sil
-+ 1082                 </button>
-+ 1083             </div>
-+ 1084         </div>
-+ 1085     </div>
-+ 1086 
-+ 1087     <!-- Confirm Delete -->
-+ 1088     <div class="confirm-modal" id="confirmModal">
-+ 1089         <div class="confirm-box">
-+ 1090             <h3>Varlığı Sil</h3>
-+ 1091             <p>Bu varlığı silmek istediğinizden emin misiniz?</p>
-+ 1092             <div class="confirm-actions">
-+ 1093                 <button class="confirm-cancel" onclick="closeConfirm()">İptal</button>
-+ 1094                 <button class="confirm-delete" onclick="deleteAsset()">Sil</button>
-+ 1095             </div>
-+ 1096         </div>
-+ 1097     </div>
-+ 1098 
-+ 1099     <!-- Toast -->
-+ 1100     <div class="toast" id="toast">
-+ 1101         <i class="fas fa-check-circle"></i>
-+ 1102         <span id="toastText">İşlem başarılı!</span>
-+ 1103     </div>
-+ 1104 
-+ 1105     <script>
-+ 1106         // ========== SUGGESTIONS DATA ==========
-+ 1107         const SUGGESTIONS = {
-+ 1108             bist: [
-+ 1109                 { s: 'THYAO', n: 'Türk Hava Yolları' },
-+ 1110                 { s: 'GARAN', n: 'Garanti Bankası' },
-+ 1111                 { s: 'AKBNK', n: 'Akbank' },
-+ 1112                 { s: 'EREGL', n: 'Ereğli Demir Çelik' },
-+ 1113                 { s: 'KCHOL', n: 'Koç Holding' },
-+ 1114                 { s: 'SAHOL', n: 'Sabancı Holding' },
-+ 1115                 { s: 'TUPRS', n: 'Tüpraş' },
-+ 1116                 { s: 'SISE', n: 'Şişe Cam' },
-+ 1117                 { s: 'ASELS', n: 'Aselsan' },
-+ 1118                 { s: 'BIMAS', n: 'BİM Mağazalar' },
-+ 1119                 { s: 'FROTO', n: 'Ford Otosan' },
-+ 1120                 { s: 'TCELL', n: 'Turkcell' }
-+ 1121             ],
-+ 1122             us: [
-+ 1123                 { s: 'AAPL', n: 'Apple Inc.' },
-+ 1124                 { s: 'MSFT', n: 'Microsoft' },
-+ 1125                 { s: 'GOOGL', n: 'Alphabet (Google)' },
-+ 1126                 { s: 'AMZN', n: 'Amazon' },
-+ 1127                 { s: 'NVDA', n: 'NVIDIA' },
-+ 1128                 { s: 'TSLA', n: 'Tesla' },
-+ 1129                 { s: 'META', n: 'Meta (Facebook)' },
-+ 1130                 { s: 'JPM', n: 'JPMorgan Chase' },
-+ 1131                 { s: 'V', n: 'Visa' },
-+ 1132                 { s: 'NFLX', n: 'Netflix' },
-+ 1133                 { s: 'AMD', n: 'AMD' },
-+ 1134                 { s: 'DIS', n: 'Walt Disney' }
-+ 1135             ],
-+ 1136             etf: [
-+ 1137                 { s: 'SPY', n: 'S&P 500 ETF' },
-+ 1138                 { s: 'QQQ', n: 'Nasdaq 100 ETF' },
-+ 1139                 { s: 'VTI', n: 'Total Stock Market' },
-+ 1140                 { s: 'VOO', n: 'Vanguard S&P 500' },
-+ 1141                 { s: 'GLD', n: 'Gold ETF' },
-+ 1142                 { s: 'SLV', n: 'Silver ETF' },
-+ 1143                 { s: 'ARKK', n: 'ARK Innovation' },
-+ 1144                 { s: 'VNQ', n: 'Real Estate ETF' }
-+ 1145             ],
-+ 1146             viop: [
-+ 1147                 { s: 'F_XU030', n: 'BIST 30 Vadeli' },
-+ 1148                 { s: 'F_XU100', n: 'BIST 100 Vadeli' },
-+ 1149                 { s: 'F_USDTRY', n: 'Dolar/TL Vadeli' },
-+ 1150                 { s: 'F_EURTRY', n: 'Euro/TL Vadeli' },
-+ 1151                 { s: 'F_XAUTRY', n: 'Altın/TL Vadeli' }
-+ 1152             ],
-+ 1153             gold: [
-+ 1154                 { s: 'XAU', n: 'Gram Altın' },
-+ 1155                 { s: 'GAU', n: 'Çeyrek Altın' },
-+ 1156                 { s: 'TAU', n: 'Tam Altın' },
-+ 1157                 { s: 'CAU', n: 'Cumhuriyet Altını' },
-+ 1158                 { s: 'ONS', n: 'Ons Altın (USD)' }
-+ 1159             ],
-+ 1160             silver: [
-+ 1161                 { s: 'XAG', n: 'Gram Gümüş' },
-+ 1162                 { s: 'XAGUSD', n: 'Ons Gümüş (USD)' }
-+ 1163             ],
-+ 1164             deposit: [
-+ 1165                 { s: 'TL_MEVDUAT', n: 'TL Vadeli Mevduat' },
-+ 1166                 { s: 'USD_MEVDUAT', n: 'USD Mevduat' },
-+ 1167                 { s: 'EUR_MEVDUAT', n: 'EUR Mevduat' }
-+ 1168             ],
-+ 1169             cash: [
-+ 1170                 { s: 'TRY', n: 'Türk Lirası' },
-+ 1171                 { s: 'USD', n: 'Amerikan Doları' },
-+ 1172                 { s: 'EUR', n: 'Euro' },
-+ 1173                 { s: 'GBP', n: 'İngiliz Sterlini' }
-+ 1174             ]
-+ 1175         };
-+ 1176 
-+ 1177         const TYPE_LABELS = {
-+ 1178             bist: { name: 'BIST', color: '#ef4444' },
-+ 1179             us: { name: 'ABD Hisse', color: '#3b82f6' },
-+ 1180             etf: { name: 'ETF', color: '#8b5cf6' },
-+ 1181             viop: { name: 'VİOP', color: '#f97316' },
-+ 1182             gold: { name: 'Altın', color: '#fbbf24' },
-+ 1183             silver: { name: 'Gümüş', color: '#9ca3af' },
-+ 1184             deposit: { name: 'Faiz', color: '#10b981' },
-+ 1185             cash: { name: 'Nakit', color: '#6366f1' }
-+ 1186         };
-+ 1187 
-+ 1188         // ========== STATE ==========
-+ 1189         let portfolio = [];
-+ 1190         let currentCategory = 'all';
-+ 1191         let selectedType = 'bist';
-+ 1192         let editingId = null;
-+ 1193 
-+ 1194         // ========== INIT ==========
-+ 1195         function init() {
-+ 1196             initTheme();
-+ 1197             renderSuggestions();
-+ 1198             renderPortfolio();
-+ 1199             updateSummary();
-+ 1200             updatePerformance();
-+ 1201         }
-+ 1202 
-+ 1203         function initTheme() {
-+ 1204             if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
-+ 1205                 document.documentElement.classList.add('light');
-+ 1206                 document.getElementById('themeIcon').className = 'fas fa-sun';
-+ 1207             }
-+ 1208             window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
-+ 1209                 document.documentElement.classList.toggle('light', !e.matches);
-+ 1210                 document.getElementById('themeIcon').className = e.matches ? 'fas fa-moon' : 'fas fa-sun';
-+ 1211             });
-+ 1212         }
-+ 1213 
-+ 1214         function toggleTheme() {
-+ 1215             document.documentElement.classList.toggle('light');
-+ 1216             const icon = document.getElementById('themeIcon');
-+ 1217             icon.className = document.documentElement.classList.contains('light') ? 'fas fa-sun' : 'fas fa-moon';
-+ 1218         }
-+ 1219 
-+ 1220         // ========== TABS ==========
-+ 1221         function switchTab(tab) {
-+ 1222             document.querySelectorAll('.tab-btn').forEach((btn, i) => {
-+ 1223                 btn.classList.toggle('active', (tab === 'portfolio' && i === 0) || (tab === 'performance' && i === 1));
-+ 1224             });
-+ 1225             document.getElementById('portfolioTab').classList.toggle('active', tab === 'portfolio');
-+ 1226             document.getElementById('performanceTab').classList.toggle('active', tab === 'performance');
-+ 1227 
-+ 1228             if (tab === 'performance') {
-+ 1229                 updatePerformance();
-+ 1230             }
-+ 1231         }
-+ 1232 
-+ 1233         // ========== PRICE UPDATE ==========
-+ 1234         function refreshPrices() {
-+ 1235             const btn = document.getElementById('refreshBtn');
-+ 1236             btn.classList.add('refreshing');
-+ 1237 
-+ 1238             // Simulate price changes
-+ 1239             portfolio.forEach(asset => {
-+ 1240                 if (asset.type !== 'deposit' && asset.type !== 'cash') {
-+ 1241                     const volatility = asset.type === 'viop' ? 0.03 : 0.02;
-+ 1242                     const change = (Math.random() - 0.5) * volatility;
-+ 1243                     asset.currentPrice = asset.currentPrice * (1 + change);
-+ 1244                 }
-+ 1245             });
-+ 1246 
-+ 1247             setTimeout(() => {
-+ 1248                 btn.classList.remove('refreshing');
-+ 1249                 renderPortfolio();
-+ 1250                 updateSummary();
-+ 1251                 updatePerformance();
-+ 1252                 updateLastUpdate();
-+ 1253                 showToast('Fiyatlar güncellendi!', 'success');
-+ 1254             }, 800);
-+ 1255         }
-+ 1256 
-+ 1257         function updateLastUpdate() {
-+ 1258             const el = document.getElementById('lastUpdate');
-+ 1259             if (portfolio.length > 0) {
-+ 1260                 el.style.display = 'flex';
-+ 1261                 const now = new Date();
-+ 1262                 el.querySelector('span').textContent = `Son güncelleme: ${now.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}`;
-+ 1263             }
-+ 1264         }
-+ 1265 
-+ 1266         // ========== RENDER ==========
-+ 1267         function renderPortfolio() {
-+ 1268             const list = document.getElementById('assetList');
-+ 1269             const countEl = document.getElementById('assetCount');
-+ 1270 
-+ 1271             let filtered = portfolio;
-+ 1272             if (currentCategory !== 'all') {
-+ 1273                 filtered = portfolio.filter(a => a.type === currentCategory);
-+ 1274             }
-+ 1275 
-+ 1276             countEl.textContent = `${filtered.length} varlık`;
-+ 1277 
-+ 1278             if (filtered.length === 0) {
-+ 1279                 list.innerHTML = `
-+ 1280                     <div class="empty-state">
-+ 1281                         <i class="fas fa-wallet"></i>
-+ 1282                         <p>${currentCategory === 'all' ? 'Henüz varlık eklenmedi.<br>Başlamak için "Varlık Ekle" butonuna tıklayın.' : 'Bu kategoride varlık yok.'}</p>
-+ 1283                     </div>
-+ 1284                 `;
-+ 1285                 document.getElementById('lastUpdate').style.display = 'none';
-+ 1286                 return;
-+ 1287             }
-+ 1288 
-+ 1289             list.innerHTML = filtered.map((asset, i) => {
-+ 1290                 const value = calcValue(asset);
-+ 1291                 const cost = calcCost(asset);
-+ 1292                 const pl = value - cost;
-+ 1293                 const plPct = cost > 0 ? (pl / cost) * 100 : 0;
-+ 1294                 const isPl = pl >= 0;
-+ 1295 
-+ 1296                 return `
-+ 1297                     <div class="asset-card" onclick="editAsset('${asset.id}')" style="animation-delay: ${i * 0.03}s">
-+ 1298                         <div class="asset-icon ${asset.type}">${getIconContent(asset)}</div>
-+ 1299                         <div class="asset-info">
-+ 1300                             <div class="asset-name">${asset.name || asset.symbol}</div>
-+ 1301                             <div class="asset-details">${asset.symbol} • ${formatNum(asset.amount)} adet</div>
-+ 1302                         </div>
-+ 1303                         <div class="asset-values">
-+ 1304                             <div class="asset-total">${formatCur(value)}</div>
-+ 1305                             <div class="asset-change ${isPl ? 'profit' : 'loss'}">
-+ 1306                                 <i class="fas fa-arrow-${isPl ? 'up' : 'down'}"></i>
-+ 1307                                 ${isPl ? '+' : ''}${formatCur(pl)} (${plPct >= 0 ? '+' : ''}${plPct.toFixed(1)}%)
-+ 1308                             </div>
-+ 1309                         </div>
-+ 1310                     </div>
-+ 1311                 `;
-+ 1312             }).join('');
-+ 1313 
-+ 1314             updateLastUpdate();
-+ 1315         }
-+ 1316 
-+ 1317         function getIconContent(asset) {
-+ 1318             if (['gold', 'silver', 'deposit'].includes(asset.type)) {
-+ 1319                 const icons = { gold: 'coins', silver: 'ring', deposit: 'piggy-bank' };
-+ 1320                 return `<i class="fas fa-${icons[asset.type]}"></i>`;
-+ 1321             }
-+ 1322             return asset.symbol.substring(0, 2);
-+ 1323         }
-+ 1324 
-+ 1325         function calcValue(asset) {
-+ 1326             if (asset.type === 'cash' && asset.symbol === 'TRY') return asset.amount;
-+ 1327             return asset.amount * asset.currentPrice;
-+ 1328         }
-+ 1329 
-+ 1330         function calcCost(asset) {
-+ 1331             if (asset.type === 'cash' && asset.symbol === 'TRY') return asset.amount;
-+ 1332             return asset.amount * asset.buyPrice;
-+ 1333         }
-+ 1334 
-+ 1335         function updateSummary() {
-+ 1336             let totalValue = 0, totalCost = 0;
-+ 1337 
-+ 1338             portfolio.forEach(asset => {
-+ 1339                 totalValue += calcValue(asset);
-+ 1340                 totalCost += calcCost(asset);
-+ 1341             });
-+ 1342 
-+ 1343             const pl = totalValue - totalCost;
-+ 1344             const plPct = totalCost > 0 ? (pl / totalCost) * 100 : 0;
-+ 1345             const isPl = pl >= 0;
-+ 1346 
-+ 1347             document.getElementById('totalValue').textContent = formatCur(totalValue);
-+ 1348 
-+ 1349             const profitEl = document.getElementById('totalProfit');
-+ 1350             profitEl.className = `stat-badge ${isPl ? 'profit' : 'loss'}`;
-+ 1351             profitEl.innerHTML = `
-+ 1352                 <i class="fas fa-arrow-${isPl ? 'up' : 'down'}"></i>
-+ 1353                 <span>${isPl ? '+' : ''}${formatCur(pl)} (${plPct >= 0 ? '+' : ''}${plPct.toFixed(2)}%)</span>
-+ 1354             `;
-+ 1355 
-+ 1356             document.getElementById('totalCost').innerHTML = `
-+ 1357                 <i class="fas fa-coins"></i>
-+ 1358                 <span>Maliyet: ${formatCur(totalCost)}</span>
-+ 1359             `;
-+ 1360         }
-+ 1361 
-+ 1362         // ========== PERFORMANCE ==========
-+ 1363         function updatePerformance() {
-+ 1364             let totalValue = 0, totalCost = 0;
-+ 1365             const byType = {};
-+ 1366             let bestAsset = null, worstAsset = null;
-+ 1367             let bestPL = -Infinity, worstPL = Infinity;
-+ 1368 
-+ 1369             portfolio.forEach(asset => {
-+ 1370                 const value = calcValue(asset);
-+ 1371                 const cost = calcCost(asset);
-+ 1372                 const pl = value - cost;
-+ 1373                 const plPct = cost > 0 ? (pl / cost) * 100 : 0;
-+ 1374 
-+ 1375                 totalValue += value;
-+ 1376                 totalCost += cost;
-+ 1377 
-+ 1378                 if (!byType[asset.type]) byType[asset.type] = 0;
-+ 1379                 byType[asset.type] += value;
-+ 1380 
-+ 1381                 if (plPct > bestPL) { bestPL = plPct; bestAsset = asset; }
-+ 1382                 if (plPct < worstPL) { worstPL = plPct; worstAsset = asset; }
-+ 1383             });
-+ 1384 
-+ 1385             const totalPL = totalValue - totalCost;
-+ 1386             const returnPct = totalCost > 0 ? (totalPL / totalCost) * 100 : 0;
-+ 1387             const isProfit = totalPL >= 0;
-+ 1388 
-+ 1389             // Update cards
-+ 1390             const plEl = document.getElementById('perfTotalPL');
-+ 1391             plEl.textContent = (isProfit ? '+' : '') + formatCur(totalPL);
-+ 1392             plEl.className = `perf-value ${isProfit ? 'profit' : 'loss'}`;
-+ 1393 
-+ 1394             const retEl = document.getElementById('perfReturn');
-+ 1395             retEl.textContent = (returnPct >= 0 ? '+' : '') + returnPct.toFixed(2) + '%';
-+ 1396             retEl.className = `perf-value ${isProfit ? 'profit' : 'loss'}`;
-+ 1397 
-+ 1398             document.getElementById('perfBest').textContent = bestAsset ? `${bestAsset.symbol} (+${bestPL.toFixed(1)}%)` : '-';
-+ 1399             document.getElementById('perfWorst').textContent = worstAsset ? `${worstAsset.symbol} (${worstPL.toFixed(1)}%)` : '-';
-+ 1400             document.getElementById('perfCost').textContent = formatCur(totalCost);
-+ 1401             document.getElementById('perfValue').textContent = formatCur(totalValue);
-+ 1402 
-+ 1403             // Pie Chart
-+ 1404             renderPieChart(byType, totalValue);
-+ 1405 
-+ 1406             // Category Breakdown
-+ 1407             renderCategoryBreakdown(byType, totalValue);
-+ 1408         }
-+ 1409 
-+ 1410         function renderPieChart(byType, totalValue) {
-+ 1411             const pieEl = document.getElementById('pieChart');
-+ 1412             const legendEl = document.getElementById('chartLegend');
-+ 1413 
-+ 1414             if (totalValue === 0) {
-+ 1415                 pieEl.innerHTML = '<div class="pie-center"><span class="pie-center-label">Veri yok</span></div>';
-+ 1416                 pieEl.style.background = 'var(--bg-input)';
-+ 1417                 legendEl.innerHTML = '';
-+ 1418                 return;
-+ 1419             }
-+ 1420 
-+ 1421             const entries = Object.entries(byType).sort((a, b) => b[1] - a[1]);
-+ 1422             let gradientParts = [];
-+ 1423             let currentAngle = 0;
-+ 1424 
-+ 1425             entries.forEach(([type, value]) => {
-+ 1426                 const pct = (value / totalValue) * 100;
-+ 1427                 const endAngle = currentAngle + (pct * 3.6);
-+ 1428                 gradientParts.push(`${TYPE_LABELS[type].color} ${currentAngle}deg ${endAngle}deg`);
-+ 1429                 currentAngle = endAngle;
-+ 1430             });
-+ 1431 
-+ 1432             pieEl.style.background = `conic-gradient(${gradientParts.join(', ')})`;
-+ 1433             pieEl.innerHTML = `
-+ 1434                 <div class="pie-center">
-+ 1435                     <span class="pie-center-label">Toplam</span>
-+ 1436                     <span class="pie-center-value">${entries.length} tip</span>
-+ 1437                 </div>
-+ 1438             `;
-+ 1439 
-+ 1440             legendEl.innerHTML = entries.map(([type, value]) => {
-+ 1441                 const pct = ((value / totalValue) * 100).toFixed(1);
-+ 1442                 return `
-+ 1443                     <div class="legend-item">
-+ 1444                         <div class="legend-color" style="background: ${TYPE_LABELS[type].color}"></div>
-+ 1445                         <span>${TYPE_LABELS[type].name} ${pct}%</span>
-+ 1446                     </div>
-+ 1447                 `;
-+ 1448             }).join('');
-+ 1449         }
-+ 1450 
-+ 1451         function renderCategoryBreakdown(byType, totalValue) {
-+ 1452             const container = document.getElementById('categoryBreakdown');
-+ 1453 
-+ 1454             if (Object.keys(byType).length === 0) {
-+ 1455                 container.innerHTML = '<div class="empty-state"><p>Henüz varlık eklenmedi.</p></div>';
-+ 1456                 return;
-+ 1457             }
-+ 1458 
-+ 1459             const entries = Object.entries(byType).sort((a, b) => b[1] - a[1]);
-+ 1460 
-+ 1461             container.innerHTML = entries.map(([type, value]) => {
-+ 1462                 const pct = totalValue > 0 ? ((value / totalValue) * 100).toFixed(1) : 0;
-+ 1463                 const count = portfolio.filter(a => a.type === type).length;
-+ 1464 
-+ 1465                 return `
-+ 1466                     <div class="asset-card" onclick="filterCategory('${type}'); switchTab('portfolio');">
-+ 1467                         <div class="asset-icon ${type}"><i class="fas fa-${getTypeIcon(type)}"></i></div>
-+ 1468                         <div class="asset-info">
-+ 1469                             <div class="asset-name">${TYPE_LABELS[type].name}</div>
-+ 1470                             <div class="asset-details">${count} varlık • %${pct}</div>
-+ 1471                         </div>
-+ 1472                         <div class="asset-values">
-+ 1473                             <div class="asset-total">${formatCur(value)}</div>
-+ 1474                         </div>
-+ 1475                     </div>
-+ 1476                 `;
-+ 1477             }).join('');
-+ 1478         }
-+ 1479 
-+ 1480         function getTypeIcon(type) {
-+ 1481             const icons = {
-+ 1482                 bist: 'flag', us: 'globe-americas', etf: 'cubes', viop: 'chart-bar',
-+ 1483                 gold: 'coins', silver: 'ring', deposit: 'piggy-bank', cash: 'money-bill'
-+ 1484             };
-+ 1485             return icons[type] || 'circle';
-+ 1486         }
-+ 1487 
-+ 1488         // ========== CATEGORY FILTER ==========
-+ 1489         function filterCategory(category) {
-+ 1490             currentCategory = category;
-+ 1491             document.querySelectorAll('.category-pill').forEach(pill => {
-+ 1492                 pill.classList.toggle('active', pill.dataset.category === category);
-+ 1493             });
-+ 1494             renderPortfolio();
-+ 1495         }
-+ 1496 
-+ 1497         // ========== MODAL ==========
-+ 1498         function openAddModal() {
-+ 1499             editingId = null;
-+ 1500             selectedType = 'bist';
-+ 1501             document.getElementById('modalTitle').textContent = 'Varlık Ekle';
-+ 1502             document.getElementById('submitBtn').innerHTML = '<i class="fas fa-plus"></i> Varlık Ekle';
-+ 1503             document.getElementById('deleteBtn').style.display = 'none';
-+ 1504             resetForm();
-+ 1505             updateFormForType();
-+ 1506             document.getElementById('addModal').classList.add('active');
-+ 1507         }
-+ 1508 
-+ 1509         function closeModal() {
-+ 1510             document.getElementById('addModal').classList.remove('active');
-+ 1511         }
-+ 1512 
-+ 1513         function resetForm() {
-+ 1514             ['symbolInput', 'nameInput', 'amountInput', 'buyPriceInput', 'currentPriceInput', 'interestInput'].forEach(id => {
-+ 1515                 document.getElementById(id).value = '';
-+ 1516             });
-+ 1517             document.querySelectorAll('.type-btn').forEach(btn => {
-+ 1518                 btn.classList.toggle('active', btn.dataset.type === 'bist');
-+ 1519             });
-+ 1520             renderSuggestions();
-+ 1521         }
-+ 1522 
-+ 1523         function selectType(type) {
-+ 1524             selectedType = type;
-+ 1525             document.querySelectorAll('.type-btn').forEach(btn => {
-+ 1526                 btn.classList.toggle('active', btn.dataset.type === type);
-+ 1527             });
-+ 1528             updateFormForType();
-+ 1529             renderSuggestions();
-+ 1530         }
-+ 1531 
-+ 1532         function updateFormForType() {
-+ 1533             const isDeposit = selectedType === 'deposit';
-+ 1534             const isCash = selectedType === 'cash';
-+ 1535             const isUSD = selectedType === 'us' || selectedType === 'etf';
-+ 1536 
-+ 1537             document.getElementById('interestGroup').style.display = isDeposit ? 'block' : 'none';
-+ 1538             document.getElementById('amountLabel').textContent = isDeposit ? 'Anapara' : (isCash ? 'Miktar' : 'Adet');
-+ 1539 
-+ 1540             const currency = isUSD ? '$' : '₺';
-+ 1541             document.getElementById('buyPriceLabel').textContent = `Alış Fiyatı (${currency})`;
-+ 1542             document.getElementById('currentPriceLabel').textContent = `Güncel Fiyat (${currency})`;
-+ 1543 
-+ 1544             if (isCash) {
-+ 1545                 document.getElementById('priceHint').textContent = 'Döviz ise alış ve güncel kuru girin.';
-+ 1546             } else if (isDeposit) {
-+ 1547                 document.getElementById('priceHint').textContent = 'Vadeli mevduat için faiz oranını girin.';
-+ 1548             } else {
-+ 1549                 document.getElementById('priceHint').textContent = 'Güncel fiyatı girin. "Güncelle" butonuyla simüle edilir.';
-+ 1550             }
-+ 1551         }
-+ 1552 
-+ 1553         function renderSuggestions() {
-+ 1554             const container = document.getElementById('suggestions');
-+ 1555             const items = SUGGESTIONS[selectedType] || [];
-+ 1556 
-+ 1557             container.innerHTML = items.slice(0, 8).map(item =>
-+ 1558                 `<span class="suggestion-chip" onclick="selectSuggestion('${item.s}', '${item.n}')">${item.s}</span>`
-+ 1559             ).join('');
-+ 1560         }
-+ 1561 
-+ 1562         function selectSuggestion(symbol, name) {
-+ 1563             document.getElementById('symbolInput').value = symbol;
-+ 1564             document.getElementById('nameInput').value = name;
-+ 1565         }
-+ 1566 
-+ 1567         // ========== SAVE ASSET ==========
-+ 1568         function saveAsset() {
-+ 1569             const symbol = document.getElementById('symbolInput').value.trim().toUpperCase();
-+ 1570             const name = document.getElementById('nameInput').value.trim();
-+ 1571             const amount = parseFloat(document.getElementById('amountInput').value);
-+ 1572             const buyPrice = parseFloat(document.getElementById('buyPriceInput').value);
-+ 1573             const currentPrice = parseFloat(document.getElementById('currentPriceInput').value);
-+ 1574             const interest = parseFloat(document.getElementById('interestInput').value) || 0;
-+ 1575 
-+ 1576             if (!symbol) {
-+ 1577                 showToast('Lütfen sembol girin!', 'error');
-+ 1578                 return;
-+ 1579             }
-+ 1580             if (!amount || amount <= 0) {
-+ 1581                 showToast('Lütfen geçerli miktar girin!', 'error');
-+ 1582                 return;
-+ 1583             }
-+ 1584             if ((!buyPrice || buyPrice <= 0) && selectedType !== 'cash') {
-+ 1585                 showToast('Lütfen alış fiyatı girin!', 'error');
-+ 1586                 return;
-+ 1587             }
-+ 1588             if ((!currentPrice || currentPrice <= 0) && selectedType !== 'cash') {
-+ 1589                 showToast('Lütfen güncel fiyat girin!', 'error');
-+ 1590                 return;
-+ 1591             }
-+ 1592 
-+ 1593             const asset = {
-+ 1594                 id: editingId || Date.now().toString(),
-+ 1595                 type: selectedType,
-+ 1596                 symbol: symbol,
-+ 1597                 name: name || symbol,
-+ 1598                 amount: amount,
-+ 1599                 buyPrice: buyPrice || 1,
-+ 1600                 currentPrice: currentPrice || buyPrice || 1,
-+ 1601                 interestRate: interest
-+ 1602             };
-+ 1603 
-+ 1604             if (editingId) {
-+ 1605                 const idx = portfolio.findIndex(a => a.id === editingId);
-+ 1606                 if (idx !== -1) portfolio[idx] = asset;
-+ 1607             } else {
-+ 1608                 portfolio.push(asset);
-+ 1609             }
-+ 1610 
-+ 1611             renderPortfolio();
-+ 1612             updateSummary();
-+ 1613             updatePerformance();
-+ 1614             closeModal();
-+ 1615             showToast(editingId ? 'Varlık güncellendi!' : 'Varlık eklendi!', 'success');
-+ 1616         }
-+ 1617 
-+ 1618         // ========== EDIT ASSET ==========
-+ 1619         function editAsset(id) {
-+ 1620             const asset = portfolio.find(a => a.id === id);
-+ 1621             if (!asset) return;
-+ 1622 
-+ 1623             editingId = id;
-+ 1624             selectedType = asset.type;
-+ 1625 
-+ 1626             document.getElementById('modalTitle').textContent = 'Varlığı Düzenle';
-+ 1627             document.getElementById('submitBtn').innerHTML = '<i class="fas fa-save"></i> Kaydet';
-+ 1628             document.getElementById('deleteBtn').style.display = 'block';
-+ 1629 
-+ 1630             document.querySelectorAll('.type-btn').forEach(btn => {
-+ 1631                 btn.classList.toggle('active', btn.dataset.type === asset.type);
-+ 1632             });
-+ 1633 
-+ 1634             updateFormForType();
-+ 1635             renderSuggestions();
-+ 1636 
-+ 1637             document.getElementById('symbolInput').value = asset.symbol;
-+ 1638             document.getElementById('nameInput').value = asset.name || '';
-+ 1639             document.getElementById('amountInput').value = asset.amount;
-+ 1640             document.getElementById('buyPriceInput').value = asset.buyPrice;
-+ 1641             document.getElementById('currentPriceInput').value = asset.currentPrice;
-+ 1642             document.getElementById('interestInput').value = asset.interestRate || '';
-+ 1643 
-+ 1644             document.getElementById('addModal').classList.add('active');
-+ 1645         }
-+ 1646 
-+ 1647         // ========== DELETE ==========
-+ 1648         function confirmDelete() {
-+ 1649             document.getElementById('confirmModal').classList.add('active');
-+ 1650         }
-+ 1651 
-+ 1652         function closeConfirm() {
-+ 1653             document.getElementById('confirmModal').classList.remove('active');
-+ 1654         }
-+ 1655 
-+ 1656         function deleteAsset() {
-+ 1657             if (editingId) {
-+ 1658                 portfolio = portfolio.filter(a => a.id !== editingId);
-+ 1659                 renderPortfolio();
-+ 1660                 updateSummary();
-+ 1661                 updatePerformance();
-+ 1662             }
-+ 1663             closeConfirm();
-+ 1664             closeModal();
-+ 1665             showToast('Varlık silindi!', 'success');
-+ 1666         }
-+ 1667 
-+ 1668         // ========== EXPORT ==========
-+ 1669         function exportData() {
-+ 1670             if (portfolio.length === 0) {
-+ 1671                 showToast('Dışa aktarılacak varlık yok!', 'error');
-+ 1672                 return;
-+ 1673             }
-+ 1674 
-+ 1675             let csv = 'Tip,Sembol,İsim,Adet,Alış Fiyatı,Güncel Fiyat,Toplam Değer,Kar/Zarar,Kar/Zarar %\n';
-+ 1676 
-+ 1677             portfolio.forEach(asset => {
-+ 1678                 const value = calcValue(asset);
-+ 1679                 const cost = calcCost(asset);
-+ 1680                 const pl = value - cost;
-+ 1681                 const plPct = cost > 0 ? (pl / cost) * 100 : 0;
-+ 1682 
-+ 1683                 csv += `${TYPE_LABELS[asset.type].name},"${asset.symbol}","${asset.name}",${asset.amount},${asset.buyPrice},${asset.currentPrice},${value.toFixed(2)},${pl.toFixed(2)},${plPct.toFixed(2)}%\n`;
-+ 1684             });
-+ 1685 
-+ 1686             const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
-+ 1687             const url = URL.createObjectURL(blob);
-+ 1688             const a = document.createElement('a');
-+ 1689             a.href = url;
-+ 1690             a.download = `portfolio_${new Date().toISOString().split('T')[0]}.csv`;
-+ 1691             a.click();
-+ 1692             URL.revokeObjectURL(url);
-+ 1693             showToast('CSV olarak indirildi!', 'success');
-+ 1694         }
-+ 1695 
-+ 1696         // ========== UTILITIES ==========
-+ 1697         function formatCur(v) {
-+ 1698             return new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY', minimumFractionDigits: 2 }).format(v);
-+ 1699         }
-+ 1700 
-+ 1701         function formatNum(v) {
-+ 1702             return new Intl.NumberFormat('tr-TR', { maximumFractionDigits: 4 }).format(v);
-+ 1703         }
-+ 1704 
-+ 1705         function showToast(msg, type) {
-+ 1706             const toast = document.getElementById('toast');
-+ 1707             const text = document.getElementById('toastText');
-+ 1708             const icon = toast.querySelector('i');
-+ 1709 
-+ 1710             text.textContent = msg;
-+ 1711             toast.className = `toast ${type}`;
-+ 1712             icon.className = type === 'success' ? 'fas fa-check-circle' : 'fas fa-exclamation-circle';
-+ 1713 
-+ 1714             toast.classList.add('show');
-+ 1715             setTimeout(() => toast.classList.remove('show'), 2500);
-+ 1716         }
-+ 1717 
-+ 1718         // Initialize
-+ 1719         init();
-+ 1720     </script>
-+ 1721 </body>
-+ 1722 </html>
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Portföy Takip</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #08080c;
+            --bg-secondary: #0f0f15;
+            --bg-card: #16161f;
+            --bg-input: #1e1e2a;
+            --text-primary: #f5f5f8;
+            --text-secondary: #7a7a8c;
+            --accent: #10b981;
+            --accent-light: #34d399;
+            --accent-glow: rgba(16, 185, 129, 0.25);
+            --profit: #10b981;
+            --loss: #ef4444;
+            --warning: #f59e0b;
+            --border: rgba(255,255,255,0.06);
+            --shadow: 0 8px 32px rgba(0,0,0,0.5);
+        }
+
+        .light {
+            --bg-primary: #f8fafc;
+            --bg-secondary: #ffffff;
+            --bg-card: #ffffff;
+            --bg-input: #f1f5f9;
+            --text-primary: #0f172a;
+            --text-secondary: #64748b;
+            --border: rgba(0,0,0,0.06);
+            --shadow: 0 8px 32px rgba(0,0,0,0.08);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .app-container {
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 16px;
+            padding-bottom: 100px;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 8px 0;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            width: 44px;
+            height: 44px;
+            background: linear-gradient(135deg, var(--accent), var(--accent-light));
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: #000;
+            box-shadow: 0 4px 20px var(--accent-glow);
+        }
+
+        .logo-text {
+            font-size: 24px;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent), var(--accent-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .icon-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            background: var(--bg-card);
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 16px;
+        }
+
+        .icon-btn:hover, .icon-btn:active {
+            border-color: var(--accent);
+            color: var(--accent);
+            transform: scale(0.95);
+        }
+
+        .icon-btn.refreshing i {
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* Tab Navigation */
+        .tab-nav {
+            display: flex;
+            background: var(--bg-card);
+            border-radius: 14px;
+            padding: 4px;
+            margin-bottom: 20px;
+            border: 1px solid var(--border);
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 12px 16px;
+            border: none;
+            background: transparent;
+            color: var(--text-secondary);
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: 600;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .tab-btn.active {
+            background: var(--accent);
+            color: #000;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Summary Card */
+        .summary-card {
+            background: linear-gradient(135deg, var(--bg-card), var(--bg-secondary));
+            border-radius: 20px;
+            padding: 24px;
+            border: 1px solid var(--border);
+            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .summary-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200px;
+            height: 200px;
+            background: radial-gradient(circle, var(--accent-glow), transparent);
+            opacity: 0.6;
+        }
+
+        .summary-label {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+            font-weight: 500;
+        }
+
+        .summary-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            position: relative;
+        }
+
+        .summary-stats {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .stat-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 14px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .stat-badge.profit {
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--profit);
+        }
+
+        .stat-badge.loss {
+            background: rgba(239, 68, 68, 0.15);
+            color: var(--loss);
+        }
+
+        .stat-badge.neutral {
+            background: var(--bg-input);
+            color: var(--text-secondary);
+        }
+
+        /* Performance Section */
+        .performance-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .perf-card {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 16px;
+            border: 1px solid var(--border);
+        }
+
+        .perf-card.full {
+            grid-column: 1 / -1;
+        }
+
+        .perf-title {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .perf-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .perf-value.profit { color: var(--profit); }
+        .perf-value.loss { color: var(--loss); }
+
+        /* Pie Chart */
+        .chart-container {
+            position: relative;
+            width: 100%;
+            padding-top: 20px;
+        }
+
+        .pie-chart {
+            width: 180px;
+            height: 180px;
+            margin: 0 auto 20px;
+            border-radius: 50%;
+            position: relative;
+        }
+
+        .pie-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100px;
+            height: 100px;
+            background: var(--bg-card);
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .pie-center-label {
+            font-size: 11px;
+            color: var(--text-secondary);
+        }
+
+        .pie-center-value {
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .chart-legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            padding: 6px 10px;
+            background: var(--bg-input);
+            border-radius: 8px;
+        }
+
+        .legend-color {
+            width: 10px;
+            height: 10px;
+            border-radius: 3px;
+        }
+
+        /* Category Pills */
+        .category-scroll {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding: 4px 0 12px;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        .category-scroll::-webkit-scrollbar {
+            display: none;
+        }
+
+        .category-pill {
+            flex-shrink: 0;
+            padding: 10px 16px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            background: var(--bg-card);
+            color: var(--text-secondary);
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .category-pill.active {
+            background: var(--accent);
+            color: #000;
+            border-color: var(--accent);
+        }
+
+        /* Asset List */
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 14px;
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .asset-count {
+            font-size: 12px;
+            color: var(--text-secondary);
+            background: var(--bg-input);
+            padding: 4px 10px;
+            border-radius: 8px;
+        }
+
+        .asset-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .asset-card {
+            background: var(--bg-card);
+            border-radius: 14px;
+            padding: 14px 16px;
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .asset-card:active {
+            transform: scale(0.98);
+        }
+
+        .asset-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .asset-icon.bist { background: linear-gradient(135deg, #ef4444, #dc2626); color: #fff; }
+        .asset-icon.us { background: linear-gradient(135deg, #3b82f6, #2563eb); color: #fff; }
+        .asset-icon.etf { background: linear-gradient(135deg, #8b5cf6, #7c3aed); color: #fff; }
+        .asset-icon.viop { background: linear-gradient(135deg, #f97316, #ea580c); color: #fff; }
+        .asset-icon.gold { background: linear-gradient(135deg, #fbbf24, #f59e0b); color: #000; }
+        .asset-icon.silver { background: linear-gradient(135deg, #9ca3af, #6b7280); color: #fff; }
+        .asset-icon.deposit { background: linear-gradient(135deg, #10b981, #059669); color: #fff; }
+        .asset-icon.cash { background: linear-gradient(135deg, #6366f1, #4f46e5); color: #fff; }
+
+        .asset-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .asset-name {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 3px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .asset-details {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .asset-values {
+            text-align: right;
+        }
+
+        .asset-total {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 3px;
+        }
+
+        .asset-change {
+            font-size: 12px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 4px;
+        }
+
+        .asset-change.profit { color: var(--profit); }
+        .asset-change.loss { color: var(--loss); }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 50px 20px;
+            color: var(--text-secondary);
+        }
+
+        .empty-state i {
+            font-size: 48px;
+            margin-bottom: 16px;
+            opacity: 0.4;
+        }
+
+        .empty-state p {
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        /* Last Update */
+        .last-update {
+            text-align: center;
+            font-size: 11px;
+            color: var(--text-secondary);
+            margin-top: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .last-update i { color: var(--accent); }
+
+        /* Bottom Nav */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--border);
+            padding: 12px 20px;
+            padding-bottom: max(12px, env(safe-area-inset-bottom));
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            z-index: 100;
+        }
+
+        .nav-btn {
+            flex: 1;
+            max-width: 160px;
+            padding: 14px 20px;
+            border-radius: 14px;
+            border: none;
+            background: var(--bg-input);
+            color: var(--text-secondary);
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .nav-btn.primary {
+            background: var(--accent);
+            color: #000;
+        }
+
+        .nav-btn:active {
+            transform: scale(0.96);
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.75);
+            backdrop-filter: blur(8px);
+            display: none;
+            align-items: flex-end;
+            justify-content: center;
+            z-index: 200;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            background: var(--bg-secondary);
+            border-radius: 24px 24px 0 0;
+            width: 100%;
+            max-width: 500px;
+            max-height: 92vh;
+            overflow-y: auto;
+            animation: slideUp 0.3s ease-out;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            background: var(--bg-secondary);
+            z-index: 10;
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .modal-close {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            border: none;
+            background: var(--bg-input);
+            color: var(--text-secondary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-body {
+            padding: 24px;
+        }
+
+        /* Form */
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 14px 16px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            background: var(--bg-input);
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: 16px;
+            transition: all 0.2s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-glow);
+        }
+
+        .form-input::placeholder {
+            color: var(--text-secondary);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .form-hint {
+            font-size: 11px;
+            color: var(--text-secondary);
+            margin-top: 6px;
+        }
+
+        /* Type Grid */
+        .type-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+        }
+
+        .type-btn {
+            padding: 12px 6px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background: var(--bg-input);
+            color: var(--text-secondary);
+            font-family: inherit;
+            font-size: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .type-btn i { font-size: 16px; }
+
+        .type-btn.active {
+            background: var(--accent);
+            color: #000;
+            border-color: var(--accent);
+        }
+
+        /* Suggestions */
+        .suggestions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 8px;
+        }
+
+        .suggestion-chip {
+            padding: 6px 12px;
+            border-radius: 8px;
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .suggestion-chip:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        /* Buttons */
+        .submit-btn {
+            width: 100%;
+            padding: 16px;
+            border-radius: 14px;
+            border: none;
+            background: var(--accent);
+            color: #000;
+            font-family: inherit;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .submit-btn:active {
+            transform: scale(0.98);
+        }
+
+        .delete-btn {
+            width: 100%;
+            padding: 14px;
+            border-radius: 14px;
+            border: 1px solid var(--loss);
+            background: transparent;
+            color: var(--loss);
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            margin-top: 12px;
+        }
+
+        /* Confirm Modal */
+        .confirm-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.75);
+            backdrop-filter: blur(8px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 300;
+            padding: 20px;
+        }
+
+        .confirm-modal.active { display: flex; }
+
+        .confirm-box {
+            background: var(--bg-secondary);
+            border-radius: 20px;
+            padding: 28px;
+            max-width: 320px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .confirm-box h3 { margin-bottom: 12px; font-size: 18px; }
+        .confirm-box p { color: var(--text-secondary); margin-bottom: 24px; font-size: 14px; }
+
+        .confirm-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .confirm-actions button {
+            flex: 1;
+            padding: 12px 16px;
+            border-radius: 12px;
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .confirm-cancel {
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+        }
+
+        .confirm-delete {
+            background: var(--loss);
+            border: none;
+            color: #fff;
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-100px);
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 14px 20px;
+            z-index: 400;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: var(--shadow);
+            transition: transform 0.3s ease;
+        }
+
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .toast.success i { color: var(--profit); }
+        .toast.error i { color: var(--loss); }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <div class="header">
+            <div class="logo">
+                <div class="logo-icon"><i class="fas fa-chart-pie"></i></div>
+                <span class="logo-text">Portföy</span>
+            </div>
+            <div class="header-actions">
+                <button class="icon-btn" onclick="toggleTheme()" title="Tema">
+                    <i class="fas fa-moon" id="themeIcon"></i>
+                </button>
+                <button class="icon-btn" id="refreshBtn" onclick="refreshPrices()" title="Güncelle">
+                    <i class="fas fa-sync-alt"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Tab Navigation -->
+        <div class="tab-nav">
+            <button class="tab-btn active" onclick="switchTab('portfolio')">
+                <i class="fas fa-wallet"></i> Portföy
+            </button>
+            <button class="tab-btn" onclick="switchTab('performance')">
+                <i class="fas fa-chart-line"></i> Performans
+            </button>
+        </div>
+
+        <!-- Portfolio Tab -->
+        <div class="tab-content active" id="portfolioTab">
+            <!-- Summary -->
+            <div class="summary-card">
+                <div class="summary-label">Toplam Portföy Değeri</div>
+                <div class="summary-value" id="totalValue">₺0,00</div>
+                <div class="summary-stats">
+                    <div class="stat-badge profit" id="totalProfit">
+                        <i class="fas fa-arrow-up"></i>
+                        <span>₺0 (0%)</span>
+                    </div>
+                    <div class="stat-badge neutral" id="totalCost">
+                        <i class="fas fa-coins"></i>
+                        <span>Maliyet: ₺0</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Category Filter -->
+            <div class="category-scroll">
+                <button class="category-pill active" data-category="all" onclick="filterCategory('all')">
+                    <i class="fas fa-layer-group"></i> Tümü
+                </button>
+                <button class="category-pill" data-category="bist" onclick="filterCategory('bist')">
+                    <i class="fas fa-flag"></i> BIST
+                </button>
+                <button class="category-pill" data-category="us" onclick="filterCategory('us')">
+                    <i class="fas fa-globe-americas"></i> ABD
+                </button>
+                <button class="category-pill" data-category="etf" onclick="filterCategory('etf')">
+                    <i class="fas fa-cubes"></i> ETF
+                </button>
+                <button class="category-pill" data-category="viop" onclick="filterCategory('viop')">
+                    <i class="fas fa-chart-bar"></i> VİOP
+                </button>
+                <button class="category-pill" data-category="gold" onclick="filterCategory('gold')">
+                    <i class="fas fa-coins"></i> Altın
+                </button>
+                <button class="category-pill" data-category="silver" onclick="filterCategory('silver')">
+                    <i class="fas fa-ring"></i> Gümüş
+                </button>
+                <button class="category-pill" data-category="deposit" onclick="filterCategory('deposit')">
+                    <i class="fas fa-piggy-bank"></i> Faiz
+                </button>
+                <button class="category-pill" data-category="cash" onclick="filterCategory('cash')">
+                    <i class="fas fa-money-bill"></i> Nakit
+                </button>
+            </div>
+
+            <!-- Asset List -->
+            <div class="section-header">
+                <h2 class="section-title">Varlıklarım</h2>
+                <span class="asset-count" id="assetCount">0 varlık</span>
+            </div>
+            <div class="asset-list" id="assetList">
+                <div class="empty-state" id="emptyState">
+                    <i class="fas fa-wallet"></i>
+                    <p>Henüz varlık eklenmedi.<br>Başlamak için "Varlık Ekle" butonuna tıklayın.</p>
+                </div>
+            </div>
+            <div class="last-update" id="lastUpdate" style="display: none;">
+                <i class="fas fa-clock"></i>
+                <span>Son güncelleme: --:--</span>
+            </div>
+        </div>
+
+        <!-- Performance Tab -->
+        <div class="tab-content" id="performanceTab">
+            <div class="performance-grid">
+                <div class="perf-card">
+                    <div class="perf-title">Toplam Kar/Zarar</div>
+                    <div class="perf-value profit" id="perfTotalPL">₺0</div>
+                </div>
+                <div class="perf-card">
+                    <div class="perf-title">Getiri Oranı</div>
+                    <div class="perf-value profit" id="perfReturn">%0</div>
+                </div>
+                <div class="perf-card">
+                    <div class="perf-title">En Kârlı</div>
+                    <div class="perf-value profit" id="perfBest">-</div>
+                </div>
+                <div class="perf-card">
+                    <div class="perf-title">En Zararlı</div>
+                    <div class="perf-value loss" id="perfWorst">-</div>
+                </div>
+                <div class="perf-card full">
+                    <div class="perf-title">Varlık Dağılımı</div>
+                    <div class="chart-container">
+                        <div class="pie-chart" id="pieChart"></div>
+                        <div class="chart-legend" id="chartLegend"></div>
+                    </div>
+                </div>
+                <div class="perf-card">
+                    <div class="perf-title">Toplam Maliyet</div>
+                    <div class="perf-value" id="perfCost">₺0</div>
+                </div>
+                <div class="perf-card">
+                    <div class="perf-title">Güncel Değer</div>
+                    <div class="perf-value" id="perfValue">₺0</div>
+                </div>
+            </div>
+
+            <!-- Category Breakdown -->
+            <div class="section-header">
+                <h2 class="section-title">Kategori Bazında</h2>
+            </div>
+            <div class="asset-list" id="categoryBreakdown"></div>
+        </div>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <div class="bottom-nav">
+        <button class="nav-btn" onclick="exportData()">
+            <i class="fas fa-download"></i> Dışa Aktar
+        </button>
+        <button class="nav-btn primary" onclick="openAddModal()">
+            <i class="fas fa-plus"></i> Varlık Ekle
+        </button>
+    </div>
+
+    <!-- Add/Edit Modal -->
+    <div class="modal-overlay" id="addModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modalTitle">Varlık Ekle</h3>
+                <button class="modal-close" onclick="closeModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <!-- Type Selection -->
+                <div class="form-group">
+                    <label class="form-label">Varlık Tipi</label>
+                    <div class="type-grid">
+                        <button type="button" class="type-btn active" data-type="bist" onclick="selectType('bist')">
+                            <i class="fas fa-flag"></i> BIST
+                        </button>
+                        <button type="button" class="type-btn" data-type="us" onclick="selectType('us')">
+                            <i class="fas fa-globe-americas"></i> ABD
+                        </button>
+                        <button type="button" class="type-btn" data-type="etf" onclick="selectType('etf')">
+                            <i class="fas fa-cubes"></i> ETF
+                        </button>
+                        <button type="button" class="type-btn" data-type="viop" onclick="selectType('viop')">
+                            <i class="fas fa-chart-bar"></i> VİOP
+                        </button>
+                        <button type="button" class="type-btn" data-type="gold" onclick="selectType('gold')">
+                            <i class="fas fa-coins"></i> Altın
+                        </button>
+                        <button type="button" class="type-btn" data-type="silver" onclick="selectType('silver')">
+                            <i class="fas fa-ring"></i> Gümüş
+                        </button>
+                        <button type="button" class="type-btn" data-type="deposit" onclick="selectType('deposit')">
+                            <i class="fas fa-piggy-bank"></i> Faiz
+                        </button>
+                        <button type="button" class="type-btn" data-type="cash" onclick="selectType('cash')">
+                            <i class="fas fa-money-bill"></i> Nakit
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Symbol & Name -->
+                <div class="form-group" id="symbolGroup">
+                    <div class="form-row">
+                        <div>
+                            <label class="form-label">Sembol</label>
+                            <input type="text" class="form-input" id="symbolInput" placeholder="THYAO" style="text-transform: uppercase;">
+                        </div>
+                        <div>
+                            <label class="form-label">İsim (Opsiyonel)</label>
+                            <input type="text" class="form-input" id="nameInput" placeholder="Türk Hava Yolları">
+                        </div>
+                    </div>
+                    <div class="suggestions" id="suggestions"></div>
+                </div>
+
+                <!-- Amount & Price -->
+                <div class="form-group">
+                    <div class="form-row">
+                        <div>
+                            <label class="form-label" id="amountLabel">Adet</label>
+                            <input type="number" class="form-input" id="amountInput" placeholder="100" step="any" min="0">
+                        </div>
+                        <div>
+                            <label class="form-label" id="buyPriceLabel">Alış Fiyatı (₺)</label>
+                            <input type="number" class="form-input" id="buyPriceInput" placeholder="150.00" step="any" min="0">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Current Price -->
+                <div class="form-group">
+                    <label class="form-label" id="currentPriceLabel">Güncel Fiyat (₺)</label>
+                    <input type="number" class="form-input" id="currentPriceInput" placeholder="165.00" step="any" min="0">
+                    <p class="form-hint" id="priceHint">Güncel fiyatı girin. "Güncelle" butonuyla simüle edilir.</p>
+                </div>
+
+                <!-- Interest Rate (for deposit) -->
+                <div class="form-group" id="interestGroup" style="display: none;">
+                    <label class="form-label">Faiz Oranı (%)</label>
+                    <input type="number" class="form-input" id="interestInput" placeholder="45" step="any" min="0">
+                </div>
+
+                <button type="button" class="submit-btn" id="submitBtn" onclick="saveAsset()">
+                    <i class="fas fa-plus"></i> Varlık Ekle
+                </button>
+                <button type="button" class="delete-btn" id="deleteBtn" style="display: none;" onclick="confirmDelete()">
+                    <i class="fas fa-trash"></i> Varlığı Sil
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirm Delete -->
+    <div class="confirm-modal" id="confirmModal">
+        <div class="confirm-box">
+            <h3>Varlığı Sil</h3>
+            <p>Bu varlığı silmek istediğinizden emin misiniz?</p>
+            <div class="confirm-actions">
+                <button class="confirm-cancel" onclick="closeConfirm()">İptal</button>
+                <button class="confirm-delete" onclick="deleteAsset()">Sil</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast">
+        <i class="fas fa-check-circle"></i>
+        <span id="toastText">İşlem başarılı!</span>
+    </div>
+
+    <script>
+        // ========== SUGGESTIONS DATA ==========
+        const SUGGESTIONS = {
+            bist: [
+                { s: 'THYAO', n: 'Türk Hava Yolları' },
+                { s: 'GARAN', n: 'Garanti Bankası' },
+                { s: 'AKBNK', n: 'Akbank' },
+                { s: 'EREGL', n: 'Ereğli Demir Çelik' },
+                { s: 'KCHOL', n: 'Koç Holding' },
+                { s: 'SAHOL', n: 'Sabancı Holding' },
+                { s: 'TUPRS', n: 'Tüpraş' },
+                { s: 'SISE', n: 'Şişe Cam' },
+                { s: 'ASELS', n: 'Aselsan' },
+                { s: 'BIMAS', n: 'BİM Mağazalar' },
+                { s: 'FROTO', n: 'Ford Otosan' },
+                { s: 'TCELL', n: 'Turkcell' }
+            ],
+            us: [
+                { s: 'AAPL', n: 'Apple Inc.' },
+                { s: 'MSFT', n: 'Microsoft' },
+                { s: 'GOOGL', n: 'Alphabet (Google)' },
+                { s: 'AMZN', n: 'Amazon' },
+                { s: 'NVDA', n: 'NVIDIA' },
+                { s: 'TSLA', n: 'Tesla' },
+                { s: 'META', n: 'Meta (Facebook)' },
+                { s: 'JPM', n: 'JPMorgan Chase' },
+                { s: 'V', n: 'Visa' },
+                { s: 'NFLX', n: 'Netflix' },
+                { s: 'AMD', n: 'AMD' },
+                { s: 'DIS', n: 'Walt Disney' }
+            ],
+            etf: [
+                { s: 'SPY', n: 'S&P 500 ETF' },
+                { s: 'QQQ', n: 'Nasdaq 100 ETF' },
+                { s: 'VTI', n: 'Total Stock Market' },
+                { s: 'VOO', n: 'Vanguard S&P 500' },
+                { s: 'GLD', n: 'Gold ETF' },
+                { s: 'SLV', n: 'Silver ETF' },
+                { s: 'ARKK', n: 'ARK Innovation' },
+                { s: 'VNQ', n: 'Real Estate ETF' }
+            ],
+            viop: [
+                { s: 'F_XU030', n: 'BIST 30 Vadeli' },
+                { s: 'F_XU100', n: 'BIST 100 Vadeli' },
+                { s: 'F_USDTRY', n: 'Dolar/TL Vadeli' },
+                { s: 'F_EURTRY', n: 'Euro/TL Vadeli' },
+                { s: 'F_XAUTRY', n: 'Altın/TL Vadeli' }
+            ],
+            gold: [
+                { s: 'XAU', n: 'Gram Altın' },
+                { s: 'GAU', n: 'Çeyrek Altın' },
+                { s: 'TAU', n: 'Tam Altın' },
+                { s: 'CAU', n: 'Cumhuriyet Altını' },
+                { s: 'ONS', n: 'Ons Altın (USD)' }
+            ],
+            silver: [
+                { s: 'XAG', n: 'Gram Gümüş' },
+                { s: 'XAGUSD', n: 'Ons Gümüş (USD)' }
+            ],
+            deposit: [
+                { s: 'TL_MEVDUAT', n: 'TL Vadeli Mevduat' },
+                { s: 'USD_MEVDUAT', n: 'USD Mevduat' },
+                { s: 'EUR_MEVDUAT', n: 'EUR Mevduat' }
+            ],
+            cash: [
+                { s: 'TRY', n: 'Türk Lirası' },
+                { s: 'USD', n: 'Amerikan Doları' },
+                { s: 'EUR', n: 'Euro' },
+                { s: 'GBP', n: 'İngiliz Sterlini' }
+            ]
+        };
+
+        const TYPE_LABELS = {
+            bist: { name: 'BIST', color: '#ef4444' },
+            us: { name: 'ABD Hisse', color: '#3b82f6' },
+            etf: { name: 'ETF', color: '#8b5cf6' },
+            viop: { name: 'VİOP', color: '#f97316' },
+            gold: { name: 'Altın', color: '#fbbf24' },
+            silver: { name: 'Gümüş', color: '#9ca3af' },
+            deposit: { name: 'Faiz', color: '#10b981' },
+            cash: { name: 'Nakit', color: '#6366f1' }
+        };
+
+        // ========== STATE ==========
+        let portfolio = [];
+        let currentCategory = 'all';
+        let selectedType = 'bist';
+        let editingId = null;
+
+        // ========== INIT ==========
+        function init() {
+            initTheme();
+            renderSuggestions();
+            renderPortfolio();
+            updateSummary();
+            updatePerformance();
+        }
+
+        function initTheme() {
+            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
+                document.documentElement.classList.add('light');
+                document.getElementById('themeIcon').className = 'fas fa-sun';
+            }
+            window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+                document.documentElement.classList.toggle('light', !e.matches);
+                document.getElementById('themeIcon').className = e.matches ? 'fas fa-moon' : 'fas fa-sun';
+            });
+        }
+
+        function toggleTheme() {
+            document.documentElement.classList.toggle('light');
+            const icon = document.getElementById('themeIcon');
+            icon.className = document.documentElement.classList.contains('light') ? 'fas fa-sun' : 'fas fa-moon';
+        }
+
+        // ========== TABS ==========
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-btn').forEach((btn, i) => {
+                btn.classList.toggle('active', (tab === 'portfolio' && i === 0) || (tab === 'performance' && i === 1));
+            });
+            document.getElementById('portfolioTab').classList.toggle('active', tab === 'portfolio');
+            document.getElementById('performanceTab').classList.toggle('active', tab === 'performance');
+
+            if (tab === 'performance') {
+                updatePerformance();
+            }
+        }
+
+        // ========== PRICE UPDATE ==========
+        function refreshPrices() {
+            const btn = document.getElementById('refreshBtn');
+            btn.classList.add('refreshing');
+
+            // Simulate price changes
+            portfolio.forEach(asset => {
+                if (asset.type !== 'deposit' && asset.type !== 'cash') {
+                    const volatility = asset.type === 'viop' ? 0.03 : 0.02;
+                    const change = (Math.random() - 0.5) * volatility;
+                    asset.currentPrice = asset.currentPrice * (1 + change);
+                }
+            });
+
+            setTimeout(() => {
+                btn.classList.remove('refreshing');
+                renderPortfolio();
+                updateSummary();
+                updatePerformance();
+                updateLastUpdate();
+                showToast('Fiyatlar güncellendi!', 'success');
+            }, 800);
+        }
+
+        function updateLastUpdate() {
+            const el = document.getElementById('lastUpdate');
+            if (portfolio.length > 0) {
+                el.style.display = 'flex';
+                const now = new Date();
+                el.querySelector('span').textContent = `Son güncelleme: ${now.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}`;
+            }
+        }
+
+        // ========== RENDER ==========
+        function renderPortfolio() {
+            const list = document.getElementById('assetList');
+            const countEl = document.getElementById('assetCount');
+
+            let filtered = portfolio;
+            if (currentCategory !== 'all') {
+                filtered = portfolio.filter(a => a.type === currentCategory);
+            }
+
+            countEl.textContent = `${filtered.length} varlık`;
+
+            if (filtered.length === 0) {
+                list.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-wallet"></i>
+                        <p>${currentCategory === 'all' ? 'Henüz varlık eklenmedi.<br>Başlamak için "Varlık Ekle" butonuna tıklayın.' : 'Bu kategoride varlık yok.'}</p>
+                    </div>
+                `;
+                document.getElementById('lastUpdate').style.display = 'none';
+                return;
+            }
+
+            list.innerHTML = filtered.map((asset, i) => {
+                const value = calcValue(asset);
+                const cost = calcCost(asset);
+                const pl = value - cost;
+                const plPct = cost > 0 ? (pl / cost) * 100 : 0;
+                const isPl = pl >= 0;
+
+                return `
+                    <div class="asset-card" onclick="editAsset('${asset.id}')" style="animation-delay: ${i * 0.03}s">
+                        <div class="asset-icon ${asset.type}">${getIconContent(asset)}</div>
+                        <div class="asset-info">
+                            <div class="asset-name">${asset.name || asset.symbol}</div>
+                            <div class="asset-details">${asset.symbol} • ${formatNum(asset.amount)} adet</div>
+                        </div>
+                        <div class="asset-values">
+                            <div class="asset-total">${formatCur(value)}</div>
+                            <div class="asset-change ${isPl ? 'profit' : 'loss'}">
+                                <i class="fas fa-arrow-${isPl ? 'up' : 'down'}"></i>
+                                ${isPl ? '+' : ''}${formatCur(pl)} (${plPct >= 0 ? '+' : ''}${plPct.toFixed(1)}%)
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            updateLastUpdate();
+        }
+
+        function getIconContent(asset) {
+            if (['gold', 'silver', 'deposit'].includes(asset.type)) {
+                const icons = { gold: 'coins', silver: 'ring', deposit: 'piggy-bank' };
+                return `<i class="fas fa-${icons[asset.type]}"></i>`;
+            }
+            return asset.symbol.substring(0, 2);
+        }
+
+        function calcValue(asset) {
+            if (asset.type === 'cash' && asset.symbol === 'TRY') return asset.amount;
+            return asset.amount * asset.currentPrice;
+        }
+
+        function calcCost(asset) {
+            if (asset.type === 'cash' && asset.symbol === 'TRY') return asset.amount;
+            return asset.amount * asset.buyPrice;
+        }
+
+        function updateSummary() {
+            let totalValue = 0, totalCost = 0;
+
+            portfolio.forEach(asset => {
+                totalValue += calcValue(asset);
+                totalCost += calcCost(asset);
+            });
+
+            const pl = totalValue - totalCost;
+            const plPct = totalCost > 0 ? (pl / totalCost) * 100 : 0;
+            const isPl = pl >= 0;
+
+            document.getElementById('totalValue').textContent = formatCur(totalValue);
+
+            const profitEl = document.getElementById('totalProfit');
+            profitEl.className = `stat-badge ${isPl ? 'profit' : 'loss'}`;
+            profitEl.innerHTML = `
+                <i class="fas fa-arrow-${isPl ? 'up' : 'down'}"></i>
+                <span>${isPl ? '+' : ''}${formatCur(pl)} (${plPct >= 0 ? '+' : ''}${plPct.toFixed(2)}%)</span>
+            `;
+
+            document.getElementById('totalCost').innerHTML = `
+                <i class="fas fa-coins"></i>
+                <span>Maliyet: ${formatCur(totalCost)}</span>
+            `;
+        }
+
+        // ========== PERFORMANCE ==========
+        function updatePerformance() {
+            let totalValue = 0, totalCost = 0;
+            const byType = {};
+            let bestAsset = null, worstAsset = null;
+            let bestPL = -Infinity, worstPL = Infinity;
+
+            portfolio.forEach(asset => {
+                const value = calcValue(asset);
+                const cost = calcCost(asset);
+                const pl = value - cost;
+                const plPct = cost > 0 ? (pl / cost) * 100 : 0;
+
+                totalValue += value;
+                totalCost += cost;
+
+                if (!byType[asset.type]) byType[asset.type] = 0;
+                byType[asset.type] += value;
+
+                if (plPct > bestPL) { bestPL = plPct; bestAsset = asset; }
+                if (plPct < worstPL) { worstPL = plPct; worstAsset = asset; }
+            });
+
+            const totalPL = totalValue - totalCost;
+            const returnPct = totalCost > 0 ? (totalPL / totalCost) * 100 : 0;
+            const isProfit = totalPL >= 0;
+
+            // Update cards
+            const plEl = document.getElementById('perfTotalPL');
+            plEl.textContent = (isProfit ? '+' : '') + formatCur(totalPL);
+            plEl.className = `perf-value ${isProfit ? 'profit' : 'loss'}`;
+
+            const retEl = document.getElementById('perfReturn');
+            retEl.textContent = (returnPct >= 0 ? '+' : '') + returnPct.toFixed(2) + '%';
+            retEl.className = `perf-value ${isProfit ? 'profit' : 'loss'}`;
+
+            document.getElementById('perfBest').textContent = bestAsset ? `${bestAsset.symbol} (+${bestPL.toFixed(1)}%)` : '-';
+            document.getElementById('perfWorst').textContent = worstAsset ? `${worstAsset.symbol} (${worstPL.toFixed(1)}%)` : '-';
+            document.getElementById('perfCost').textContent = formatCur(totalCost);
+            document.getElementById('perfValue').textContent = formatCur(totalValue);
+
+            // Pie Chart
+            renderPieChart(byType, totalValue);
+
+            // Category Breakdown
+            renderCategoryBreakdown(byType, totalValue);
+        }
+
+        function renderPieChart(byType, totalValue) {
+            const pieEl = document.getElementById('pieChart');
+            const legendEl = document.getElementById('chartLegend');
+
+            if (totalValue === 0) {
+                pieEl.innerHTML = '<div class="pie-center"><span class="pie-center-label">Veri yok</span></div>';
+                pieEl.style.background = 'var(--bg-input)';
+                legendEl.innerHTML = '';
+                return;
+            }
+
+            const entries = Object.entries(byType).sort((a, b) => b[1] - a[1]);
+            let gradientParts = [];
+            let currentAngle = 0;
+
+            entries.forEach(([type, value]) => {
+                const pct = (value / totalValue) * 100;
+                const endAngle = currentAngle + (pct * 3.6);
+                gradientParts.push(`${TYPE_LABELS[type].color} ${currentAngle}deg ${endAngle}deg`);
+                currentAngle = endAngle;
+            });
+
+            pieEl.style.background = `conic-gradient(${gradientParts.join(', ')})`;
+            pieEl.innerHTML = `
+                <div class="pie-center">
+                    <span class="pie-center-label">Toplam</span>
+                    <span class="pie-center-value">${entries.length} tip</span>
+                </div>
+            `;
+
+            legendEl.innerHTML = entries.map(([type, value]) => {
+                const pct = ((value / totalValue) * 100).toFixed(1);
+                return `
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: ${TYPE_LABELS[type].color}"></div>
+                        <span>${TYPE_LABELS[type].name} ${pct}%</span>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderCategoryBreakdown(byType, totalValue) {
+            const container = document.getElementById('categoryBreakdown');
+
+            if (Object.keys(byType).length === 0) {
+                container.innerHTML = '<div class="empty-state"><p>Henüz varlık eklenmedi.</p></div>';
+                return;
+            }
+
+            const entries = Object.entries(byType).sort((a, b) => b[1] - a[1]);
+
+            container.innerHTML = entries.map(([type, value]) => {
+                const pct = totalValue > 0 ? ((value / totalValue) * 100).toFixed(1) : 0;
+                const count = portfolio.filter(a => a.type === type).length;
+
+                return `
+                    <div class="asset-card" onclick="filterCategory('${type}'); switchTab('portfolio');">
+                        <div class="asset-icon ${type}"><i class="fas fa-${getTypeIcon(type)}"></i></div>
+                        <div class="asset-info">
+                            <div class="asset-name">${TYPE_LABELS[type].name}</div>
+                            <div class="asset-details">${count} varlık • %${pct}</div>
+                        </div>
+                        <div class="asset-values">
+                            <div class="asset-total">${formatCur(value)}</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function getTypeIcon(type) {
+            const icons = {
+                bist: 'flag', us: 'globe-americas', etf: 'cubes', viop: 'chart-bar',
+                gold: 'coins', silver: 'ring', deposit: 'piggy-bank', cash: 'money-bill'
+            };
+            return icons[type] || 'circle';
+        }
+
+        // ========== CATEGORY FILTER ==========
+        function filterCategory(category) {
+            currentCategory = category;
+            document.querySelectorAll('.category-pill').forEach(pill => {
+                pill.classList.toggle('active', pill.dataset.category === category);
+            });
+            renderPortfolio();
+        }
+
+        // ========== MODAL ==========
+        function openAddModal() {
+            editingId = null;
+            selectedType = 'bist';
+            document.getElementById('modalTitle').textContent = 'Varlık Ekle';
+            document.getElementById('submitBtn').innerHTML = '<i class="fas fa-plus"></i> Varlık Ekle';
+            document.getElementById('deleteBtn').style.display = 'none';
+            resetForm();
+            updateFormForType();
+            document.getElementById('addModal').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('addModal').classList.remove('active');
+        }
+
+        function resetForm() {
+            ['symbolInput', 'nameInput', 'amountInput', 'buyPriceInput', 'currentPriceInput', 'interestInput'].forEach(id => {
+                document.getElementById(id).value = '';
+            });
+            document.querySelectorAll('.type-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.type === 'bist');
+            });
+            renderSuggestions();
+        }
+
+        function selectType(type) {
+            selectedType = type;
+            document.querySelectorAll('.type-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.type === type);
+            });
+            updateFormForType();
+            renderSuggestions();
+        }
+
+        function updateFormForType() {
+            const isDeposit = selectedType === 'deposit';
+            const isCash = selectedType === 'cash';
+            const isUSD = selectedType === 'us' || selectedType === 'etf';
+
+            document.getElementById('interestGroup').style.display = isDeposit ? 'block' : 'none';
+            document.getElementById('amountLabel').textContent = isDeposit ? 'Anapara' : (isCash ? 'Miktar' : 'Adet');
+
+            const currency = isUSD ? '$' : '₺';
+            document.getElementById('buyPriceLabel').textContent = `Alış Fiyatı (${currency})`;
+            document.getElementById('currentPriceLabel').textContent = `Güncel Fiyat (${currency})`;
+
+            if (isCash) {
+                document.getElementById('priceHint').textContent = 'Döviz ise alış ve güncel kuru girin.';
+            } else if (isDeposit) {
+                document.getElementById('priceHint').textContent = 'Vadeli mevduat için faiz oranını girin.';
+            } else {
+                document.getElementById('priceHint').textContent = 'Güncel fiyatı girin. "Güncelle" butonuyla simüle edilir.';
+            }
+        }
+
+        function renderSuggestions() {
+            const container = document.getElementById('suggestions');
+            const items = SUGGESTIONS[selectedType] || [];
+
+            container.innerHTML = items.slice(0, 8).map(item =>
+                `<span class="suggestion-chip" onclick="selectSuggestion('${item.s}', '${item.n}')">${item.s}</span>`
+            ).join('');
+        }
+
+        function selectSuggestion(symbol, name) {
+            document.getElementById('symbolInput').value = symbol;
+            document.getElementById('nameInput').value = name;
+        }
+
+        // ========== SAVE ASSET ==========
+        function saveAsset() {
+            const symbol = document.getElementById('symbolInput').value.trim().toUpperCase();
+            const name = document.getElementById('nameInput').value.trim();
+            const amount = parseFloat(document.getElementById('amountInput').value);
+            const buyPrice = parseFloat(document.getElementById('buyPriceInput').value);
+            const currentPrice = parseFloat(document.getElementById('currentPriceInput').value);
+            const interest = parseFloat(document.getElementById('interestInput').value) || 0;
+
+            if (!symbol) {
+                showToast('Lütfen sembol girin!', 'error');
+                return;
+            }
+            if (!amount || amount <= 0) {
+                showToast('Lütfen geçerli miktar girin!', 'error');
+                return;
+            }
+            if ((!buyPrice || buyPrice <= 0) && selectedType !== 'cash') {
+                showToast('Lütfen alış fiyatı girin!', 'error');
+                return;
+            }
+            if ((!currentPrice || currentPrice <= 0) && selectedType !== 'cash') {
+                showToast('Lütfen güncel fiyat girin!', 'error');
+                return;
+            }
+
+            const asset = {
+                id: editingId || Date.now().toString(),
+                type: selectedType,
+                symbol: symbol,
+                name: name || symbol,
+                amount: amount,
+                buyPrice: buyPrice || 1,
+                currentPrice: currentPrice || buyPrice || 1,
+                interestRate: interest
+            };
+
+            if (editingId) {
+                const idx = portfolio.findIndex(a => a.id === editingId);
+                if (idx !== -1) portfolio[idx] = asset;
+            } else {
+                portfolio.push(asset);
+            }
+
+            renderPortfolio();
+            updateSummary();
+            updatePerformance();
+            closeModal();
+            showToast(editingId ? 'Varlık güncellendi!' : 'Varlık eklendi!', 'success');
+        }
+
+        // ========== EDIT ASSET ==========
+        function editAsset(id) {
+            const asset = portfolio.find(a => a.id === id);
+            if (!asset) return;
+
+            editingId = id;
+            selectedType = asset.type;
+
+            document.getElementById('modalTitle').textContent = 'Varlığı Düzenle';
+            document.getElementById('submitBtn').innerHTML = '<i class="fas fa-save"></i> Kaydet';
+            document.getElementById('deleteBtn').style.display = 'block';
+
+            document.querySelectorAll('.type-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.type === asset.type);
+            });
+
+            updateFormForType();
+            renderSuggestions();
+
+            document.getElementById('symbolInput').value = asset.symbol;
+            document.getElementById('nameInput').value = asset.name || '';
+            document.getElementById('amountInput').value = asset.amount;
+            document.getElementById('buyPriceInput').value = asset.buyPrice;
+            document.getElementById('currentPriceInput').value = asset.currentPrice;
+            document.getElementById('interestInput').value = asset.interestRate || '';
+
+            document.getElementById('addModal').classList.add('active');
+        }
+
+        // ========== DELETE ==========
+        function confirmDelete() {
+            document.getElementById('confirmModal').classList.add('active');
+        }
+
+        function closeConfirm() {
+            document.getElementById('confirmModal').classList.remove('active');
+        }
+
+        function deleteAsset() {
+            if (editingId) {
+                portfolio = portfolio.filter(a => a.id !== editingId);
+                renderPortfolio();
+                updateSummary();
+                updatePerformance();
+            }
+            closeConfirm();
+            closeModal();
+            showToast('Varlık silindi!', 'success');
+        }
+
+        // ========== EXPORT ==========
+        function exportData() {
+            if (portfolio.length === 0) {
+                showToast('Dışa aktarılacak varlık yok!', 'error');
+                return;
+            }
+
+            let csv = 'Tip,Sembol,İsim,Adet,Alış Fiyatı,Güncel Fiyat,Toplam Değer,Kar/Zarar,Kar/Zarar %\n';
+
+            portfolio.forEach(asset => {
+                const value = calcValue(asset);
+                const cost = calcCost(asset);
+                const pl = value - cost;
+                const plPct = cost > 0 ? (pl / cost) * 100 : 0;
+
+                csv += `${TYPE_LABELS[asset.type].name},"${asset.symbol}","${asset.name}",${asset.amount},${asset.buyPrice},${asset.currentPrice},${value.toFixed(2)},${pl.toFixed(2)},${plPct.toFixed(2)}%\n`;
+            });
+
+            const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `portfolio_${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+            URL.revokeObjectURL(url);
+            showToast('CSV olarak indirildi!', 'success');
+        }
+
+        // ========== UTILITIES ==========
+        function formatCur(v) {
+            return new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY', minimumFractionDigits: 2 }).format(v);
+        }
+
+        function formatNum(v) {
+            return new Intl.NumberFormat('tr-TR', { maximumFractionDigits: 4 }).format(v);
+        }
+
+        function showToast(msg, type) {
+            const toast = document.getElementById('toast');
+            const text = document.getElementById('toastText');
+            const icon = toast.querySelector('i');
+
+            text.textContent = msg;
+            toast.className = `toast ${type}`;
+            icon.className = type === 'success' ? 'fas fa-check-circle' : 'fas fa-exclamation-circle';
+
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 2500);
+        }
+
+        // Initialize
+        init();
+    </script>
+</body>
+</html>
