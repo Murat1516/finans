@@ -774,6 +774,16 @@
             margin-right: 8px;
         }
 
+        .market-price.loading {
+            color: var(--text-muted);
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.4; }
+            50% { opacity: 1; }
+        }
+
         /* App Footer */
         .app-footer {
             text-align: center;
@@ -5980,38 +5990,35 @@
         async function loadMarketData() {
             if (marketDataLoading) return;
 
-            const container = document.getElementById('marketSections');
             const refreshIcon = document.getElementById('marketRefreshIcon');
 
-            // Show loading if no cached data
-            if (Object.keys(marketDataCache).length === 0) {
-                container.innerHTML = '<div class="market-loading"><i class="fas fa-spinner"></i> Piyasa verileri yükleniyor...</div>';
-            }
+            // Render skeleton immediately with loading state
+            renderMarketSections();
 
             marketDataLoading = true;
             if (refreshIcon) refreshIcon.classList.add('refreshing');
 
-            // Collect all symbols to fetch
-            const allSymbols = [];
+            // Collect all symbols
+            const allItems = [];
             Object.values(MARKET_SYMBOLS).forEach(section => {
-                section.items.forEach(item => {
-                    allSymbols.push({ key: item.symbol, yahoo: item.yahoo });
-                });
+                section.items.forEach(item => allItems.push(item));
             });
 
-            // Fetch all in parallel
-            const fetchPromises = allSymbols.map(async ({ key, yahoo }) => {
-                const data = await fetchSingleQuote(yahoo);
+            // Fetch all in parallel, update UI as each completes
+            const fetchPromises = allItems.map(async (item) => {
+                const data = await fetchSingleQuote(item.yahoo);
                 if (data) {
-                    marketDataCache[key] = data;
+                    marketDataCache[item.symbol] = data;
 
                     // Update cachedUSDTRY if available
-                    if (key === 'USDTRY' && data.price) {
+                    if (item.symbol === 'USDTRY' && data.price) {
                         cachedUSDTRY = data.price;
-                        // Update settings panel
                         const usdEl = document.getElementById('currentUSDTRY');
                         if (usdEl) usdEl.textContent = `₺${data.price.toFixed(4)}`;
                     }
+
+                    // Update single row immediately (progressive loading)
+                    updateMarketRow(item);
                 }
             });
 
@@ -6020,13 +6027,51 @@
             marketDataLoading = false;
             if (refreshIcon) refreshIcon.classList.remove('refreshing');
 
-            // Render market sections
-            renderMarketSections();
-
             // Update timestamp
             const now = new Date();
             const timeStr = now.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
             document.getElementById('marketDataUpdate').innerHTML = `<i class="fas fa-clock"></i> ${timeStr}`;
+        }
+
+        function updateMarketRow(item) {
+            const rowEl = document.getElementById(`market-row-${item.symbol}`);
+            if (!rowEl) return;
+
+            const data = marketDataCache[item.symbol];
+            if (!data) return;
+
+            const price = data.price || 0;
+            const change = data.change || 0;
+            const changePct = data.changePct || 0;
+
+            const changeClass = change > 0 ? 'positive' : change < 0 ? 'negative' : 'neutral';
+            const changeSign = change > 0 ? '+' : '';
+
+            // Format price
+            let priceStr;
+            if (item.symbol === 'US10Y') {
+                priceStr = price.toFixed(3);
+            } else if (price >= 1000) {
+                priceStr = price.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            } else if (price >= 100) {
+                priceStr = price.toFixed(2);
+            } else if (price >= 1) {
+                priceStr = price.toFixed(4);
+            } else {
+                priceStr = price.toFixed(6);
+            }
+
+            const priceEl = rowEl.querySelector('.market-price');
+            priceEl.textContent = priceStr;
+            priceEl.classList.remove('loading');
+
+            const changeEl = rowEl.querySelector('.market-change');
+            changeEl.textContent = `${changeSign}${change.toFixed(2)}`;
+            changeEl.className = `market-change ${changeClass}`;
+
+            const changePctEl = rowEl.querySelector('.market-change-pct');
+            changePctEl.textContent = `${changeSign}${changePct.toFixed(2)}%`;
+            changePctEl.className = `market-change-pct ${changeClass}`;
         }
 
         function renderMarketSections() {
@@ -6052,41 +6097,45 @@
 
         function renderMarketRow(item) {
             const data = marketDataCache[item.symbol];
+            const hasData = !!data;
             const price = data?.price || 0;
             const change = data?.change || 0;
             const changePct = data?.changePct || 0;
 
-            const changeClass = change > 0 ? 'positive' : change < 0 ? 'negative' : 'neutral';
+            const changeClass = hasData ? (change > 0 ? 'positive' : change < 0 ? 'negative' : 'neutral') : 'neutral';
             const changeSign = change > 0 ? '+' : '';
 
             // Format price based on value
-            let priceStr;
-            if (item.symbol === 'US10Y') {
-                priceStr = price.toFixed(3);
-            } else if (price >= 1000) {
-                priceStr = price.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-            } else if (price >= 100) {
-                priceStr = price.toFixed(2);
-            } else if (price >= 1) {
-                priceStr = price.toFixed(4);
-            } else {
-                priceStr = price.toFixed(6);
+            let priceStr = hasData ? '' : '---';
+            if (hasData) {
+                if (item.symbol === 'US10Y') {
+                    priceStr = price.toFixed(3);
+                } else if (price >= 1000) {
+                    priceStr = price.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                } else if (price >= 100) {
+                    priceStr = price.toFixed(2);
+                } else if (price >= 1) {
+                    priceStr = price.toFixed(4);
+                } else {
+                    priceStr = price.toFixed(6);
+                }
             }
 
             // Icon letter
             const iconLetter = item.symbol.charAt(0);
+            const loadingClass = hasData ? '' : 'loading';
 
             return `
-                <div class="market-row">
+                <div class="market-row" id="market-row-${item.symbol}">
                     <div class="market-symbol-cell">
                         <div class="market-symbol-icon ${item.type}">${iconLetter}</div>
                         <span class="market-symbol-name">
                             ${item.symbol}${item.badge ? `<span class="badge">${item.badge}</span>` : ''} •
                         </span>
                     </div>
-                    <div class="market-price">${priceStr}</div>
-                    <div class="market-change ${changeClass}">${changeSign}${change.toFixed(2)}</div>
-                    <div class="market-change-pct ${changeClass}">${changeSign}${changePct.toFixed(2)}%</div>
+                    <div class="market-price ${loadingClass}">${priceStr}</div>
+                    <div class="market-change ${changeClass}">${hasData ? changeSign + change.toFixed(2) : '---'}</div>
+                    <div class="market-change-pct ${changeClass}">${hasData ? changeSign + changePct.toFixed(2) + '%' : '---'}</div>
                 </div>
             `;
         }
