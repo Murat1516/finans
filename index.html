@@ -307,7 +307,7 @@
 
         .perf-value {
             font-family: 'JetBrains Mono', monospace;
-            font-size: 20px;
+            font-size: 15px;
             font-weight: 600;
         }
 
@@ -5590,19 +5590,264 @@
                 { s: 'TFI', n: 'SPDR Nuveen Bloomberg Municipal Bond' }
             ],
             viop: [
+                // Endeks Vadeli İşlemleri
                 { s: 'F_XU030', n: 'BIST 30 Vadeli' },
                 { s: 'F_XU100', n: 'BIST 100 Vadeli' },
+                { s: 'F_XBANK', n: 'BIST Banka Vadeli' },
+                { s: 'F_XUSIN', n: 'BIST Sınai Vadeli' },
+                { s: 'F_XHOLD', n: 'BIST Holding Vadeli' },
+                { s: 'F_XUTEK', n: 'BIST Teknoloji Vadeli' },
+                // Döviz Vadeli İşlemleri
                 { s: 'F_USDTRY', n: 'Dolar/TL Vadeli' },
                 { s: 'F_EURTRY', n: 'Euro/TL Vadeli' },
+                { s: 'F_EURUSD', n: 'Euro/Dolar Vadeli' },
+                { s: 'F_GBPTRY', n: 'Sterlin/TL Vadeli' },
+                { s: 'F_CHFTRY', n: 'Frank/TL Vadeli' },
+                { s: 'F_JPYTRY', n: 'Yen/TL Vadeli' },
+                { s: 'F_CNYTRY', n: 'Yuan/TL Vadeli' },
+                { s: 'F_RUBTRY', n: 'Ruble/TL Vadeli' },
+                // Emtia Vadeli İşlemleri
                 { s: 'F_XAUUSD', n: 'Altın/USD Vadeli' },
+                { s: 'F_XAUTRY', n: 'Altın/TL Vadeli' },
+                { s: 'F_XAGUSD', n: 'Gümüş/USD Vadeli' },
+                { s: 'F_XAGTRY', n: 'Gümüş/TL Vadeli' },
+                { s: 'F_XPTUSD', n: 'Platin/USD Vadeli' },
+                { s: 'F_XPDUSD', n: 'Paladyum/USD Vadeli' },
+                { s: 'F_WHEAT', n: 'Buğday Vadeli' },
+                { s: 'F_COTTON', n: 'Pamuk Vadeli' },
+                { s: 'F_STEEL', n: 'Çelik Vadeli' },
+                { s: 'F_COPPER', n: 'Bakır Vadeli' },
+                { s: 'F_BRENT', n: 'Brent Petrol Vadeli' },
+                // Elektrik Vadeli İşlemleri
+                { s: 'F_ELEC_BASE', n: 'Elektrik Baz Yük Vadeli' },
+                { s: 'F_ELEC_PEAK', n: 'Elektrik Pik Yük Vadeli' },
+                // Pay Vadeli İşlemleri
+                { s: 'F_AKBNK', n: 'Akbank Vadeli' },
+                { s: 'F_ARCLK', n: 'Arçelik Vadeli' },
+                { s: 'F_ASELS', n: 'Aselsan Vadeli' },
+                { s: 'F_BIMAS', n: 'BİM Vadeli' },
+                { s: 'F_DOHOL', n: 'Doğan Holding Vadeli' },
+                { s: 'F_EKGYO', n: 'Emlak Konut Vadeli' },
+                { s: 'F_ENKAI', n: 'Enka İnşaat Vadeli' },
+                { s: 'F_EREGL', n: 'Ereğli Vadeli' },
+                { s: 'F_FROTO', n: 'Ford Otosan Vadeli' },
+                { s: 'F_GARAN', n: 'Garanti Vadeli' },
+                { s: 'F_GUBRF', n: 'Gübre Fabrikaları Vadeli' },
+                { s: 'F_HALKB', n: 'Halkbank Vadeli' },
+                { s: 'F_ISCTR', n: 'İş Bankası Vadeli' },
+                { s: 'F_KCHOL', n: 'Koç Holding Vadeli' },
+                { s: 'F_KOZAA', n: 'Koza Anadolu Vadeli' },
+                { s: 'F_KOZAL', n: 'Koza Altın Vadeli' },
+                { s: 'F_KRDMD', n: 'Kardemir Vadeli' },
+                { s: 'F_MGROS', n: 'Migros Vadeli' },
+                { s: 'F_ODAS', n: 'Odaş Elektrik Vadeli' },
+                { s: 'F_PETKM', n: 'Petkim Vadeli' },
+                { s: 'F_PGSUS', n: 'Pegasus Vadeli' },
+                { s: 'F_SAHOL', n: 'Sabancı Vadeli' },
+                { s: 'F_SASA', n: 'Sasa Vadeli' },
+                { s: 'F_SISE', n: 'Şişecam Vadeli' },
+                { s: 'F_SOKM', n: 'Şok Market Vadeli' },
+                { s: 'F_TAVHL', n: 'TAV Vadeli' },
+                { s: 'F_TCELL', n: 'Turkcell Vadeli' },
+                { s: 'F_THYAO', n: 'Türk Hava Yolları Vadeli' },
+                { s: 'F_TKFEN', n: 'Tekfen Vadeli' },
+                { s: 'F_TOASO', n: 'Tofaş Vadeli' },
+                { s: 'F_TTKOM', n: 'Türk Telekom Vadeli' },
+                { s: 'F_TTRAK', n: 'Türk Traktör Vadeli' },
+                { s: 'F_TUPRS', n: 'Tüpraş Vadeli' },
+                { s: 'F_VAKBN', n: 'Vakıfbank Vadeli' },
+                { s: 'F_VESTL', n: 'Vestel Vadeli' },
+                { s: 'F_YKBNK', n: 'Yapı Kredi Vadeli' },
+                { s: 'F_ZOREN', n: 'Zorlu Enerji Vadeli' },
+                { s: 'F_AEFES', n: 'Anadolu Efes Vadeli' },
+                { s: 'F_AKSEN', n: 'Aksa Enerji Vadeli' },
+                { s: 'F_ALARK', n: 'Alarko Holding Vadeli' },
+                { s: 'F_ALGYO', n: 'Alarko GYO Vadeli' },
+                { s: 'F_ALKIM', n: 'Alkim Kimya Vadeli' },
+                { s: 'F_AYGAZ', n: 'Aygaz Vadeli' },
+                { s: 'F_BAGFS', n: 'Bagfaş Vadeli' },
+                { s: 'F_BRSAN', n: 'Borusan Vadeli' },
+                { s: 'F_BRYAT', n: 'Borusan Yatırım Vadeli' },
+                { s: 'F_CCOLA', n: 'Coca-Cola Vadeli' },
+                { s: 'F_CEMAS', n: 'Çemaş Vadeli' },
+                { s: 'F_CIMSA', n: 'Çimsa Vadeli' },
+                { s: 'F_DOAS', n: 'Doğuş Otomotiv Vadeli' },
+                { s: 'F_ECILC', n: 'Eczacıbaşı Vadeli' },
+                { s: 'F_EGEEN', n: 'Ege Endüstri Vadeli' },
+                { s: 'F_ENJSA', n: 'Enerjisa Vadeli' },
+                { s: 'F_GENIL', n: 'Genel İlaç Vadeli' },
+                { s: 'F_GESAN', n: 'Giresun Enerji Vadeli' },
+                { s: 'F_GLYHO', n: 'Global Yatırım Vadeli' },
+                { s: 'F_GOODY', n: 'Goodyear Vadeli' },
+                { s: 'F_GOZDE', n: 'Gözde Girişim Vadeli' },
+                { s: 'F_HEKTS', n: 'Hektaş Vadeli' },
+                { s: 'F_HLGYO', n: 'Halk GYO Vadeli' },
+                { s: 'F_IHEVA', n: 'İhlas Ev Aletleri Vadeli' },
+                { s: 'F_IPEKE', n: 'İpek Enerji Vadeli' },
+                { s: 'F_ISGYO', n: 'İş GYO Vadeli' },
+                { s: 'F_ISMEN', n: 'İş Yatırım Vadeli' },
+                { s: 'F_KARSN', n: 'Karsan Vadeli' },
+                { s: 'F_KARTN', n: 'Kartonsan Vadeli' },
+                { s: 'F_KLMSN', n: 'Klimasan Vadeli' },
+                { s: 'F_KONTR', n: 'Kontrolmatik Vadeli' },
+                { s: 'F_KONYA', n: 'Konya Çimento Vadeli' },
+                { s: 'F_KORDS', n: 'Kordsa Vadeli' },
+                { s: 'F_LOGO', n: 'Logo Yazılım Vadeli' },
+                { s: 'F_MAVI', n: 'Mavi Giyim Vadeli' },
+                { s: 'F_NETAS', n: 'Netaş Vadeli' },
+                { s: 'F_NTHOL', n: 'Net Holding Vadeli' },
+                { s: 'F_OTKAR', n: 'Otokar Vadeli' },
+                { s: 'F_OYAKC', n: 'Oyak Çimento Vadeli' },
+                { s: 'F_PARSN', n: 'Parsan Vadeli' },
+                { s: 'F_PRKAB', n: 'Türk Prysmian Vadeli' },
+                { s: 'F_PRKME', n: 'Park Elektrik Vadeli' },
+                { s: 'F_SARKY', n: 'Sarkuysan Vadeli' },
+                { s: 'F_SELEC', n: 'Selçuk Ecza Vadeli' },
+                { s: 'F_SKBNK', n: 'Şekerbank Vadeli' },
+                { s: 'F_TATGD', n: 'Tat Gıda Vadeli' },
+                { s: 'F_TKNSA', n: 'Teknosa Vadeli' },
+                { s: 'F_TMSN', n: 'Temsan Vadeli' },
+                { s: 'F_TRCAS', n: 'Turcas Vadeli' },
+                { s: 'F_TRGYO', n: 'Torunlar GYO Vadeli' },
+                { s: 'F_TRILC', n: 'Turkcell İletişim Vadeli' },
+                { s: 'F_TSKB', n: 'TSKB Vadeli' },
+                { s: 'F_ULKER', n: 'Ülker Vadeli' },
+                { s: 'F_UNYEC', n: 'Ünye Çimento Vadeli' },
+                { s: 'F_VAKKO', n: 'Vakko Vadeli' },
+                { s: 'F_VESBE', n: 'Vestel Beyaz Eşya Vadeli' },
+                { s: 'F_VKGYO', n: 'Vakıf GYO Vadeli' },
+                { s: 'F_YATAS', n: 'Yataş Vadeli' },
+                { s: 'F_YUNSA', n: 'Yünsa Vadeli' },
+                // Ek Pay Vadeli İşlemleri
+                { s: 'F_AKFGY', n: 'Akfen GYO Vadeli' },
+                { s: 'F_AKFYE', n: 'Akfen Yenilenebilir Vadeli' },
+                { s: 'F_ANSGR', n: 'Anadolu Sigorta Vadeli' },
+                { s: 'F_ARENA', n: 'Arena Bilgisayar Vadeli' },
+                { s: 'F_AYDEM', n: 'Aydem Enerji Vadeli' },
+                { s: 'F_BIOEN', n: 'Biotrend Vadeli' },
+                { s: 'F_BRISA', n: 'Brisa Vadeli' },
+                { s: 'F_BUCIM', n: 'Bursa Çimento Vadeli' },
+                { s: 'F_CEMTS', n: 'Çemtaş Vadeli' },
+                { s: 'F_CLEBI', n: 'Çelebi Vadeli' },
+                { s: 'F_DEVA', n: 'Deva Holding Vadeli' },
+                { s: 'F_EGPRO', n: 'EGE Profil Vadeli' },
+                { s: 'F_ESEN', n: 'Esenboğa Vadeli' },
+                { s: 'F_GEDZA', n: 'Gediz Ambalaj Vadeli' },
+                { s: 'F_GEREL', n: 'Gersan Elektrik Vadeli' },
+                { s: 'F_GLCVY', n: 'Glacier Beverage Vadeli' },
+                { s: 'F_GOLTS', n: 'Göltaş Vadeli' },
+                { s: 'F_GWIND', n: 'Galata Wind Vadeli' },
+                { s: 'F_HUNER', n: 'Hünkar Vadeli' },
+                { s: 'F_INDES', n: 'İndeks Vadeli' },
+                { s: 'F_INVEO', n: 'Inveo Vadeli' },
+                { s: 'F_IZENR', n: 'İZ Enerji Vadeli' },
+                { s: 'F_KAYSE', n: 'Kayseri Şeker Vadeli' },
+                { s: 'F_KENT', n: 'Kent Gıda Vadeli' },
+                { s: 'F_KERVT', n: 'Kerevitaş Vadeli' },
+                { s: 'F_KMPUR', n: 'Kimberly-Clark Vadeli' },
+                { s: 'F_KTLEV', n: 'Katılım Leasing Vadeli' },
+                { s: 'F_KUTPO', n: 'Kütahya Porselen Vadeli' },
+                { s: 'F_LIDER', n: 'Lider Faktoring Vadeli' },
+                { s: 'F_LYDHO', n: 'Lydia Vadeli' },
+                { s: 'F_MAKIM', n: 'Makina Takım Vadeli' },
+                { s: 'F_MARKA', n: 'Marka Yatırım Vadeli' },
+                { s: 'F_MEDTR', n: 'Meditera Vadeli' },
+                { s: 'F_MPARK', n: 'MLP Sağlık Vadeli' },
+                { s: 'F_NUHCM', n: 'Nuh Çimento Vadeli' },
+                { s: 'F_ONRYT', n: 'Onur Taahhüt Vadeli' },
+                { s: 'F_OZKGY', n: 'Özak GYO Vadeli' },
+                { s: 'F_POLHO', n: 'Polisan Holding Vadeli' },
+                { s: 'F_REEDR', n: 'Reedr Vadeli' },
+                { s: 'F_RUBNS', n: 'Rubenis Vadeli' },
+                { s: 'F_SAYAS', n: 'Say Reklamcılık Vadeli' },
+                { s: 'F_SMRTG', n: 'Smart Güneş Vadeli' },
+                { s: 'F_SNICA', n: 'Şenocak Vadeli' },
+                { s: 'F_SNGYO', n: 'Sinpaş GYO Vadeli' },
+                { s: 'F_TABGD', n: 'Tablo Gıda Vadeli' },
+                { s: 'F_TNZTP', n: 'Taze Nefes Vadeli' },
+                { s: 'F_TUKAS', n: 'Tukaş Vadeli' },
+                { s: 'F_TURSG', n: 'Türkiye Sigorta Vadeli' },
+                { s: 'F_YYLGD', n: 'Yayla Gıda Vadeli' },
+                { s: 'F_ZRGYO', n: 'Ziraat GYO Vadeli' },
+                // Endeks Opsiyonları
                 { s: 'O_XU030', n: 'BIST 30 Opsiyon' },
-                { s: 'O_GARAN', n: 'Garanti Opsiyon' },
-                { s: 'O_THYAO', n: 'THY Opsiyon' },
+                { s: 'O_XU030_C', n: 'BIST 30 Call Opsiyon' },
+                { s: 'O_XU030_P', n: 'BIST 30 Put Opsiyon' },
+                { s: 'O_XU100', n: 'BIST 100 Opsiyon' },
+                // Döviz Opsiyonları
+                { s: 'O_USDTRY', n: 'Dolar/TL Opsiyon' },
+                { s: 'O_USDTRY_C', n: 'Dolar/TL Call Opsiyon' },
+                { s: 'O_USDTRY_P', n: 'Dolar/TL Put Opsiyon' },
+                { s: 'O_EURTRY', n: 'Euro/TL Opsiyon' },
+                { s: 'O_EURUSD', n: 'Euro/Dolar Opsiyon' },
+                // Emtia Opsiyonları
+                { s: 'O_XAUUSD', n: 'Altın/USD Opsiyon' },
+                { s: 'O_XAUTRY', n: 'Altın/TL Opsiyon' },
+                // Pay Opsiyonları
                 { s: 'O_AKBNK', n: 'Akbank Opsiyon' },
-                { s: 'O_SISE', n: 'Şişecam Opsiyon' },
+                { s: 'O_ARCLK', n: 'Arçelik Opsiyon' },
+                { s: 'O_ASELS', n: 'Aselsan Opsiyon' },
+                { s: 'O_BIMAS', n: 'BİM Opsiyon' },
+                { s: 'O_DOHOL', n: 'Doğan Holding Opsiyon' },
+                { s: 'O_EKGYO', n: 'Emlak Konut Opsiyon' },
+                { s: 'O_ENKAI', n: 'Enka Opsiyon' },
                 { s: 'O_EREGL', n: 'Ereğli Opsiyon' },
+                { s: 'O_FROTO', n: 'Ford Otosan Opsiyon' },
+                { s: 'O_GARAN', n: 'Garanti Opsiyon' },
+                { s: 'O_GUBRF', n: 'Gübre Fabrikaları Opsiyon' },
+                { s: 'O_HALKB', n: 'Halkbank Opsiyon' },
+                { s: 'O_ISCTR', n: 'İş Bankası Opsiyon' },
                 { s: 'O_KCHOL', n: 'Koç Holding Opsiyon' },
-                { s: 'O_SAHOL', n: 'Sabancı Holding Opsiyon' }
+                { s: 'O_KOZAA', n: 'Koza Anadolu Opsiyon' },
+                { s: 'O_KOZAL', n: 'Koza Altın Opsiyon' },
+                { s: 'O_KRDMD', n: 'Kardemir Opsiyon' },
+                { s: 'O_MGROS', n: 'Migros Opsiyon' },
+                { s: 'O_ODAS', n: 'Odaş Elektrik Opsiyon' },
+                { s: 'O_PETKM', n: 'Petkim Opsiyon' },
+                { s: 'O_PGSUS', n: 'Pegasus Opsiyon' },
+                { s: 'O_SAHOL', n: 'Sabancı Opsiyon' },
+                { s: 'O_SASA', n: 'Sasa Opsiyon' },
+                { s: 'O_SISE', n: 'Şişecam Opsiyon' },
+                { s: 'O_SOKM', n: 'Şok Market Opsiyon' },
+                { s: 'O_TAVHL', n: 'TAV Opsiyon' },
+                { s: 'O_TCELL', n: 'Turkcell Opsiyon' },
+                { s: 'O_THYAO', n: 'THY Opsiyon' },
+                { s: 'O_TKFEN', n: 'Tekfen Opsiyon' },
+                { s: 'O_TOASO', n: 'Tofaş Opsiyon' },
+                { s: 'O_TTKOM', n: 'Türk Telekom Opsiyon' },
+                { s: 'O_TTRAK', n: 'Türk Traktör Opsiyon' },
+                { s: 'O_TUPRS', n: 'Tüpraş Opsiyon' },
+                { s: 'O_VAKBN', n: 'Vakıfbank Opsiyon' },
+                { s: 'O_VESTL', n: 'Vestel Opsiyon' },
+                { s: 'O_YKBNK', n: 'Yapı Kredi Opsiyon' },
+                { s: 'O_ZOREN', n: 'Zorlu Enerji Opsiyon' },
+                { s: 'O_AEFES', n: 'Anadolu Efes Opsiyon' },
+                { s: 'O_AKSEN', n: 'Aksa Enerji Opsiyon' },
+                { s: 'O_CCOLA', n: 'Coca-Cola Opsiyon' },
+                { s: 'O_DOAS', n: 'Doğuş Otomotiv Opsiyon' },
+                { s: 'O_ECILC', n: 'Eczacıbaşı Opsiyon' },
+                { s: 'O_ENJSA', n: 'Enerjisa Opsiyon' },
+                { s: 'O_ISGYO', n: 'İş GYO Opsiyon' },
+                { s: 'O_KORDS', n: 'Kordsa Opsiyon' },
+                { s: 'O_LOGO', n: 'Logo Yazılım Opsiyon' },
+                { s: 'O_MAVI', n: 'Mavi Giyim Opsiyon' },
+                { s: 'O_NETAS', n: 'Netaş Opsiyon' },
+                { s: 'O_OTKAR', n: 'Otokar Opsiyon' },
+                { s: 'O_TSKB', n: 'TSKB Opsiyon' },
+                { s: 'O_ULKER', n: 'Ülker Opsiyon' },
+                // Mini Kontratlar
+                { s: 'F_MINI_XU030', n: 'Mini BIST 30 Vadeli' },
+                { s: 'F_MINI_USDTRY', n: 'Mini Dolar/TL Vadeli' },
+                { s: 'F_MINI_EURTRY', n: 'Mini Euro/TL Vadeli' },
+                { s: 'F_MINI_XAUTRY', n: 'Mini Altın/TL Vadeli' },
+                // Esnek Kontratlar
+                { s: 'F_FLEX_XU030', n: 'Esnek BIST 30 Vadeli' },
+                { s: 'F_FLEX_USDTRY', n: 'Esnek Dolar/TL Vadeli' },
+                // Takas Kontratları
+                { s: 'S_USDTRY', n: 'Dolar/TL Takas' },
+                { s: 'S_EURTRY', n: 'Euro/TL Takas' },
+                { s: 'S_EURUSD', n: 'Euro/Dolar Takas' },
+                { s: 'S_GBPTRY', n: 'Sterlin/TL Takas' }
             ],
             gold: [
                 { s: 'XAU', n: 'Ons Altın (USD)' },
@@ -5966,11 +6211,15 @@
         async function fetchSingleQuote(yahooSymbol) {
             try {
                 const url = `${API_CONFIG.corsProxy}${encodeURIComponent(API_CONFIG.yahooFinance + yahooSymbol)}`;
-                const response = await fetch(url, { signal: AbortSignal.timeout(8000) });
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 15000);
+
+                const response = await fetch(url, { signal: controller.signal });
+                clearTimeout(timeoutId);
 
                 if (response.ok) {
                     const data = await response.json();
-                    const result = data?.chart?.result?.[0];
+                    const result = data?.contents ? JSON.parse(data.contents)?.chart?.result?.[0] : data?.chart?.result?.[0];
                     if (result) {
                         const meta = result.meta;
                         const price = meta?.regularMarketPrice || 0;
@@ -5988,8 +6237,7 @@
         }
 
         async function loadMarketData() {
-            if (marketDataLoading) return;
-
+            // Reset loading state if stuck
             const refreshIcon = document.getElementById('marketRefreshIcon');
 
             // Render skeleton immediately with loading state
@@ -5998,39 +6246,58 @@
             marketDataLoading = true;
             if (refreshIcon) refreshIcon.classList.add('refreshing');
 
-            // Collect all symbols
-            const allItems = [];
-            Object.values(MARKET_SYMBOLS).forEach(section => {
-                section.items.forEach(item => allItems.push(item));
-            });
+            try {
+                // Collect all symbols
+                const allItems = [];
+                Object.values(MARKET_SYMBOLS).forEach(section => {
+                    section.items.forEach(item => allItems.push(item));
+                });
 
-            // Fetch all in parallel, update UI as each completes
-            const fetchPromises = allItems.map(async (item) => {
-                const data = await fetchSingleQuote(item.yahoo);
-                if (data) {
-                    marketDataCache[item.symbol] = data;
+                // Fetch in batches to avoid rate limiting
+                const batchSize = 5;
+                for (let i = 0; i < allItems.length; i += batchSize) {
+                    const batch = allItems.slice(i, i + batchSize);
 
-                    // Update cachedUSDTRY if available
-                    if (item.symbol === 'USDTRY' && data.price) {
-                        cachedUSDTRY = data.price;
-                        const usdEl = document.getElementById('currentUSDTRY');
-                        if (usdEl) usdEl.textContent = `₺${data.price.toFixed(4)}`;
+                    const batchPromises = batch.map(async (item) => {
+                        try {
+                            const data = await fetchSingleQuote(item.yahoo);
+                            if (data) {
+                                marketDataCache[item.symbol] = data;
+
+                                // Update cachedUSDTRY if available
+                                if (item.symbol === 'USDTRY' && data.price) {
+                                    cachedUSDTRY = data.price;
+                                    const usdEl = document.getElementById('currentUSDTRY');
+                                    if (usdEl) usdEl.textContent = `₺${data.price.toFixed(4)}`;
+                                }
+
+                                // Update single row immediately (progressive loading)
+                                updateMarketRow(item);
+                            }
+                        } catch (e) {
+                            console.log(`Error fetching ${item.symbol}:`, e.message);
+                        }
+                    });
+
+                    await Promise.all(batchPromises);
+
+                    // Small delay between batches to avoid rate limiting
+                    if (i + batchSize < allItems.length) {
+                        await new Promise(r => setTimeout(r, 100));
                     }
-
-                    // Update single row immediately (progressive loading)
-                    updateMarketRow(item);
                 }
-            });
 
-            await Promise.all(fetchPromises);
-
-            marketDataLoading = false;
-            if (refreshIcon) refreshIcon.classList.remove('refreshing');
-
-            // Update timestamp
-            const now = new Date();
-            const timeStr = now.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
-            document.getElementById('marketDataUpdate').innerHTML = `<i class="fas fa-clock"></i> ${timeStr}`;
+                // Update timestamp
+                const now = new Date();
+                const timeStr = now.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
+                document.getElementById('marketDataUpdate').innerHTML = `<i class="fas fa-clock"></i> ${timeStr}`;
+            } catch (e) {
+                console.log('Market data load error:', e.message);
+            } finally {
+                // Always reset loading state
+                marketDataLoading = false;
+                if (refreshIcon) refreshIcon.classList.remove('refreshing');
+            }
         }
 
         function updateMarketRow(item) {
@@ -7319,7 +7586,7 @@
 
         // ========== UTILITIES ==========
         function formatCur(v) {
-            return new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY', minimumFractionDigits: 2 }).format(v);
+            return new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(v);
         }
 
         function formatNum(v) {
