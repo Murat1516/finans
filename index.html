@@ -913,6 +913,9 @@
                 <span class="logo-text">Portföy</span>
             </div>
             <div class="header-actions">
+                <button class="icon-btn" onclick="openSettings()" title="Ayarlar">
+                    <i class="fas fa-cog"></i>
+                </button>
                 <button class="icon-btn" onclick="toggleTheme()" title="Tema">
                     <i class="fas fa-moon" id="themeIcon"></i>
                 </button>
@@ -1160,6 +1163,71 @@
         </div>
     </div>
 
+    <!-- Settings Modal -->
+    <div class="modal-overlay" id="settingsModal">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-handle"></div>
+                <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                    <h3 class="modal-title">Ayarlar & Bilgi</h3>
+                    <button class="modal-close" onclick="closeSettings()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">📡 Fiyat Kaynağı: Yahoo Finance</label>
+                    <div style="padding: 16px; background: var(--bg-input); border-radius: 12px; font-size: 13px;">
+                        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px;">
+                            <span style="width: 10px; height: 10px; border-radius: 50%; background: var(--profit);"></span>
+                            <span><strong>ABD Hisseleri / ETF</strong> - Aktif</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px;">
+                            <span style="width: 10px; height: 10px; border-radius: 50%; background: var(--profit);"></span>
+                            <span><strong>BIST Hisseleri</strong> - Aktif (.IS)</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px;">
+                            <span style="width: 10px; height: 10px; border-radius: 50%; background: var(--profit);"></span>
+                            <span><strong>Altın / Gümüş</strong> - Aktif (Futures)</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px;">
+                            <span style="width: 10px; height: 10px; border-radius: 50%; background: var(--profit);"></span>
+                            <span><strong>Döviz Kurları</strong> - Aktif</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span style="width: 10px; height: 10px; border-radius: 50%; background: var(--warning);"></span>
+                            <span><strong>VİOP</strong> - Simülasyon</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">ℹ️ Nasıl Çalışır?</label>
+                    <div style="padding: 14px; background: var(--bg-input); border-radius: 12px; font-size: 12px; color: var(--text-secondary); line-height: 1.6;">
+                        <p style="margin-bottom: 8px;">• <strong>API key gerekmez</strong> - Tüm fiyatlar Yahoo Finance'ten çekilir</p>
+                        <p style="margin-bottom: 8px;">• <strong>BIST:</strong> Sembol.IS formatında (THYAO.IS)</p>
+                        <p style="margin-bottom: 8px;">• <strong>Altın:</strong> USD/ons fiyatı TL'ye çevrilir</p>
+                        <p style="margin-bottom: 8px;">• <strong>Önbellek:</strong> 5 dakika (gereksiz istek önlenir)</p>
+                        <p>• <strong>Fallback:</strong> API hata verirse simülasyon kullanılır</p>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">🔄 USD/TRY Kuru</label>
+                    <div style="padding: 14px; background: var(--bg-input); border-radius: 12px; display: flex; justify-content: space-between; align-items: center;">
+                        <span>Güncel Kur:</span>
+                        <span id="currentUSDTRY" style="font-family: 'JetBrains Mono', monospace; font-weight: 600;">₺--</span>
+                    </div>
+                </div>
+
+                <button type="button" class="submit-btn" onclick="testApiConnection()">
+                    <i class="fas fa-plug"></i> Bağlantıyı Test Et
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Toast -->
     <div class="toast" id="toast">
         <i class="fas fa-check-circle"></i>
@@ -1167,6 +1235,224 @@
     </div>
 
     <script>
+        // ========== API CONFIGURATION ==========
+        const API_CONFIG = {
+            // CORS proxy for Yahoo Finance (free, no key needed)
+            corsProxy: 'https://api.allorigins.win/raw?url=',
+
+            // Yahoo Finance base URL
+            yahooFinance: 'https://query1.finance.yahoo.com/v8/finance/chart/',
+
+            // Cache duration in ms (5 minutes)
+            cacheDuration: 5 * 60 * 1000,
+
+            // Price cache
+            priceCache: {},
+        };
+
+        // ========== PRICE FETCHING SYSTEM ==========
+        // All prices fetched via Yahoo Finance (no API key needed!)
+
+        // Yahoo Finance symbol mappings
+        const YAHOO_SYMBOLS = {
+            // BIST stocks: add .IS suffix
+            bist: (symbol) => `${symbol}.IS`,
+
+            // US stocks: use as-is
+            us: (symbol) => symbol,
+
+            // ETFs: use as-is
+            etf: (symbol) => symbol,
+
+            // Gold
+            gold: {
+                'XAU': 'GC=F',      // Gold Futures (USD) - multiply by TRY rate
+                'GAU': 'GC=F',      // Çeyrek = Gold / 4 * rate
+                'TAU': 'GC=F',      // Tam = Gold * rate
+                'CAU': 'GC=F',      // Cumhuriyet
+                'ONS': 'GC=F',      // Ons (USD)
+            },
+
+            // Silver
+            silver: {
+                'XAG': 'SI=F',      // Silver Futures (USD)
+                'XAGUSD': 'SI=F',
+            },
+
+            // Currency pairs
+            cash: {
+                'USD': 'USDTRY=X',
+                'EUR': 'EURTRY=X',
+                'GBP': 'GBPTRY=X',
+                'TRY': null,  // No need to fetch
+            }
+        };
+
+        // Cached USD/TRY rate for gold/silver calculations
+        let cachedUSDTRY = 34.5;
+
+        // Main function to fetch price for an asset
+        async function fetchPrice(symbol, type) {
+            const cacheKey = `${type}_${symbol}`;
+            const cached = API_CONFIG.priceCache[cacheKey];
+
+            // Return cached if fresh
+            if (cached && Date.now() - cached.timestamp < API_CONFIG.cacheDuration) {
+                return cached.price;
+            }
+
+            let price = null;
+
+            try {
+                price = await fetchYahooPrice(symbol, type);
+
+                if (price !== null) {
+                    API_CONFIG.priceCache[cacheKey] = { price, timestamp: Date.now() };
+                }
+            } catch (error) {
+                console.log(`API error for ${symbol}:`, error.message);
+            }
+
+            return price;
+        }
+
+        // Unified Yahoo Finance fetcher
+        async function fetchYahooPrice(symbol, type) {
+            try {
+                let yahooSymbol = symbol;
+                let multiplier = 1;
+                let needsTRYConversion = false;
+
+                // Determine Yahoo symbol based on type
+                switch (type) {
+                    case 'bist':
+                        yahooSymbol = `${symbol}.IS`;
+                        break;
+
+                    case 'us':
+                    case 'etf':
+                        yahooSymbol = symbol;
+                        break;
+
+                    case 'gold':
+                        yahooSymbol = 'GC=F'; // Gold futures in USD
+                        needsTRYConversion = true;
+                        // Gold is per ounce, convert to gram (1 oz = 31.1g)
+                        if (symbol === 'XAU') {
+                            multiplier = 1 / 31.1035; // Per gram
+                        } else if (symbol === 'GAU') {
+                            multiplier = 1.75 / 31.1035; // Çeyrek ~1.75g
+                        } else if (symbol === 'TAU') {
+                            multiplier = 7.0 / 31.1035; // Tam ~7g
+                        } else if (symbol === 'CAU') {
+                            multiplier = 7.2 / 31.1035; // Cumhuriyet ~7.2g
+                        } else if (symbol === 'ONS') {
+                            multiplier = 1; // Keep as ounce
+                            needsTRYConversion = false; // USD price
+                        }
+                        break;
+
+                    case 'silver':
+                        yahooSymbol = 'SI=F'; // Silver futures in USD
+                        needsTRYConversion = true;
+                        // Silver is per ounce
+                        if (symbol === 'XAG') {
+                            multiplier = 1 / 31.1035; // Per gram
+                        } else {
+                            multiplier = 1; // Ounce
+                            needsTRYConversion = false;
+                        }
+                        break;
+
+                    case 'cash':
+                        if (symbol === 'TRY') return 1;
+                        yahooSymbol = `${symbol}TRY=X`;
+                        break;
+
+                    default:
+                        return null;
+                }
+
+                // Fetch from Yahoo Finance
+                const url = `${API_CONFIG.corsProxy}${encodeURIComponent(API_CONFIG.yahooFinance + yahooSymbol)}`;
+                const response = await fetch(url, {
+                    signal: AbortSignal.timeout(10000)
+                });
+
+                if (!response.ok) return null;
+
+                const data = await response.json();
+                const result = data?.chart?.result?.[0];
+
+                if (!result?.meta?.regularMarketPrice) return null;
+
+                let price = result.meta.regularMarketPrice;
+
+                // Get USD/TRY rate if needed
+                if (needsTRYConversion) {
+                    const tryRate = await getUSDTRYRate();
+                    price = price * multiplier * tryRate;
+                } else if (type === 'gold' || type === 'silver') {
+                    price = price * multiplier;
+                }
+
+                return price;
+
+            } catch (e) {
+                console.log('Yahoo fetch error:', e.message);
+                return null;
+            }
+        }
+
+        // Get USD/TRY rate (cached)
+        async function getUSDTRYRate() {
+            const cacheKey = 'usdtry_rate';
+            const cached = API_CONFIG.priceCache[cacheKey];
+
+            if (cached && Date.now() - cached.timestamp < API_CONFIG.cacheDuration) {
+                return cached.price;
+            }
+
+            try {
+                const url = `${API_CONFIG.corsProxy}${encodeURIComponent(API_CONFIG.yahooFinance + 'USDTRY=X')}`;
+                const response = await fetch(url, {
+                    signal: AbortSignal.timeout(8000)
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    const rate = data?.chart?.result?.[0]?.meta?.regularMarketPrice;
+                    if (rate) {
+                        cachedUSDTRY = rate;
+                        API_CONFIG.priceCache[cacheKey] = { price: rate, timestamp: Date.now() };
+                        return rate;
+                    }
+                }
+            } catch (e) {
+                console.log('USD/TRY fetch error:', e.message);
+            }
+
+            return cachedUSDTRY; // Return cached value on error
+        }
+
+        // Simulate price change when API fails
+        function simulatePrice(currentPrice, type) {
+            const volatility = {
+                bist: 0.015,
+                us: 0.012,
+                etf: 0.008,
+                viop: 0.025,
+                gold: 0.005,
+                silver: 0.008,
+                deposit: 0,
+                cash: 0.003
+            };
+
+            const vol = volatility[type] || 0.01;
+            const change = (Math.random() - 0.5) * 2 * vol;
+            return currentPrice * (1 + change);
+        }
+
         // ========== SUGGESTIONS DATA ==========
         const SUGGESTIONS = {
             bist: [
@@ -1295,27 +1581,58 @@
         }
 
         // ========== PRICE UPDATE ==========
-        function refreshPrices() {
+        async function refreshPrices() {
             const btn = document.getElementById('refreshBtn');
             btn.classList.add('refreshing');
 
-            // Simulate price changes
-            portfolio.forEach(asset => {
-                if (asset.type !== 'deposit' && asset.type !== 'cash') {
-                    const volatility = asset.type === 'viop' ? 0.03 : 0.02;
-                    const change = (Math.random() - 0.5) * volatility;
-                    asset.currentPrice = asset.currentPrice * (1 + change);
+            let apiSuccessCount = 0;
+            let simulatedCount = 0;
+
+            // Fetch all prices in parallel
+            const pricePromises = portfolio.map(async (asset) => {
+                if (asset.type === 'deposit') {
+                    return; // Skip deposits
+                }
+
+                try {
+                    const newPrice = await fetchPrice(asset.symbol, asset.type);
+
+                    if (newPrice !== null) {
+                        asset.currentPrice = newPrice;
+                        asset.priceSource = 'api';
+                        apiSuccessCount++;
+                    } else {
+                        // Fallback to simulation
+                        asset.currentPrice = simulatePrice(asset.currentPrice, asset.type);
+                        asset.priceSource = 'simulated';
+                        simulatedCount++;
+                    }
+                } catch (e) {
+                    // Fallback to simulation on error
+                    asset.currentPrice = simulatePrice(asset.currentPrice, asset.type);
+                    asset.priceSource = 'simulated';
+                    simulatedCount++;
                 }
             });
 
-            setTimeout(() => {
-                btn.classList.remove('refreshing');
-                renderPortfolio();
-                updateSummary();
-                updatePerformance();
-                updateLastUpdate();
+            await Promise.all(pricePromises);
+
+            btn.classList.remove('refreshing');
+            renderPortfolio();
+            updateSummary();
+            updatePerformance();
+            updateLastUpdate();
+
+            // Show appropriate message
+            if (apiSuccessCount > 0 && simulatedCount === 0) {
+                showToast(`${apiSuccessCount} fiyat güncellendi (API)`, 'success');
+            } else if (apiSuccessCount > 0) {
+                showToast(`${apiSuccessCount} API, ${simulatedCount} simüle`, 'success');
+            } else if (simulatedCount > 0) {
+                showToast(`${simulatedCount} fiyat simüle edildi`, 'success');
+            } else {
                 showToast('Fiyatlar güncellendi!', 'success');
-            }, 800);
+            }
         }
 
         function updateLastUpdate() {
@@ -1362,7 +1679,7 @@
                         <div class="asset-icon ${asset.type}">${getIconContent(asset)}</div>
                         <div class="asset-info">
                             <div class="asset-name">${asset.name || asset.symbol}</div>
-                            <div class="asset-details">${asset.symbol} • ${formatNum(asset.amount)} adet</div>
+                            <div class="asset-details">${asset.symbol} • ${formatNum(asset.amount)} adet ${asset.priceSource === 'api' ? '<span style="color: var(--profit);">●</span>' : ''}</div>
                         </div>
                         <div class="asset-values">
                             <div class="asset-total">${formatCur(value)}</div>
@@ -1779,6 +2096,38 @@
             setTimeout(() => toast.classList.remove('show'), 2500);
         }
 
+        // ========== SETTINGS ==========
+        async function openSettings() {
+            document.getElementById('settingsModal').classList.add('active');
+            // Show current USD/TRY rate
+            document.getElementById('currentUSDTRY').textContent = `₺${cachedUSDTRY.toFixed(4)}`;
+
+            // Fetch fresh rate
+            const rate = await getUSDTRYRate();
+            document.getElementById('currentUSDTRY').textContent = `₺${rate.toFixed(4)}`;
+        }
+
+        function closeSettings() {
+            document.getElementById('settingsModal').classList.remove('active');
+        }
+
+        async function testApiConnection() {
+            showToast('Bağlantı test ediliyor...', 'success');
+
+            try {
+                // Test with Apple stock
+                const testPrice = await fetchYahooPrice('AAPL', 'us');
+
+                if (testPrice !== null) {
+                    showToast(`✓ Bağlantı başarılı! AAPL: $${testPrice.toFixed(2)}`, 'success');
+                } else {
+                    showToast('✗ API yanıt vermedi', 'error');
+                }
+            } catch (e) {
+                showToast('✗ Bağlantı hatası', 'error');
+            }
+        }
+
         // ========== PWA / NATIVE APP BEHAVIOR ==========
 
         // Prevent pull-to-refresh - handled by CSS overscroll-behavior
@@ -1817,6 +2166,12 @@
         document.getElementById('confirmModal').addEventListener('click', function(e) {
             if (e.target === this) {
                 closeConfirm();
+            }
+        });
+
+        document.getElementById('settingsModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeSettings();
             }
         });
 
