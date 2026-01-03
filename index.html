@@ -6007,6 +6007,76 @@
             });
         }
 
+        // ========== AUTO REFRESH ==========
+        const AUTO_REFRESH_INTERVAL = 5 * 60 * 1000; // 5 minutes
+        let autoRefreshTimer = null;
+
+        function startAutoRefresh() {
+            if (autoRefreshTimer) clearInterval(autoRefreshTimer);
+
+            autoRefreshTimer = setInterval(async () => {
+                console.log('Auto-refresh triggered');
+                await autoRefreshData();
+            }, AUTO_REFRESH_INTERVAL);
+
+            console.log('Auto-refresh started (every 5 min)');
+        }
+
+        async function autoRefreshData() {
+            try {
+                // Update portfolio prices (silently, without button animation)
+                if (portfolio.length > 0) {
+                    await refreshPricesSilent();
+                }
+
+                // Update market data if on market tab
+                const marketTab = document.getElementById('marketTab');
+                if (marketTab && marketTab.style.display !== 'none') {
+                    await loadMarketData();
+                }
+
+                // Show subtle notification
+                const now = new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
+                showToast(`Veriler güncellendi (${now})`, 'success');
+            } catch (e) {
+                console.log('Auto-refresh error:', e.message);
+            }
+        }
+
+        // Silent version of refreshPrices for auto-refresh (no button animation)
+        async function refreshPricesSilent() {
+            let apiSuccessCount = 0;
+
+            const pricePromises = portfolio.map(async (asset) => {
+                if (asset.type === 'deposit') return;
+
+                asset.previousPrice = asset.currentPrice;
+
+                try {
+                    const newPrice = await fetchPrice(asset.symbol, asset.type);
+                    if (newPrice !== null) {
+                        asset.currentPrice = newPrice;
+                        asset.priceSource = 'api';
+                        apiSuccessCount++;
+                    } else {
+                        asset.currentPrice = simulatePrice(asset.currentPrice, asset.type);
+                        asset.priceSource = 'simulated';
+                    }
+                } catch (e) {
+                    asset.currentPrice = simulatePrice(asset.currentPrice, asset.type);
+                    asset.priceSource = 'simulated';
+                }
+            });
+
+            await Promise.all(pricePromises);
+
+            // Save to DB and update UI
+            await saveToDB();
+            renderPortfolio();
+            updateSummary();
+            updatePerformance();
+        }
+
         // ========== INIT ==========
         async function init() {
             initTheme();
@@ -6024,6 +6094,9 @@
             renderPortfolio();
             updateSummary();
             updatePerformance();
+
+            // Start auto-refresh timer
+            startAutoRefresh();
         }
 
         function initTheme() {
