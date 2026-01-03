@@ -596,6 +596,184 @@
 
         .last-update i { color: var(--accent); }
 
+        /* Market Tab Styles */
+        .market-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            padding: 0 4px;
+        }
+
+        .market-update-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .icon-btn.small {
+            width: 32px;
+            height: 32px;
+            font-size: 12px;
+        }
+
+        .market-section {
+            margin-bottom: 16px;
+        }
+
+        .market-section-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 12px;
+            background: var(--bg-secondary);
+            border-radius: 10px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .market-section-header:hover {
+            background: var(--bg-input);
+        }
+
+        .market-section-header i {
+            color: var(--text-muted);
+            font-size: 10px;
+            transition: transform 0.2s;
+        }
+
+        .market-section-header.collapsed i {
+            transform: rotate(-90deg);
+        }
+
+        .market-section-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .market-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1px;
+            background: var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .market-list.collapsed {
+            display: none;
+        }
+
+        .market-row {
+            display: grid;
+            grid-template-columns: 1fr auto auto auto;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 14px;
+            background: var(--bg-card);
+        }
+
+        .market-row:first-child {
+            border-radius: 12px 12px 0 0;
+        }
+
+        .market-row:last-child {
+            border-radius: 0 0 12px 12px;
+        }
+
+        .market-row:only-child {
+            border-radius: 12px;
+        }
+
+        .market-symbol-cell {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .market-symbol-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 700;
+            color: white;
+        }
+
+        .market-symbol-icon.index { background: linear-gradient(135deg, #3b82f6, #1d4ed8); }
+        .market-symbol-icon.etf { background: linear-gradient(135deg, #8b5cf6, #6d28d9); }
+        .market-symbol-icon.commodity { background: linear-gradient(135deg, #f59e0b, #d97706); }
+        .market-symbol-icon.currency { background: linear-gradient(135deg, #10b981, #059669); }
+        .market-symbol-icon.crypto { background: linear-gradient(135deg, #f97316, #ea580c); }
+        .market-symbol-icon.bond { background: linear-gradient(135deg, #06b6d4, #0891b2); }
+        .market-symbol-icon.volatility { background: linear-gradient(135deg, #ef4444, #dc2626); }
+        .market-symbol-icon.turkey { background: linear-gradient(135deg, #ef4444, #b91c1c); }
+
+        .market-symbol-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .market-symbol-name .badge {
+            font-size: 8px;
+            padding: 1px 4px;
+            border-radius: 3px;
+            background: var(--accent);
+            color: white;
+            margin-left: 4px;
+            vertical-align: super;
+        }
+
+        .market-price {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+            text-align: right;
+            min-width: 90px;
+        }
+
+        .market-change {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            font-weight: 500;
+            text-align: right;
+            min-width: 65px;
+        }
+
+        .market-change-pct {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            font-weight: 600;
+            text-align: right;
+            min-width: 65px;
+        }
+
+        .market-change.positive, .market-change-pct.positive { color: #10b981; }
+        .market-change.negative, .market-change-pct.negative { color: #ef4444; }
+        .market-change.neutral, .market-change-pct.neutral { color: var(--text-muted); }
+
+        .market-loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            color: var(--text-muted);
+        }
+
+        .market-loading i {
+            animation: spin 1s linear infinite;
+            margin-right: 8px;
+        }
+
         /* App Footer */
         .app-footer {
             text-align: center;
@@ -1132,6 +1310,9 @@
             <button class="tab-btn" onclick="switchTab('performance')">
                 <i class="fas fa-chart-line"></i> Performans
             </button>
+            <button class="tab-btn" onclick="switchTab('market')">
+                <i class="fas fa-globe"></i> Piyasa
+            </button>
         </div>
 
         <!-- Portfolio Tab -->
@@ -1209,7 +1390,7 @@
             <div class="period-selector">
                 <button class="period-btn" data-period="week" onclick="selectPeriod('week')">Haftalık</button>
                 <button class="period-btn" data-period="month" onclick="selectPeriod('month')">Aylık</button>
-                <button class="period-btn active" data-period="all" onclick="selectPeriod('all')">T��mü</button>
+                <button class="period-btn active" data-period="all" onclick="selectPeriod('all')">Tümü</button>
             </div>
 
             <!-- Daily Gain Cards -->
@@ -1332,6 +1513,27 @@
                 <h2 class="section-title">Son Eklenen Varlıklar</h2>
             </div>
             <div class="asset-list" id="recentAssets"></div>
+
+            <!-- Footer -->
+            <div class="app-footer">
+                Made by Daşdemir
+            </div>
+        </div>
+
+        <!-- Market Tab -->
+        <div class="tab-content" id="marketTab">
+            <div class="market-header">
+                <h2 class="section-title">📈 Piyasa Verileri</h2>
+                <div class="market-update-info">
+                    <span class="last-update" id="marketDataUpdate"><i class="fas fa-clock"></i> --:--</span>
+                    <button class="icon-btn small" onclick="refreshMarketData()" title="Güncelle">
+                        <i class="fas fa-sync-alt" id="marketRefreshIcon"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Market sections will be rendered here -->
+            <div id="marketSections"></div>
 
             <!-- Footer -->
             <div class="app-footer">
@@ -5559,13 +5761,21 @@
         // ========== TABS ==========
         function switchTab(tab) {
             document.querySelectorAll('.tab-btn').forEach((btn, i) => {
-                btn.classList.toggle('active', (tab === 'portfolio' && i === 0) || (tab === 'performance' && i === 1));
+                btn.classList.toggle('active',
+                    (tab === 'portfolio' && i === 0) ||
+                    (tab === 'performance' && i === 1) ||
+                    (tab === 'market' && i === 2)
+                );
             });
             document.getElementById('portfolioTab').classList.toggle('active', tab === 'portfolio');
             document.getElementById('performanceTab').classList.toggle('active', tab === 'performance');
+            document.getElementById('marketTab').classList.toggle('active', tab === 'market');
 
             if (tab === 'performance') {
                 updatePerformance();
+            }
+            if (tab === 'market') {
+                loadMarketData();
             }
         }
 
@@ -5635,6 +5845,268 @@
                 const now = new Date();
                 el.querySelector('span').textContent = `Son güncelleme: ${now.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}`;
             }
+        }
+
+        // ========== MARKET DATA ==========
+        const MARKET_SYMBOLS = {
+            usa: {
+                title: 'USA',
+                items: [
+                    { symbol: 'SPY', yahoo: 'SPY', name: 'S&P 500 ETF', type: 'index' },
+                    { symbol: 'DJI', yahoo: '^DJI', name: 'Dow Jones', type: 'index' },
+                    { symbol: 'NDX', yahoo: '^NDX', name: 'Nasdaq 100', type: 'index', badge: 'G' },
+                    { symbol: 'QQQ', yahoo: 'QQQ', name: 'Nasdaq ETF', type: 'etf' },
+                    { symbol: 'DXY', yahoo: 'DX-Y.NYB', name: 'Dollar Index', type: 'currency' },
+                    { symbol: 'TLT', yahoo: 'TLT', name: '20Y Treasury', type: 'bond' },
+                    { symbol: 'VIX', yahoo: '^VIX', name: 'Volatility Index', type: 'volatility' },
+                    { symbol: 'ES1!', yahoo: 'ES=F', name: 'S&P Futures', type: 'index', badge: 'G' },
+                    { symbol: 'US10Y', yahoo: '^TNX', name: '10Y Yield', type: 'bond' }
+                ]
+            },
+            turkey: {
+                title: 'TÜRKİYE',
+                items: [
+                    { symbol: 'USDTRY', yahoo: 'USDTRY=X', name: 'Dolar/TL', type: 'turkey' },
+                    { symbol: 'XU100', yahoo: 'XU100.IS', name: 'BIST 100', type: 'turkey', badge: 'G' },
+                    { symbol: 'EURTRY', yahoo: 'EURTRY=X', name: 'Euro/TL', type: 'turkey' }
+                ]
+            },
+            commodities: {
+                title: 'EMTİA',
+                items: [
+                    { symbol: 'GOLD', yahoo: 'GC=F', name: 'Altın', type: 'commodity' },
+                    { symbol: 'SILVER', yahoo: 'SI=F', name: 'Gümüş', type: 'commodity' },
+                    { symbol: 'UKOIL', yahoo: 'BZ=F', name: 'Brent Petrol', type: 'commodity' },
+                    { symbol: 'NATGAS', yahoo: 'NG=F', name: 'Doğalgaz', type: 'commodity' },
+                    { symbol: 'BTCUSD', yahoo: 'BTC-USD', name: 'Bitcoin', type: 'crypto' },
+                    { symbol: 'XAUTRY', yahoo: 'XAUTRY=X', name: 'Altın/TL', type: 'commodity' }
+                ]
+            },
+            goldEtf: {
+                title: 'ALTIN ETF',
+                items: [
+                    { symbol: 'GLD', yahoo: 'GLD', name: 'SPDR Gold', type: 'etf' },
+                    { symbol: 'UGL', yahoo: 'UGL', name: 'Ultra Gold 2x', type: 'etf' },
+                    { symbol: 'DGZ', yahoo: 'DGZ', name: 'Short Gold', type: 'etf' },
+                    { symbol: 'GLL', yahoo: 'GLL', name: 'UltraShort Gold', type: 'etf' }
+                ]
+            },
+            oilEtf: {
+                title: 'PETROL ETF',
+                items: [
+                    { symbol: 'USO', yahoo: 'USO', name: 'US Oil Fund', type: 'etf' },
+                    { symbol: 'UCO', yahoo: 'UCO', name: 'Ultra Oil 2x', type: 'etf' },
+                    { symbol: 'SCO', yahoo: 'SCO', name: 'UltraShort Oil', type: 'etf' }
+                ]
+            },
+            silverEtf: {
+                title: 'GÜMÜŞ ETF',
+                items: [
+                    { symbol: 'SLV', yahoo: 'SLV', name: 'iShares Silver', type: 'etf' },
+                    { symbol: 'AGQ', yahoo: 'AGQ', name: 'Ultra Silver 2x', type: 'etf' },
+                    { symbol: 'ZSL', yahoo: 'ZSL', name: 'UltraShort Silver', type: 'etf' }
+                ]
+            },
+            nasdaqEtf: {
+                title: 'NASDAQ ETF',
+                items: [
+                    { symbol: 'TQQQ', yahoo: 'TQQQ', name: 'Nasdaq Bull 3x', type: 'etf' },
+                    { symbol: 'SQQQ', yahoo: 'SQQQ', name: 'Nasdaq Bear 3x', type: 'etf' },
+                    { symbol: 'UDOW', yahoo: 'UDOW', name: 'Dow Bull 3x', type: 'etf' },
+                    { symbol: 'SDOW', yahoo: 'SDOW', name: 'Dow Bear 3x', type: 'etf' }
+                ]
+            },
+            metalEtf: {
+                title: 'METAL ETF',
+                items: [
+                    { symbol: 'GLTR', yahoo: 'GLTR', name: 'Precious Metals', type: 'etf' },
+                    { symbol: 'PALL', yahoo: 'PALL', name: 'Palladium', type: 'etf' },
+                    { symbol: 'PPLT', yahoo: 'PPLT', name: 'Platinum', type: 'etf' }
+                ]
+            },
+            ngEtf: {
+                title: 'DOĞALGAZ ETF',
+                items: [
+                    { symbol: 'UNG', yahoo: 'UNG', name: 'US Natural Gas', type: 'etf' },
+                    { symbol: 'BOIL', yahoo: 'BOIL', name: 'NG Bull 2x', type: 'etf' },
+                    { symbol: 'KOLD', yahoo: 'KOLD', name: 'NG Bear 2x', type: 'etf' }
+                ]
+            },
+            spEtf: {
+                title: 'S&P ETF',
+                items: [
+                    { symbol: 'UPRO', yahoo: 'UPRO', name: 'S&P Bull 3x', type: 'etf' },
+                    { symbol: 'SPXU', yahoo: 'SPXU', name: 'S&P Bear 3x', type: 'etf' },
+                    { symbol: 'SH', yahoo: 'SH', name: 'Short S&P', type: 'etf' }
+                ]
+            },
+            energyEtf: {
+                title: 'ENERJİ ETF',
+                items: [
+                    { symbol: 'XLE', yahoo: 'XLE', name: 'Energy Sector', type: 'etf' },
+                    { symbol: 'DBE', yahoo: 'DBE', name: 'Energy Fund', type: 'etf' },
+                    { symbol: 'ERX', yahoo: 'ERX', name: 'Energy Bull 2x', type: 'etf' }
+                ]
+            }
+        };
+
+        let marketDataCache = {};
+        let marketDataLoading = false;
+
+        async function fetchSingleQuote(yahooSymbol) {
+            try {
+                const url = `${API_CONFIG.corsProxy}${encodeURIComponent(API_CONFIG.yahooFinance + yahooSymbol)}`;
+                const response = await fetch(url, { signal: AbortSignal.timeout(8000) });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    const result = data?.chart?.result?.[0];
+                    if (result) {
+                        const meta = result.meta;
+                        const price = meta?.regularMarketPrice || 0;
+                        const prevClose = meta?.chartPreviousClose || meta?.previousClose || price;
+                        const change = price - prevClose;
+                        const changePct = prevClose > 0 ? (change / prevClose) * 100 : 0;
+
+                        return { price, change, changePct };
+                    }
+                }
+            } catch (e) {
+                console.log(`Quote fetch error for ${yahooSymbol}:`, e.message);
+            }
+            return null;
+        }
+
+        async function loadMarketData() {
+            if (marketDataLoading) return;
+
+            const container = document.getElementById('marketSections');
+            const refreshIcon = document.getElementById('marketRefreshIcon');
+
+            // Show loading if no cached data
+            if (Object.keys(marketDataCache).length === 0) {
+                container.innerHTML = '<div class="market-loading"><i class="fas fa-spinner"></i> Piyasa verileri yükleniyor...</div>';
+            }
+
+            marketDataLoading = true;
+            if (refreshIcon) refreshIcon.classList.add('refreshing');
+
+            // Collect all symbols to fetch
+            const allSymbols = [];
+            Object.values(MARKET_SYMBOLS).forEach(section => {
+                section.items.forEach(item => {
+                    allSymbols.push({ key: item.symbol, yahoo: item.yahoo });
+                });
+            });
+
+            // Fetch all in parallel
+            const fetchPromises = allSymbols.map(async ({ key, yahoo }) => {
+                const data = await fetchSingleQuote(yahoo);
+                if (data) {
+                    marketDataCache[key] = data;
+
+                    // Update cachedUSDTRY if available
+                    if (key === 'USDTRY' && data.price) {
+                        cachedUSDTRY = data.price;
+                        // Update settings panel
+                        const usdEl = document.getElementById('currentUSDTRY');
+                        if (usdEl) usdEl.textContent = `₺${data.price.toFixed(4)}`;
+                    }
+                }
+            });
+
+            await Promise.all(fetchPromises);
+
+            marketDataLoading = false;
+            if (refreshIcon) refreshIcon.classList.remove('refreshing');
+
+            // Render market sections
+            renderMarketSections();
+
+            // Update timestamp
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
+            document.getElementById('marketDataUpdate').innerHTML = `<i class="fas fa-clock"></i> ${timeStr}`;
+        }
+
+        function renderMarketSections() {
+            const container = document.getElementById('marketSections');
+
+            let html = '';
+            Object.entries(MARKET_SYMBOLS).forEach(([sectionKey, section]) => {
+                html += `
+                    <div class="market-section">
+                        <div class="market-section-header" onclick="toggleMarketSection('${sectionKey}')">
+                            <i class="fas fa-chevron-down"></i>
+                            <span class="market-section-title">${section.title}</span>
+                        </div>
+                        <div class="market-list" id="market-list-${sectionKey}">
+                            ${section.items.map(item => renderMarketRow(item)).join('')}
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        function renderMarketRow(item) {
+            const data = marketDataCache[item.symbol];
+            const price = data?.price || 0;
+            const change = data?.change || 0;
+            const changePct = data?.changePct || 0;
+
+            const changeClass = change > 0 ? 'positive' : change < 0 ? 'negative' : 'neutral';
+            const changeSign = change > 0 ? '+' : '';
+
+            // Format price based on value
+            let priceStr;
+            if (item.symbol === 'US10Y') {
+                priceStr = price.toFixed(3);
+            } else if (price >= 1000) {
+                priceStr = price.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            } else if (price >= 100) {
+                priceStr = price.toFixed(2);
+            } else if (price >= 1) {
+                priceStr = price.toFixed(4);
+            } else {
+                priceStr = price.toFixed(6);
+            }
+
+            // Icon letter
+            const iconLetter = item.symbol.charAt(0);
+
+            return `
+                <div class="market-row">
+                    <div class="market-symbol-cell">
+                        <div class="market-symbol-icon ${item.type}">${iconLetter}</div>
+                        <span class="market-symbol-name">
+                            ${item.symbol}${item.badge ? `<span class="badge">${item.badge}</span>` : ''} •
+                        </span>
+                    </div>
+                    <div class="market-price">${priceStr}</div>
+                    <div class="market-change ${changeClass}">${changeSign}${change.toFixed(2)}</div>
+                    <div class="market-change-pct ${changeClass}">${changeSign}${changePct.toFixed(2)}%</div>
+                </div>
+            `;
+        }
+
+        function toggleMarketSection(sectionKey) {
+            const header = document.querySelector(`#market-list-${sectionKey}`).previousElementSibling;
+            const list = document.getElementById(`market-list-${sectionKey}`);
+
+            header.classList.toggle('collapsed');
+            list.classList.toggle('collapsed');
+        }
+
+        async function refreshMarketData() {
+            await loadMarketData();
+            showToast('Piyasa verileri güncellendi', 'success');
+        }
+
+        // Keep old function for backward compatibility
+        async function updateMarketDataPanel() {
+            // This function is no longer needed but kept for compatibility
         }
 
         // ========== RENDER ==========
@@ -6286,7 +6758,7 @@
                 .replace(/ü/g, 'u')
                 .replace(/ş/g, 's')
                 .replace(/ö/g, 'o')
-                .replace(/��/g, 'c')
+                .replace(/ç/g, 'c')
                 .replace(/İ/g, 'i')
                 .replace(/Ğ/g, 'g')
                 .replace(/Ü/g, 'u')
