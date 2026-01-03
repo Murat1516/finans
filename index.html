@@ -1771,8 +1771,11 @@
     <script>
         // ========== API CONFIGURATION ==========
         const API_CONFIG = {
-            // CORS proxy for Yahoo Finance (free, no key needed)
-            corsProxy: 'https://api.allorigins.win/raw?url=',
+            // Multiple CORS proxies to try (fallback mechanism)
+            corsProxies: [
+                { url: 'https://api.allorigins.win/raw?url=', parseContents: false },
+                { url: 'https://corsproxy.io/?', parseContents: false }
+            ],
 
             // Yahoo Finance base URL
             yahooFinance: 'https://query1.finance.yahoo.com/v8/finance/chart/',
@@ -1782,6 +1785,12 @@
 
             // Price cache
             priceCache: {},
+
+            // Get a working proxy URL
+            getProxyUrl: function(targetUrl) {
+                const proxy = this.corsProxies[0];
+                return proxy.url + encodeURIComponent(targetUrl);
+            }
         };
 
         // ========== PRICE FETCHING SYSTEM ==========
@@ -1931,16 +1940,25 @@
                         return null;
                 }
 
-                // Fetch from Yahoo Finance
-                const url = `${API_CONFIG.corsProxy}${encodeURIComponent(API_CONFIG.yahooFinance + yahooSymbol)}`;
-                const response = await fetch(url, {
-                    signal: AbortSignal.timeout(10000)
-                });
+                // Fetch from Yahoo Finance (try multiple proxies)
+                let result = null;
+                for (const proxy of API_CONFIG.corsProxies) {
+                    try {
+                        const url = proxy.url + encodeURIComponent(API_CONFIG.yahooFinance + yahooSymbol);
+                        const response = await fetch(url, { signal: AbortSignal.timeout(10000) });
+                        if (!response.ok) continue;
 
-                if (!response.ok) return null;
-
-                const data = await response.json();
-                const result = data?.chart?.result?.[0];
+                        const text = await response.text();
+                        let data;
+                        try { data = JSON.parse(text); } catch { continue; }
+                        if (data?.contents) {
+                            try { data = JSON.parse(data.contents); } catch { continue; }
+                        }
+                        result = data?.chart?.result?.[0];
+                        if (result) break;
+                    } catch { continue; }
+                }
+                if (!result) return null;
 
                 if (!result?.meta?.regularMarketPrice) return null;
 
@@ -1971,23 +1989,29 @@
                 return cached.price;
             }
 
-            try {
-                const url = `${API_CONFIG.corsProxy}${encodeURIComponent(API_CONFIG.yahooFinance + 'USDTRY=X')}`;
-                const response = await fetch(url, {
-                    signal: AbortSignal.timeout(8000)
-                });
+            // Try multiple proxies
+            for (const proxy of API_CONFIG.corsProxies) {
+                try {
+                    const url = proxy.url + encodeURIComponent(API_CONFIG.yahooFinance + 'USDTRY=X');
+                    const response = await fetch(url, { signal: AbortSignal.timeout(8000) });
 
-                if (response.ok) {
-                    const data = await response.json();
-                    const rate = data?.chart?.result?.[0]?.meta?.regularMarketPrice;
-                    if (rate) {
-                        cachedUSDTRY = rate;
-                        API_CONFIG.priceCache[cacheKey] = { price: rate, timestamp: Date.now() };
-                        return rate;
+                    if (response.ok) {
+                        const text = await response.text();
+                        let data;
+                        try { data = JSON.parse(text); } catch { continue; }
+                        if (data?.contents) {
+                            try { data = JSON.parse(data.contents); } catch { continue; }
+                        }
+                        const rate = data?.chart?.result?.[0]?.meta?.regularMarketPrice;
+                        if (rate) {
+                            cachedUSDTRY = rate;
+                            API_CONFIG.priceCache[cacheKey] = { price: rate, timestamp: Date.now() };
+                            return rate;
+                        }
                     }
+                } catch (e) {
+                    continue;
                 }
-            } catch (e) {
-                console.log('USD/TRY fetch error:', e.message);
             }
 
             return cachedUSDTRY; // Return cached value on error
@@ -6209,29 +6233,52 @@
         let marketDataLoading = false;
 
         async function fetchSingleQuote(yahooSymbol) {
-            try {
-                const url = `${API_CONFIG.corsProxy}${encodeURIComponent(API_CONFIG.yahooFinance + yahooSymbol)}`;
-                const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 15000);
+            const targetUrl = API_CONFIG.yahooFinance + yahooSymbol;
 
-                const response = await fetch(url, { signal: controller.signal });
-                clearTimeout(timeoutId);
+            // Try each proxy until one works
+            for (const proxy of API_CONFIG.corsProxies) {
+                try {
+                    const url = proxy.url + encodeURIComponent(targetUrl);
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), 10000);
 
-                if (response.ok) {
-                    const data = await response.json();
-                    const result = data?.contents ? JSON.parse(data.contents)?.chart?.result?.[0] : data?.chart?.result?.[0];
-                    if (result) {
-                        const meta = result.meta;
-                        const price = meta?.regularMarketPrice || 0;
-                        const prevClose = meta?.chartPreviousClose || meta?.previousClose || price;
-                        const change = price - prevClose;
-                        const changePct = prevClose > 0 ? (change / prevClose) * 100 : 0;
+                    const response = await fetch(url, { signal: controller.signal });
+                    clearTimeout(timeoutId);
 
-                        return { price, change, changePct };
+                    if (response.ok) {
+                        const text = await response.text();
+                        let data;
+                        try {
+                            data = JSON.parse(text);
+                        } catch {
+                            continue; // Try next proxy
+                        }
+
+                        // Handle different proxy response formats
+                        let chartData = data;
+                        if (data?.contents) {
+                            try {
+                                chartData = JSON.parse(data.contents);
+                            } catch {
+                                continue;
+                            }
+                        }
+
+                        const result = chartData?.chart?.result?.[0];
+                        if (result) {
+                            const meta = result.meta;
+                            const price = meta?.regularMarketPrice || 0;
+                            const prevClose = meta?.chartPreviousClose || meta?.previousClose || price;
+                            const change = price - prevClose;
+                            const changePct = prevClose > 0 ? (change / prevClose) * 100 : 0;
+
+                            return { price, change, changePct };
+                        }
                     }
+                } catch (e) {
+                    // Try next proxy
+                    continue;
                 }
-            } catch (e) {
-                console.log(`Quote fetch error for ${yahooSymbol}:`, e.message);
             }
             return null;
         }
@@ -7284,22 +7331,29 @@
         }
 
         async function fetchCompanyName(symbol, type) {
-            try {
-                let yahooSymbol = symbol;
-                if (type === 'bist') yahooSymbol = `${symbol}.IS`;
+            let yahooSymbol = symbol;
+            if (type === 'bist') yahooSymbol = `${symbol}.IS`;
 
-                const url = `${API_CONFIG.corsProxy}${encodeURIComponent(API_CONFIG.yahooFinance + yahooSymbol)}`;
-                const response = await fetch(url, { signal: AbortSignal.timeout(5000) });
+            for (const proxy of API_CONFIG.corsProxies) {
+                try {
+                    const url = proxy.url + encodeURIComponent(API_CONFIG.yahooFinance + yahooSymbol);
+                    const response = await fetch(url, { signal: AbortSignal.timeout(5000) });
 
-                if (response.ok) {
-                    const data = await response.json();
-                    const meta = data?.chart?.result?.[0]?.meta;
-                    if (meta?.shortName || meta?.longName) {
-                        return meta.shortName || meta.longName;
+                    if (response.ok) {
+                        const text = await response.text();
+                        let data;
+                        try { data = JSON.parse(text); } catch { continue; }
+                        if (data?.contents) {
+                            try { data = JSON.parse(data.contents); } catch { continue; }
+                        }
+                        const meta = data?.chart?.result?.[0]?.meta;
+                        if (meta?.shortName || meta?.longName) {
+                            return meta.shortName || meta.longName;
+                        }
                     }
+                } catch (e) {
+                    continue;
                 }
-            } catch (e) {
-                console.log('Name fetch error:', e.message);
             }
             return null;
         }
