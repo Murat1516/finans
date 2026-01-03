@@ -830,6 +830,73 @@
             color: var(--accent);
         }
 
+        /* Autocomplete Dropdown */
+        .autocomplete-container {
+            position: relative;
+        }
+
+        .autocomplete-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            margin-top: 4px;
+            max-height: 240px;
+            overflow-y: auto;
+            z-index: 50;
+            box-shadow: var(--shadow);
+            display: none;
+        }
+
+        .autocomplete-dropdown.show {
+            display: block;
+        }
+
+        .autocomplete-item {
+            padding: 12px 14px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+            transition: background 0.15s;
+        }
+
+        .autocomplete-item:last-child {
+            border-bottom: none;
+        }
+
+        .autocomplete-item:hover, .autocomplete-item.selected {
+            background: var(--bg-input);
+        }
+
+        .autocomplete-item .symbol {
+            font-weight: 600;
+            color: var(--accent);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+        }
+
+        .autocomplete-item .name {
+            font-size: 12px;
+            color: var(--text-secondary);
+            flex: 1;
+            margin-left: 10px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .autocomplete-no-results {
+            padding: 14px;
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 13px;
+        }
+
         /* Symbol Validation */
         .symbol-validation {
             margin-top: 8px;
@@ -1312,8 +1379,11 @@
 
                 <!-- Symbol & Name -->
                 <div class="form-group" id="symbolGroup">
-                    <label class="form-label">Sembol</label>
-                    <input type="text" class="form-input" id="symbolInput" placeholder="THYAO" style="text-transform: uppercase;" oninput="validateSymbol()">
+                    <label class="form-label">Sembol veya Şirket Adı</label>
+                    <div class="autocomplete-container">
+                        <input type="text" class="form-input" id="symbolInput" placeholder="THYAO veya Türk Hava Yolları" autocomplete="off" oninput="handleSymbolInput()" onkeydown="handleAutocompleteKeydown(event)">
+                        <div class="autocomplete-dropdown" id="autocompleteDropdown"></div>
+                    </div>
                     <div id="symbolValidation" class="symbol-validation"></div>
                     <div class="suggestions" id="suggestions"></div>
                 </div>
@@ -1712,45 +1782,435 @@
             return currentPrice * (1 + change);
         }
 
-        // ========== SUGGESTIONS DATA ==========
-        const SUGGESTIONS = {
+        // ========== COMPREHENSIVE STOCK DATABASE ==========
+        const STOCK_DB = {
             bist: [
-                { s: 'THYAO', n: 'Türk Hava Yolları' },
-                { s: 'GARAN', n: 'Garanti Bankası' },
+                // Bankalar
+                { s: 'GARAN', n: 'Garanti BBVA Bankası' },
                 { s: 'AKBNK', n: 'Akbank' },
-                { s: 'EREGL', n: 'Ereğli Demir Çelik' },
+                { s: 'YKBNK', n: 'Yapı Kredi Bankası' },
+                { s: 'ISCTR', n: 'İş Bankası C' },
+                { s: 'HALKB', n: 'Halk Bankası' },
+                { s: 'VAKBN', n: 'Vakıflar Bankası' },
+                { s: 'TSKB', n: 'Türkiye Sınai Kalkınma Bankası' },
+                { s: 'QNBFB', n: 'QNB Finansbank' },
+                { s: 'SKBNK', n: 'Şekerbank' },
+                { s: 'ALBRK', n: 'Albaraka Türk' },
+                { s: 'KLNMA', n: 'Kalkınma Bankası' },
+                // Havacılık & Ulaşım
+                { s: 'THYAO', n: 'Türk Hava Yolları' },
+                { s: 'PGSUS', n: 'Pegasus Hava Yolları' },
+                { s: 'CLEBI', n: 'Çelebi Hava Servisi' },
+                { s: 'TAVHL', n: 'TAV Havalimanları' },
+                // Holdingler
                 { s: 'KCHOL', n: 'Koç Holding' },
                 { s: 'SAHOL', n: 'Sabancı Holding' },
-                { s: 'TUPRS', n: 'Tüpraş' },
-                { s: 'SISE', n: 'Şişe Cam' },
-                { s: 'ASELS', n: 'Aselsan' },
-                { s: 'BIMAS', n: 'BİM Mağazalar' },
+                { s: 'DOHOL', n: 'Doğan Holding' },
+                { s: 'ECZYT', n: 'Eczacıbaşı Yatırım' },
+                { s: 'AGHOL', n: 'Anadolu Grubu Holding' },
+                { s: 'TKFEN', n: 'Tekfen Holding' },
+                { s: 'GLYHO', n: 'Global Yatırım Holding' },
+                { s: 'OYAKC', n: 'Oyak Çimento' },
+                // Otomotiv
                 { s: 'FROTO', n: 'Ford Otosan' },
-                { s: 'TCELL', n: 'Turkcell' }
+                { s: 'TOASO', n: 'Tofaş Otomobil' },
+                { s: 'DOAS', n: 'Doğuş Otomotiv' },
+                { s: 'OTKAR', n: 'Otokar Savunma' },
+                { s: 'TTRAK', n: 'Türk Traktör' },
+                { s: 'KARSN', n: 'Karsan Otomotiv' },
+                // Enerji & Petrol
+                { s: 'TUPRS', n: 'Tüpraş' },
+                { s: 'PETKM', n: 'Petkim Petrokimya' },
+                { s: 'AYGAZ', n: 'Aygaz' },
+                { s: 'AKSEN', n: 'Aksa Enerji' },
+                { s: 'ODAS', n: 'Odaş Elektrik' },
+                { s: 'AYDEM', n: 'Aydem Enerji' },
+                { s: 'GESAN', n: 'Giresun Enerji' },
+                { s: 'ZOREN', n: 'Zorlu Enerji' },
+                { s: 'AKFGY', n: 'Akfen GYO' },
+                // Demir Çelik & Metal
+                { s: 'EREGL', n: 'Ereğli Demir Çelik' },
+                { s: 'KRDMD', n: 'Kardemir Karabük' },
+                { s: 'ISDMR', n: 'İskenderun Demir Çelik' },
+                { s: 'CELHA', n: 'Çelik Halat' },
+                { s: 'BRSAN', n: 'Borusan Mannesmann' },
+                // Cam & Seramik
+                { s: 'SISE', n: 'Şişecam' },
+                { s: 'TRKCM', n: 'Trakya Cam' },
+                { s: 'ANACM', n: 'Anadolu Cam' },
+                { s: 'KUTPO', n: 'Kütahya Porselen' },
+                // Savunma & Teknoloji
+                { s: 'ASELS', n: 'Aselsan Elektronik' },
+                { s: 'TCELL', n: 'Turkcell' },
+                { s: 'TTKOM', n: 'Türk Telekom' },
+                { s: 'NETAS', n: 'Netaş Telekomünikasyon' },
+                { s: 'KAREL', n: 'Karel Elektronik' },
+                { s: 'LOGO', n: 'Logo Yazılım' },
+                { s: 'INDES', n: 'İndeks Bilgisayar' },
+                { s: 'LINK', n: 'Link Bilgisayar' },
+                { s: 'ARENA', n: 'Arena Bilgisayar' },
+                { s: 'PAPIL', n: 'Papilon Savunma' },
+                // Perakende & Gıda
+                { s: 'BIMAS', n: 'BİM Mağazaları' },
+                { s: 'MGROS', n: 'Migros Ticaret' },
+                { s: 'SOKM', n: 'Şok Marketler' },
+                { s: 'BIZIM', n: 'Bizim Toptan' },
+                { s: 'MAVI', n: 'Mavi Giyim' },
+                { s: 'VAKKO', n: 'Vakko Tekstil' },
+                { s: 'ULKER', n: 'Ülker Bisküvi' },
+                { s: 'TATGD', n: 'Tat Gıda' },
+                { s: 'BANVT', n: 'Banvit' },
+                { s: 'CCOLA', n: 'Coca-Cola İçecek' },
+                { s: 'AEFES', n: 'Anadolu Efes' },
+                { s: 'TBORG', n: 'Tuborg' },
+                { s: 'SELGD', n: 'Selçuk Gıda' },
+                { s: 'EKGYO', n: 'Emlak Konut GYO' },
+                { s: 'PNSUT', n: 'Pınar Süt' },
+                { s: 'PINSU', n: 'Pınar Su' },
+                { s: 'PETUN', n: 'Petek Un' },
+                // İnşaat & Gayrimenkul
+                { s: 'ENKAI', n: 'Enka İnşaat' },
+                { s: 'ISGYO', n: 'İş GYO' },
+                { s: 'KLGYO', n: 'Kiler GYO' },
+                { s: 'HLGYO', n: 'Halk GYO' },
+                { s: 'VKGYO', n: 'Vakıf GYO' },
+                // Sağlık & İlaç
+                { s: 'ECILC', n: 'Eczacıbaşı İlaç' },
+                { s: 'SELEC', n: 'Selçuk Ecza' },
+                { s: 'DEVA', n: 'Deva Holding' },
+                // Sigorta
+                { s: 'ANHYT', n: 'Anadolu Hayat Emeklilik' },
+                { s: 'AGESA', n: 'Agesa Hayat Emeklilik' },
+                { s: 'AKGRT', n: 'Aksigorta' },
+                { s: 'TURSG', n: 'Türkiye Sigorta' },
+                { s: 'RAYSG', n: 'Ray Sigorta' },
+                // Kimya & Plastik
+                { s: 'SASA', n: 'Sasa Polyester' },
+                { s: 'AKSA', n: 'Aksa Akrilik' },
+                { s: 'BRISA', n: 'Brisa Bridgestone' },
+                { s: 'GOODY', n: 'Goodyear Lastik' },
+                { s: 'GUBRF', n: 'Gübre Fabrikaları' },
+                { s: 'BAGFS', n: 'Bandırma Gübre' },
+                // Çimento
+                { s: 'AKCNS', n: 'Akçansa Çimento' },
+                { s: 'BOLUC', n: 'Bolu Çimento' },
+                { s: 'CIMSA', n: 'Çimsa Çimento' },
+                { s: 'GOLTS', n: 'Göltaş Çimento' },
+                { s: 'KONYA', n: 'Konya Çimento' },
+                // Turizm & Otel
+                { s: 'MARTI', n: 'Martı Otel' },
+                { s: 'METUR', n: 'Metemtur Otelcilik' },
+                { s: 'ULAS', n: 'Ulaşlar Turizm' },
+                // Madencilik
+                { s: 'KOZAL', n: 'Koza Altın' },
+                { s: 'KOZAA', n: 'Koza Anadolu' },
+                { s: 'IPEKE', n: 'İpek Enerji' },
+                // Diğer Popüler
+                { s: 'VESBE', n: 'Vestel Beyaz Eşya' },
+                { s: 'VESTL', n: 'Vestel Elektronik' },
+                { s: 'ARCLK', n: 'Arçelik' },
+                { s: 'MPARK', n: 'MLP Sağlık' },
+                { s: 'HEKTS', n: 'Hektaş Ticaret' },
+                { s: 'KONTR', n: 'Kontrolmatik' },
+                { s: 'ALFAS', n: 'Alfa Solar Enerji' },
+                { s: 'EUPWR', n: 'Europower Enerji' },
+                { s: 'SMART', n: 'Smartiks Yazılım' },
+                { s: 'CANTE', n: 'Can2 Termik' }
             ],
             us: [
+                // Mega Cap Tech
                 { s: 'AAPL', n: 'Apple Inc.' },
-                { s: 'MSFT', n: 'Microsoft' },
-                { s: 'GOOGL', n: 'Alphabet (Google)' },
-                { s: 'AMZN', n: 'Amazon' },
-                { s: 'NVDA', n: 'NVIDIA' },
-                { s: 'TSLA', n: 'Tesla' },
-                { s: 'META', n: 'Meta (Facebook)' },
+                { s: 'MSFT', n: 'Microsoft Corporation' },
+                { s: 'GOOGL', n: 'Alphabet (Google) Class A' },
+                { s: 'GOOG', n: 'Alphabet (Google) Class C' },
+                { s: 'AMZN', n: 'Amazon.com Inc.' },
+                { s: 'META', n: 'Meta Platforms (Facebook)' },
+                { s: 'NVDA', n: 'NVIDIA Corporation' },
+                { s: 'TSLA', n: 'Tesla Inc.' },
+                // Semiconductor
+                { s: 'AMD', n: 'Advanced Micro Devices' },
+                { s: 'INTC', n: 'Intel Corporation' },
+                { s: 'AVGO', n: 'Broadcom Inc.' },
+                { s: 'QCOM', n: 'Qualcomm Inc.' },
+                { s: 'MU', n: 'Micron Technology' },
+                { s: 'MRVL', n: 'Marvell Technology' },
+                { s: 'ARM', n: 'ARM Holdings' },
+                { s: 'AMAT', n: 'Applied Materials' },
+                { s: 'LRCX', n: 'Lam Research' },
+                { s: 'KLAC', n: 'KLA Corporation' },
+                { s: 'ASML', n: 'ASML Holding' },
+                { s: 'TSM', n: 'Taiwan Semiconductor' },
+                { s: 'ON', n: 'ON Semiconductor' },
+                { s: 'SWKS', n: 'Skyworks Solutions' },
+                // AI & Software
+                { s: 'PLTR', n: 'Palantir Technologies' },
+                { s: 'AI', n: 'C3.ai Inc.' },
+                { s: 'PATH', n: 'UiPath Inc.' },
+                { s: 'SNOW', n: 'Snowflake Inc.' },
+                { s: 'CRM', n: 'Salesforce Inc.' },
+                { s: 'NOW', n: 'ServiceNow Inc.' },
+                { s: 'ORCL', n: 'Oracle Corporation' },
+                { s: 'SAP', n: 'SAP SE' },
+                { s: 'ADBE', n: 'Adobe Inc.' },
+                { s: 'IBM', n: 'IBM Corporation' },
+                { s: 'INTU', n: 'Intuit Inc.' },
+                { s: 'PANW', n: 'Palo Alto Networks' },
+                { s: 'CRWD', n: 'CrowdStrike Holdings' },
+                { s: 'ZS', n: 'Zscaler Inc.' },
+                { s: 'NET', n: 'Cloudflare Inc.' },
+                { s: 'DDOG', n: 'Datadog Inc.' },
+                { s: 'MDB', n: 'MongoDB Inc.' },
+                { s: 'TEAM', n: 'Atlassian Corporation' },
+                { s: 'WDAY', n: 'Workday Inc.' },
+                { s: 'OKTA', n: 'Okta Inc.' },
+                { s: 'HUBS', n: 'HubSpot Inc.' },
+                { s: 'ESTC', n: 'Elastic N.V.' },
+                { s: 'CFLT', n: 'Confluent Inc.' },
+                { s: 'S', n: 'SentinelOne Inc.' },
+                // EV & Clean Energy
+                { s: 'RIVN', n: 'Rivian Automotive' },
+                { s: 'LCID', n: 'Lucid Group' },
+                { s: 'NIO', n: 'NIO Inc.' },
+                { s: 'XPEV', n: 'XPeng Inc.' },
+                { s: 'LI', n: 'Li Auto Inc.' },
+                { s: 'GM', n: 'General Motors' },
+                { s: 'F', n: 'Ford Motor Company' },
+                { s: 'TM', n: 'Toyota Motor' },
+                { s: 'ENPH', n: 'Enphase Energy' },
+                { s: 'SEDG', n: 'SolarEdge Technologies' },
+                { s: 'FSLR', n: 'First Solar Inc.' },
+                { s: 'RUN', n: 'Sunrun Inc.' },
+                { s: 'PLUG', n: 'Plug Power Inc.' },
+                { s: 'BE', n: 'Bloom Energy' },
+                { s: 'CHPT', n: 'ChargePoint Holdings' },
+                // eVTOL & Aerospace
+                { s: 'ACHR', n: 'Archer Aviation' },
+                { s: 'JOBY', n: 'Joby Aviation' },
+                { s: 'LILM', n: 'Lilium N.V.' },
+                { s: 'BA', n: 'Boeing Company' },
+                { s: 'LMT', n: 'Lockheed Martin' },
+                { s: 'RTX', n: 'RTX Corporation (Raytheon)' },
+                { s: 'NOC', n: 'Northrop Grumman' },
+                { s: 'GD', n: 'General Dynamics' },
+                { s: 'RKLB', n: 'Rocket Lab USA' },
+                // E-commerce & Retail
+                { s: 'BABA', n: 'Alibaba Group' },
+                { s: 'JD', n: 'JD.com Inc.' },
+                { s: 'PDD', n: 'PDD Holdings (Pinduoduo)' },
+                { s: 'SHOP', n: 'Shopify Inc.' },
+                { s: 'MELI', n: 'MercadoLibre' },
+                { s: 'SE', n: 'Sea Limited' },
+                { s: 'EBAY', n: 'eBay Inc.' },
+                { s: 'ETSY', n: 'Etsy Inc.' },
+                { s: 'WMT', n: 'Walmart Inc.' },
+                { s: 'TGT', n: 'Target Corporation' },
+                { s: 'COST', n: 'Costco Wholesale' },
+                { s: 'HD', n: 'Home Depot' },
+                { s: 'LOW', n: 'Lowe\'s Companies' },
+                // Streaming & Entertainment
+                { s: 'NFLX', n: 'Netflix Inc.' },
+                { s: 'DIS', n: 'Walt Disney Company' },
+                { s: 'CMCSA', n: 'Comcast Corporation' },
+                { s: 'WBD', n: 'Warner Bros Discovery' },
+                { s: 'PARA', n: 'Paramount Global' },
+                { s: 'SPOT', n: 'Spotify Technology' },
+                { s: 'ROKU', n: 'Roku Inc.' },
+                // Gaming
+                { s: 'RBLX', n: 'Roblox Corporation' },
+                { s: 'U', n: 'Unity Software' },
+                { s: 'EA', n: 'Electronic Arts' },
+                { s: 'TTWO', n: 'Take-Two Interactive' },
+                { s: 'ATVI', n: 'Activision Blizzard' },
+                // Social Media
+                { s: 'SNAP', n: 'Snap Inc.' },
+                { s: 'PINS', n: 'Pinterest Inc.' },
+                { s: 'RDDT', n: 'Reddit Inc.' },
+                // Fintech & Payments
+                { s: 'V', n: 'Visa Inc.' },
+                { s: 'MA', n: 'Mastercard Inc.' },
+                { s: 'PYPL', n: 'PayPal Holdings' },
+                { s: 'SQ', n: 'Block Inc. (Square)' },
+                { s: 'COIN', n: 'Coinbase Global' },
+                { s: 'HOOD', n: 'Robinhood Markets' },
+                { s: 'SOFI', n: 'SoFi Technologies' },
+                { s: 'AFRM', n: 'Affirm Holdings' },
+                { s: 'UPST', n: 'Upstart Holdings' },
+                { s: 'LC', n: 'LendingClub' },
+                { s: 'NU', n: 'Nu Holdings' },
+                // Banks
                 { s: 'JPM', n: 'JPMorgan Chase' },
-                { s: 'V', n: 'Visa' },
-                { s: 'NFLX', n: 'Netflix' },
-                { s: 'AMD', n: 'AMD' },
-                { s: 'DIS', n: 'Walt Disney' }
+                { s: 'BAC', n: 'Bank of America' },
+                { s: 'WFC', n: 'Wells Fargo' },
+                { s: 'C', n: 'Citigroup Inc.' },
+                { s: 'GS', n: 'Goldman Sachs' },
+                { s: 'MS', n: 'Morgan Stanley' },
+                { s: 'SCHW', n: 'Charles Schwab' },
+                // Healthcare & Pharma
+                { s: 'JNJ', n: 'Johnson & Johnson' },
+                { s: 'PFE', n: 'Pfizer Inc.' },
+                { s: 'MRNA', n: 'Moderna Inc.' },
+                { s: 'ABBV', n: 'AbbVie Inc.' },
+                { s: 'MRK', n: 'Merck & Co.' },
+                { s: 'LLY', n: 'Eli Lilly' },
+                { s: 'BMY', n: 'Bristol-Myers Squibb' },
+                { s: 'GILD', n: 'Gilead Sciences' },
+                { s: 'AMGN', n: 'Amgen Inc.' },
+                { s: 'BIIB', n: 'Biogen Inc.' },
+                { s: 'REGN', n: 'Regeneron Pharmaceuticals' },
+                { s: 'VRTX', n: 'Vertex Pharmaceuticals' },
+                { s: 'ISRG', n: 'Intuitive Surgical' },
+                { s: 'UNH', n: 'UnitedHealth Group' },
+                { s: 'CVS', n: 'CVS Health' },
+                // Consumer
+                { s: 'KO', n: 'Coca-Cola Company' },
+                { s: 'PEP', n: 'PepsiCo Inc.' },
+                { s: 'MCD', n: 'McDonald\'s Corporation' },
+                { s: 'SBUX', n: 'Starbucks Corporation' },
+                { s: 'NKE', n: 'Nike Inc.' },
+                { s: 'PG', n: 'Procter & Gamble' },
+                { s: 'CL', n: 'Colgate-Palmolive' },
+                { s: 'LULU', n: 'Lululemon Athletica' },
+                // Energy & Oil
+                { s: 'XOM', n: 'Exxon Mobil' },
+                { s: 'CVX', n: 'Chevron Corporation' },
+                { s: 'COP', n: 'ConocoPhillips' },
+                { s: 'OXY', n: 'Occidental Petroleum' },
+                { s: 'SLB', n: 'Schlumberger' },
+                { s: 'HAL', n: 'Halliburton' },
+                // Telecom
+                { s: 'T', n: 'AT&T Inc.' },
+                { s: 'VZ', n: 'Verizon Communications' },
+                { s: 'TMUS', n: 'T-Mobile US' },
+                // Industrials
+                { s: 'CAT', n: 'Caterpillar Inc.' },
+                { s: 'DE', n: 'Deere & Company' },
+                { s: 'UPS', n: 'United Parcel Service' },
+                { s: 'FDX', n: 'FedEx Corporation' },
+                { s: 'UNP', n: 'Union Pacific' },
+                { s: 'HON', n: 'Honeywell International' },
+                { s: 'MMM', n: '3M Company' },
+                { s: 'GE', n: 'General Electric' },
+                // Special Stocks
+                { s: 'SERV', n: 'Serve Robotics' },
+                { s: 'BRK.B', n: 'Berkshire Hathaway B' },
+                { s: 'UBER', n: 'Uber Technologies' },
+                { s: 'LYFT', n: 'Lyft Inc.' },
+                { s: 'ABNB', n: 'Airbnb Inc.' },
+                { s: 'DASH', n: 'DoorDash Inc.' },
+                { s: 'ZM', n: 'Zoom Video Communications' },
+                { s: 'DOCU', n: 'DocuSign Inc.' },
+                { s: 'TWLO', n: 'Twilio Inc.' },
+                { s: 'DBX', n: 'Dropbox Inc.' },
+                { s: 'FSLY', n: 'Fastly Inc.' },
+                { s: 'DOCN', n: 'DigitalOcean Holdings' }
             ],
             etf: [
-                { s: 'SPY', n: 'S&P 500 ETF' },
-                { s: 'QQQ', n: 'Nasdaq 100 ETF' },
-                { s: 'VTI', n: 'Total Stock Market' },
-                { s: 'VOO', n: 'Vanguard S&P 500' },
-                { s: 'GLD', n: 'Gold ETF' },
-                { s: 'SLV', n: 'Silver ETF' },
-                { s: 'ARKK', n: 'ARK Innovation' },
-                { s: 'VNQ', n: 'Real Estate ETF' }
+                // Index ETFs
+                { s: 'SPY', n: 'SPDR S&P 500 ETF' },
+                { s: 'VOO', n: 'Vanguard S&P 500 ETF' },
+                { s: 'IVV', n: 'iShares Core S&P 500' },
+                { s: 'QQQ', n: 'Invesco Nasdaq 100 ETF' },
+                { s: 'VTI', n: 'Vanguard Total Stock Market' },
+                { s: 'DIA', n: 'SPDR Dow Jones ETF' },
+                { s: 'IWM', n: 'iShares Russell 2000' },
+                { s: 'IJR', n: 'iShares Core S&P Small-Cap' },
+                { s: 'MDY', n: 'SPDR S&P Midcap 400' },
+                // Sector ETFs
+                { s: 'XLK', n: 'Technology Select SPDR' },
+                { s: 'XLF', n: 'Financial Select SPDR' },
+                { s: 'XLE', n: 'Energy Select SPDR' },
+                { s: 'XLV', n: 'Healthcare Select SPDR' },
+                { s: 'XLY', n: 'Consumer Discretionary SPDR' },
+                { s: 'XLP', n: 'Consumer Staples SPDR' },
+                { s: 'XLI', n: 'Industrial Select SPDR' },
+                { s: 'XLB', n: 'Materials Select SPDR' },
+                { s: 'XLU', n: 'Utilities Select SPDR' },
+                { s: 'XLRE', n: 'Real Estate Select SPDR' },
+                // Tech Focused
+                { s: 'VGT', n: 'Vanguard Information Tech' },
+                { s: 'SMH', n: 'VanEck Semiconductor ETF' },
+                { s: 'SOXX', n: 'iShares Semiconductor' },
+                { s: 'IGV', n: 'iShares Software ETF' },
+                { s: 'WCLD', n: 'WisdomTree Cloud Computing' },
+                { s: 'SKYY', n: 'First Trust Cloud Computing' },
+                { s: 'BOTZ', n: 'Global Robotics & AI ETF' },
+                { s: 'ROBO', n: 'Robo Global Robotics' },
+                { s: 'AIQ', n: 'Global X AI & Technology' },
+                // ARK ETFs
+                { s: 'ARKK', n: 'ARK Innovation ETF' },
+                { s: 'ARKW', n: 'ARK Next Generation Internet' },
+                { s: 'ARKF', n: 'ARK Fintech Innovation' },
+                { s: 'ARKQ', n: 'ARK Autonomous Tech & Robotics' },
+                { s: 'ARKG', n: 'ARK Genomic Revolution' },
+                { s: 'ARKX', n: 'ARK Space Exploration' },
+                // Dividend ETFs
+                { s: 'VYM', n: 'Vanguard High Dividend Yield' },
+                { s: 'SCHD', n: 'Schwab US Dividend Equity' },
+                { s: 'DVY', n: 'iShares Select Dividend' },
+                { s: 'VIG', n: 'Vanguard Dividend Appreciation' },
+                { s: 'HDV', n: 'iShares Core High Dividend' },
+                // Bond ETFs
+                { s: 'BND', n: 'Vanguard Total Bond Market' },
+                { s: 'AGG', n: 'iShares Core US Aggregate' },
+                { s: 'LQD', n: 'iShares Investment Grade Corp' },
+                { s: 'HYG', n: 'iShares High Yield Corp' },
+                { s: 'TLT', n: 'iShares 20+ Year Treasury' },
+                { s: 'SHY', n: 'iShares 1-3 Year Treasury' },
+                { s: 'TIP', n: 'iShares TIPS Bond ETF' },
+                // Commodity ETFs
+                { s: 'GLD', n: 'SPDR Gold Shares' },
+                { s: 'IAU', n: 'iShares Gold Trust' },
+                { s: 'SLV', n: 'iShares Silver Trust' },
+                { s: 'USO', n: 'US Oil Fund' },
+                { s: 'UNG', n: 'US Natural Gas Fund' },
+                { s: 'DBC', n: 'Invesco DB Commodity' },
+                { s: 'PDBC', n: 'Invesco Optimum Yield' },
+                // International ETFs
+                { s: 'EFA', n: 'iShares MSCI EAFE' },
+                { s: 'VEA', n: 'Vanguard FTSE Developed' },
+                { s: 'VWO', n: 'Vanguard FTSE Emerging' },
+                { s: 'EEM', n: 'iShares MSCI Emerging' },
+                { s: 'IEMG', n: 'iShares Core MSCI Emerging' },
+                { s: 'FXI', n: 'iShares China Large-Cap' },
+                { s: 'MCHI', n: 'iShares MSCI China' },
+                { s: 'EWJ', n: 'iShares MSCI Japan' },
+                { s: 'EWZ', n: 'iShares MSCI Brazil' },
+                { s: 'EWT', n: 'iShares MSCI Taiwan' },
+                { s: 'INDA', n: 'iShares MSCI India' },
+                { s: 'EWY', n: 'iShares MSCI South Korea' },
+                { s: 'TUR', n: 'iShares MSCI Turkey' },
+                // Leveraged ETFs
+                { s: 'TQQQ', n: 'ProShares UltraPro QQQ 3x' },
+                { s: 'SQQQ', n: 'ProShares UltraPro Short QQQ' },
+                { s: 'UPRO', n: 'ProShares UltraPro S&P500 3x' },
+                { s: 'SPXU', n: 'ProShares UltraPro Short S&P' },
+                { s: 'SSO', n: 'ProShares Ultra S&P500 2x' },
+                { s: 'SDS', n: 'ProShares UltraShort S&P500' },
+                { s: 'QLD', n: 'ProShares Ultra QQQ 2x' },
+                { s: 'SOXL', n: 'Direxion Semiconductor Bull 3x' },
+                { s: 'SOXS', n: 'Direxion Semiconductor Bear 3x' },
+                { s: 'LABU', n: 'Direxion Biotech Bull 3x' },
+                { s: 'LABD', n: 'Direxion Biotech Bear 3x' },
+                { s: 'TNA', n: 'Direxion Small Cap Bull 3x' },
+                { s: 'TZA', n: 'Direxion Small Cap Bear 3x' },
+                { s: 'FAS', n: 'Direxion Financial Bull 3x' },
+                { s: 'FAZ', n: 'Direxion Financial Bear 3x' },
+                { s: 'UVXY', n: 'ProShares Ultra VIX Short-Term' },
+                { s: 'SVXY', n: 'ProShares Short VIX Short-Term' },
+                // Crypto ETFs
+                { s: 'BITO', n: 'ProShares Bitcoin Strategy' },
+                { s: 'BTF', n: 'Valkyrie Bitcoin Strategy' },
+                { s: 'GBTC', n: 'Grayscale Bitcoin Trust' },
+                { s: 'ETHE', n: 'Grayscale Ethereum Trust' },
+                // Clean Energy ETFs
+                { s: 'ICLN', n: 'iShares Global Clean Energy' },
+                { s: 'QCLN', n: 'First Trust NASDAQ Clean Edge' },
+                { s: 'TAN', n: 'Invesco Solar ETF' },
+                { s: 'LIT', n: 'Global X Lithium & Battery' },
+                // Real Estate ETFs
+                { s: 'VNQ', n: 'Vanguard Real Estate ETF' },
+                { s: 'IYR', n: 'iShares US Real Estate' },
+                { s: 'XLRE', n: 'Real Estate Select SPDR' }
             ],
             viop: [
                 { s: 'F_XU030', n: 'BIST 30 Vadeli' },
@@ -1760,14 +2220,25 @@
                 { s: 'F_XAUTRY', n: 'Altın/TL Vadeli' },
                 { s: 'F_THYAO', n: 'THY Vadeli' },
                 { s: 'F_GARAN', n: 'Garanti Vadeli' },
-                { s: 'F_AKBNK', n: 'Akbank Vadeli' }
+                { s: 'F_AKBNK', n: 'Akbank Vadeli' },
+                { s: 'F_EREGL', n: 'Ereğli Vadeli' },
+                { s: 'F_KCHOL', n: 'Koç Holding Vadeli' },
+                { s: 'F_SAHOL', n: 'Sabancı Holding Vadeli' },
+                { s: 'F_SISE', n: 'Şişecam Vadeli' },
+                { s: 'F_TUPRS', n: 'Tüpraş Vadeli' },
+                { s: 'F_YKBNK', n: 'Yapı Kredi Vadeli' },
+                { s: 'F_TCELL', n: 'Turkcell Vadeli' }
             ],
             gold: [
                 { s: 'XAU', n: 'Gram Altın' },
                 { s: 'GAU', n: 'Çeyrek Altın' },
                 { s: 'TAU', n: 'Tam Altın' },
                 { s: 'CAU', n: 'Cumhuriyet Altını' },
-                { s: 'ONS', n: 'Ons Altın (USD)' }
+                { s: 'ONS', n: 'Ons Altın (USD)' },
+                { s: 'AAU', n: 'Ata Altın' },
+                { s: 'YAU', n: 'Yarım Altın' },
+                { s: 'RAU', n: 'Reşat Altın' },
+                { s: 'HAU', n: 'Hamit Altın' }
             ],
             silver: [
                 { s: 'XAG', n: 'Gram Gümüş' },
@@ -1775,16 +2246,25 @@
             ],
             deposit: [
                 { s: 'TL_MEVDUAT', n: 'TL Vadeli Mevduat' },
-                { s: 'USD_MEVDUAT', n: 'USD Mevduat' },
-                { s: 'EUR_MEVDUAT', n: 'EUR Mevduat' }
+                { s: 'USD_MEVDUAT', n: 'USD Vadeli Mevduat' },
+                { s: 'EUR_MEVDUAT', n: 'EUR Vadeli Mevduat' },
+                { s: 'GBP_MEVDUAT', n: 'GBP Vadeli Mevduat' },
+                { s: 'TL_KKM', n: 'Kur Korumalı Mevduat' }
             ],
             cash: [
                 { s: 'TRY', n: 'Türk Lirası' },
                 { s: 'USD', n: 'Amerikan Doları' },
                 { s: 'EUR', n: 'Euro' },
-                { s: 'GBP', n: 'İngiliz Sterlini' }
+                { s: 'GBP', n: 'İngiliz Sterlini' },
+                { s: 'CHF', n: 'İsviçre Frangı' },
+                { s: 'JPY', n: 'Japon Yeni' },
+                { s: 'CAD', n: 'Kanada Doları' },
+                { s: 'AUD', n: 'Avustralya Doları' }
             ]
         };
+
+        // Keep SUGGESTIONS as alias for backward compatibility
+        const SUGGESTIONS = STOCK_DB;
 
         const TYPE_LABELS = {
             bist: { name: 'BIST', color: '#ef4444' },
@@ -2556,10 +3036,11 @@
                 btn.classList.toggle('active', btn.dataset.type === 'bist');
             });
 
-            // Reset validation
+            // Reset validation and autocomplete
             validatedSymbol = null;
             document.getElementById('symbolValidation').className = 'symbol-validation';
             document.getElementById('interestPreview').className = 'interest-preview';
+            document.getElementById('autocompleteDropdown').classList.remove('show');
 
             renderSuggestions();
         }
@@ -2570,11 +3051,12 @@
                 btn.classList.toggle('active', btn.dataset.type === type);
             });
 
-            // Reset validation when type changes
+            // Reset validation and autocomplete when type changes
             validatedSymbol = null;
             document.getElementById('symbolValidation').className = 'symbol-validation';
             document.getElementById('symbolInput').value = '';
             document.getElementById('interestPreview').className = 'interest-preview';
+            document.getElementById('autocompleteDropdown').classList.remove('show');
 
             updateFormForType();
             renderSuggestions();
@@ -2611,54 +3093,201 @@
         }
 
         function selectSuggestion(symbol, name) {
-            document.getElementById('symbolInput').value = symbol;
-            validatedSymbol = { symbol, name, valid: true };
-            showSymbolValidation(true, name);
+            selectAutocompleteItem(symbol, name);
         }
 
-        // ========== SYMBOL VALIDATION ==========
+        // ========== SYMBOL VALIDATION & AUTOCOMPLETE ==========
         let validatedSymbol = null;
         let validationTimeout = null;
+        let autocompleteIndex = -1;
 
-        function validateSymbol() {
-            const symbol = document.getElementById('symbolInput').value.trim().toUpperCase();
+        // Normalize Turkish characters for search
+        function normalizeText(text) {
+            return text.toLowerCase()
+                .replace(/ı/g, 'i')
+                .replace(/ğ/g, 'g')
+                .replace(/ü/g, 'u')
+                .replace(/ş/g, 's')
+                .replace(/ö/g, 'o')
+                .replace(/ç/g, 'c')
+                .replace(/İ/g, 'i')
+                .replace(/Ğ/g, 'g')
+                .replace(/Ü/g, 'u')
+                .replace(/Ş/g, 's')
+                .replace(/Ö/g, 'o')
+                .replace(/Ç/g, 'c');
+        }
+
+        // Search stocks by name or symbol
+        function searchStocks(query, type) {
+            const stocks = STOCK_DB[type] || [];
+            if (!query || query.length < 1) return [];
+
+            const normalizedQuery = normalizeText(query);
+            const upperQuery = query.toUpperCase();
+
+            // Score-based matching
+            const results = stocks.map(stock => {
+                let score = 0;
+                const normalizedName = normalizeText(stock.n);
+                const upperSymbol = stock.s.toUpperCase();
+
+                // Exact symbol match (highest priority)
+                if (upperSymbol === upperQuery) {
+                    score = 100;
+                }
+                // Symbol starts with query
+                else if (upperSymbol.startsWith(upperQuery)) {
+                    score = 80;
+                }
+                // Symbol contains query
+                else if (upperSymbol.includes(upperQuery)) {
+                    score = 60;
+                }
+                // Name starts with query
+                else if (normalizedName.startsWith(normalizedQuery)) {
+                    score = 70;
+                }
+                // Name contains query as a word
+                else if (normalizedName.includes(' ' + normalizedQuery) || normalizedName.includes(normalizedQuery + ' ')) {
+                    score = 50;
+                }
+                // Name contains query anywhere
+                else if (normalizedName.includes(normalizedQuery)) {
+                    score = 40;
+                }
+
+                return { ...stock, score };
+            })
+            .filter(s => s.score > 0)
+            .sort((a, b) => b.score - a.score)
+            .slice(0, 10);
+
+            return results;
+        }
+
+        // Handle symbol input with autocomplete
+        function handleSymbolInput() {
+            const input = document.getElementById('symbolInput');
+            const dropdown = document.getElementById('autocompleteDropdown');
             const validationEl = document.getElementById('symbolValidation');
+            const query = input.value.trim();
 
-            if (!symbol) {
+            autocompleteIndex = -1;
+
+            if (!query) {
+                dropdown.classList.remove('show');
                 validationEl.className = 'symbol-validation';
                 validatedSymbol = null;
                 return;
             }
 
-            // Check in suggestions first (instant validation)
-            const suggestions = SUGGESTIONS[selectedType] || [];
-            const found = suggestions.find(s => s.s === symbol);
+            // Search in database
+            const results = searchStocks(query, selectedType);
 
-            if (found) {
-                validatedSymbol = { symbol: found.s, name: found.n, valid: true };
-                showSymbolValidation(true, found.n);
-                return;
+            if (results.length > 0) {
+                dropdown.innerHTML = results.map((item, idx) =>
+                    `<div class="autocomplete-item" data-index="${idx}" onclick="selectAutocompleteItem('${item.s}', '${item.n.replace(/'/g, "\\'")}')">
+                        <span class="symbol">${item.s}</span>
+                        <span class="name">${item.n}</span>
+                    </div>`
+                ).join('');
+                dropdown.classList.add('show');
+
+                // Check if exact match exists
+                const exactMatch = results.find(r => r.s.toUpperCase() === query.toUpperCase());
+                if (exactMatch) {
+                    validatedSymbol = { symbol: exactMatch.s, name: exactMatch.n, valid: true };
+                    showSymbolValidation(true, exactMatch.n);
+                } else {
+                    // Show hint to select from dropdown
+                    validationEl.className = 'symbol-validation loading';
+                    validationEl.innerHTML = `<i class="fas fa-search"></i> <span>${results.length} sonuç bulundu - listeden seçin</span>`;
+                    validatedSymbol = null;
+                }
+            } else {
+                // No local results - try API for stocks
+                if (selectedType !== 'deposit' && selectedType !== 'cash' && selectedType !== 'gold' && selectedType !== 'silver') {
+                    dropdown.innerHTML = '<div class="autocomplete-no-results"><i class="fas fa-spinner fa-spin"></i> Aranıyor...</div>';
+                    dropdown.classList.add('show');
+
+                    clearTimeout(validationTimeout);
+                    validationTimeout = setTimeout(() => {
+                        validateSymbolViaAPI(query.toUpperCase());
+                    }, 600);
+                } else {
+                    dropdown.innerHTML = '<div class="autocomplete-no-results">Sonuç bulunamadı</div>';
+                    dropdown.classList.add('show');
+                    validatedSymbol = null;
+                    showSymbolValidation(false, 'Geçersiz sembol. Listeden seçin.');
+                }
             }
+        }
 
-            // For deposit and cash, only allow predefined symbols
-            if (selectedType === 'deposit' || selectedType === 'cash') {
-                validatedSymbol = null;
-                showSymbolValidation(false, 'Geçersiz sembol. Önerilerden seçin.');
-                return;
+        // Handle keyboard navigation in autocomplete
+        function handleAutocompleteKeydown(event) {
+            const dropdown = document.getElementById('autocompleteDropdown');
+            const items = dropdown.querySelectorAll('.autocomplete-item');
+
+            if (!dropdown.classList.contains('show') || items.length === 0) return;
+
+            if (event.key === 'ArrowDown') {
+                event.preventDefault();
+                autocompleteIndex = Math.min(autocompleteIndex + 1, items.length - 1);
+                updateAutocompleteSelection(items);
+            } else if (event.key === 'ArrowUp') {
+                event.preventDefault();
+                autocompleteIndex = Math.max(autocompleteIndex - 1, 0);
+                updateAutocompleteSelection(items);
+            } else if (event.key === 'Enter') {
+                event.preventDefault();
+                if (autocompleteIndex >= 0 && items[autocompleteIndex]) {
+                    items[autocompleteIndex].click();
+                } else if (items.length > 0) {
+                    items[0].click();
+                }
+            } else if (event.key === 'Escape') {
+                dropdown.classList.remove('show');
             }
+        }
 
-            // For stocks/ETF, try to validate via API (debounced)
-            clearTimeout(validationTimeout);
-            validationEl.className = 'symbol-validation loading';
-            validationEl.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <span>Kontrol ediliyor...</span>';
+        function updateAutocompleteSelection(items) {
+            items.forEach((item, idx) => {
+                item.classList.toggle('selected', idx === autocompleteIndex);
+            });
+            if (autocompleteIndex >= 0) {
+                items[autocompleteIndex].scrollIntoView({ block: 'nearest' });
+            }
+        }
 
-            validationTimeout = setTimeout(() => {
-                validateSymbolViaAPI(symbol);
-            }, 500);
+        // Select item from autocomplete dropdown
+        function selectAutocompleteItem(symbol, name) {
+            const input = document.getElementById('symbolInput');
+            const dropdown = document.getElementById('autocompleteDropdown');
+
+            input.value = symbol;
+            dropdown.classList.remove('show');
+            validatedSymbol = { symbol, name, valid: true };
+            showSymbolValidation(true, name);
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            const dropdown = document.getElementById('autocompleteDropdown');
+            const input = document.getElementById('symbolInput');
+            if (dropdown && !dropdown.contains(e.target) && e.target !== input) {
+                dropdown.classList.remove('show');
+            }
+        });
+
+        // Legacy function for compatibility
+        function validateSymbol() {
+            handleSymbolInput();
         }
 
         async function validateSymbolViaAPI(symbol) {
             const validationEl = document.getElementById('symbolValidation');
+            const dropdown = document.getElementById('autocompleteDropdown');
 
             try {
                 // Try to fetch price - if successful, symbol is valid
@@ -2669,13 +3298,23 @@
                     const name = await fetchCompanyName(symbol, selectedType);
                     validatedSymbol = { symbol, name: name || symbol, valid: true };
                     showSymbolValidation(true, name || symbol);
+
+                    // Update dropdown with the found result
+                    dropdown.innerHTML = `
+                        <div class="autocomplete-item" onclick="selectAutocompleteItem('${symbol}', '${(name || symbol).replace(/'/g, "\\'")}')">
+                            <span class="symbol">${symbol}</span>
+                            <span class="name">${name || symbol} <i class="fas fa-check" style="color: var(--profit);"></i></span>
+                        </div>
+                    `;
                 } else {
                     validatedSymbol = null;
-                    showSymbolValidation(false, 'Sembol bulunamadı. Kodu kontrol edin.');
+                    showSymbolValidation(false, 'Sembol bulunamadı. Kontrol edin.');
+                    dropdown.innerHTML = '<div class="autocomplete-no-results">Sembol bulunamadı</div>';
                 }
             } catch (e) {
                 validatedSymbol = null;
-                showSymbolValidation(false, 'Doğrulama hatası. Tekrar deneyin.');
+                showSymbolValidation(false, 'Bağlantı hatası. Tekrar deneyin.');
+                dropdown.innerHTML = '<div class="autocomplete-no-results">Bağlantı hatası</div>';
             }
         }
 
