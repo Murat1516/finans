@@ -133,6 +133,42 @@
             background-clip: text;
         }
 
+        .live-indicator {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 10px;
+            font-weight: 600;
+            padding: 4px 8px;
+            border-radius: 12px;
+            background: rgba(239, 68, 68, 0.15);
+            color: #ef4444;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-left: 8px;
+        }
+
+        .live-indicator.active {
+            background: rgba(16, 185, 129, 0.15);
+            color: #10b981;
+        }
+
+        .live-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: currentColor;
+        }
+
+        .live-indicator.active .live-dot {
+            animation: livePulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes livePulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.3); }
+        }
+
         .header-actions {
             display: flex;
             gap: 10px;
@@ -1304,6 +1340,9 @@
             <div class="logo">
                 <div class="logo-icon"><i class="fas fa-chart-pie"></i></div>
                 <span class="logo-text">Portföy</span>
+                <div class="live-indicator active" id="liveIndicator" onclick="toggleLiveUpdates()">
+                    <span class="live-dot"></span> CANLI
+                </div>
             </div>
             <div class="header-actions">
                 <button class="icon-btn" onclick="openSettings()" title="Ayarlar">
@@ -2044,7 +2083,7 @@
         // ========== COMPREHENSIVE STOCK DATABASE ==========
         const STOCK_DB = {
             bist: [
-                { s: 'THYAO', n: 'T��rk Hava Yolları' },
+                { s: 'THYAO', n: 'Türk Hava Yolları' },
                 { s: 'GARAN', n: 'Garanti BBVA Bankası' },
                 { s: 'AKBNK', n: 'Akbank' },
                 { s: 'YKBNK', n: 'Yapı Kredi Bankası' },
@@ -6007,74 +6046,138 @@
             });
         }
 
-        // ========== AUTO REFRESH ==========
-        const AUTO_REFRESH_INTERVAL = 5 * 60 * 1000; // 5 minutes
-        let autoRefreshTimer = null;
+        // ========== LIVE DATA REFRESH ==========
+        const LIVE_MARKET_INTERVAL = 15 * 1000;    // 15 seconds for market data
+        const LIVE_PORTFOLIO_INTERVAL = 30 * 1000; // 30 seconds for portfolio
+        let liveMarketTimer = null;
+        let livePortfolioTimer = null;
+        let isLiveEnabled = true;
 
-        function startAutoRefresh() {
-            if (autoRefreshTimer) clearInterval(autoRefreshTimer);
-
-            autoRefreshTimer = setInterval(async () => {
-                console.log('Auto-refresh triggered');
-                await autoRefreshData();
-            }, AUTO_REFRESH_INTERVAL);
-
-            console.log('Auto-refresh started (every 5 min)');
-        }
-
-        async function autoRefreshData() {
-            try {
-                // Update portfolio prices (silently, without button animation)
-                if (portfolio.length > 0) {
-                    await refreshPricesSilent();
-                }
-
-                // Update market data if on market tab
-                const marketTab = document.getElementById('marketTab');
-                if (marketTab && marketTab.style.display !== 'none') {
-                    await loadMarketData();
-                }
-
-                // Show subtle notification
-                const now = new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
-                showToast(`Veriler güncellendi (${now})`, 'success');
-            } catch (e) {
-                console.log('Auto-refresh error:', e.message);
+        function toggleLiveUpdates() {
+            isLiveEnabled = !isLiveEnabled;
+            if (isLiveEnabled) {
+                startLiveUpdates();
+                showToast('Canlı veri açıldı', 'success');
+            } else {
+                stopLiveUpdates();
+                showToast('Canlı veri durduruldu', 'warning');
             }
         }
 
-        // Silent version of refreshPrices for auto-refresh (no button animation)
-        async function refreshPricesSilent() {
-            let apiSuccessCount = 0;
+        function startLiveUpdates() {
+            isLiveEnabled = true;
+            stopLiveUpdates(); // Clear any existing timers
 
-            const pricePromises = portfolio.map(async (asset) => {
-                if (asset.type === 'deposit') return;
-
-                asset.previousPrice = asset.currentPrice;
-
-                try {
-                    const newPrice = await fetchPrice(asset.symbol, asset.type);
-                    if (newPrice !== null) {
-                        asset.currentPrice = newPrice;
-                        asset.priceSource = 'api';
-                        apiSuccessCount++;
-                    } else {
-                        asset.currentPrice = simulatePrice(asset.currentPrice, asset.type);
-                        asset.priceSource = 'simulated';
-                    }
-                } catch (e) {
-                    asset.currentPrice = simulatePrice(asset.currentPrice, asset.type);
-                    asset.priceSource = 'simulated';
+            // Start market data live updates (every 15 sec)
+            liveMarketTimer = setInterval(async () => {
+                const marketTab = document.getElementById('marketTab');
+                if (marketTab && marketTab.style.display !== 'none') {
+                    await liveUpdateMarketData();
                 }
-            });
+            }, LIVE_MARKET_INTERVAL);
 
-            await Promise.all(pricePromises);
+            // Start portfolio live updates (every 30 sec)
+            livePortfolioTimer = setInterval(async () => {
+                if (portfolio.length > 0) {
+                    await liveUpdatePortfolio();
+                }
+            }, LIVE_PORTFOLIO_INTERVAL);
 
-            // Save to DB and update UI
-            await saveToDB();
-            renderPortfolio();
-            updateSummary();
-            updatePerformance();
+            updateLiveIndicator(true);
+            console.log('Live updates started (Market: 15s, Portfolio: 30s)');
+        }
+
+        function stopLiveUpdates() {
+            if (liveMarketTimer) clearInterval(liveMarketTimer);
+            if (livePortfolioTimer) clearInterval(livePortfolioTimer);
+            liveMarketTimer = null;
+            livePortfolioTimer = null;
+            updateLiveIndicator(false);
+        }
+
+        function updateLiveIndicator(isLive) {
+            const indicator = document.getElementById('liveIndicator');
+            if (indicator) {
+                indicator.className = isLive ? 'live-indicator active' : 'live-indicator';
+                indicator.innerHTML = isLive ? '<span class="live-dot"></span> CANLI' : '<span class="live-dot"></span> DURDURULDU';
+            }
+        }
+
+        async function liveUpdateMarketData() {
+            try {
+                // Collect all symbols
+                const allItems = [];
+                Object.values(MARKET_SYMBOLS).forEach(section => {
+                    section.items.forEach(item => allItems.push(item));
+                });
+
+                // Fetch in smaller batches for speed
+                const batchSize = 8;
+                for (let i = 0; i < allItems.length; i += batchSize) {
+                    const batch = allItems.slice(i, i + batchSize);
+
+                    const batchPromises = batch.map(async (item) => {
+                        try {
+                            const data = await fetchSingleQuote(item.yahoo);
+                            if (data) {
+                                marketDataCache[item.symbol] = data;
+
+                                if (item.symbol === 'USDTRY' && data.price) {
+                                    cachedUSDTRY = data.price;
+                                    const usdEl = document.getElementById('currentUSDTRY');
+                                    if (usdEl) usdEl.textContent = `₺${data.price.toFixed(4)}`;
+                                }
+
+                                updateMarketRow(item);
+                            }
+                        } catch (e) { }
+                    });
+
+                    await Promise.all(batchPromises);
+                }
+
+                // Update timestamp
+                const now = new Date();
+                const timeStr = now.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                const updateEl = document.getElementById('marketDataUpdate');
+                if (updateEl) updateEl.innerHTML = `<i class="fas fa-clock"></i> ${timeStr}`;
+
+            } catch (e) {
+                console.log('Live market update error:', e.message);
+            }
+        }
+
+        async function liveUpdatePortfolio() {
+            try {
+                const pricePromises = portfolio.map(async (asset) => {
+                    if (asset.type === 'deposit') return;
+
+                    try {
+                        const newPrice = await fetchPrice(asset.symbol, asset.type);
+                        if (newPrice !== null) {
+                            asset.previousPrice = asset.currentPrice;
+                            asset.currentPrice = newPrice;
+                            asset.priceSource = 'api';
+                        }
+                    } catch (e) { }
+                });
+
+                await Promise.all(pricePromises);
+
+                // Update UI without saving to DB every time (save less frequently)
+                renderPortfolio();
+                updateSummary();
+                updatePerformance();
+
+                // Save to DB every 2 minutes
+                if (!liveUpdatePortfolio.lastSave || Date.now() - liveUpdatePortfolio.lastSave > 120000) {
+                    await saveToDB();
+                    liveUpdatePortfolio.lastSave = Date.now();
+                }
+
+            } catch (e) {
+                console.log('Live portfolio update error:', e.message);
+            }
         }
 
         // ========== INIT ==========
@@ -6095,8 +6198,8 @@
             updateSummary();
             updatePerformance();
 
-            // Start auto-refresh timer
-            startAutoRefresh();
+            // Start live data updates
+            startLiveUpdates();
         }
 
         function initTheme() {
@@ -7537,7 +7640,7 @@
                 return;
             }
             if ((!buyPrice || buyPrice <= 0) && selectedType !== 'cash') {
-                showToast('Lütfen alış fiyatı girin!', 'error');
+                showToast('Lütfen alı�� fiyatı girin!', 'error');
                 return;
             }
             if ((!currentPrice || currentPrice <= 0) && selectedType !== 'cash') {
