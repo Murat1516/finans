@@ -15,8 +15,12 @@
     <meta name="format-detection" content="telephone=no">
     <meta name="msapplication-tap-highlight" content="no">
 
-    <!-- iOS Splash Screens -->
+    <!-- Web App Manifest -->
+    <link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoiUG9ydGbDtnkgVGFraXAiLCJzaG9ydF9uYW1lIjoiUG9ydGbDtnkiLCJkZXNjcmlwdGlvbiI6Ikhpc3NlLCBFVEYsIEFsdMSxbiwgR8O8bcO8xZ8gdmUgZGFoYSBmYXpsYXPEsW7EsSB0YWtpcCBlZGluIiwic3RhcnRfdXJsIjoiLiIsImRpc3BsYXkiOiJzdGFuZGFsb25lIiwiYmFja2dyb3VuZF9jb2xvciI6IiMwODA4MGMiLCJ0aGVtZV9jb2xvciI6IiMxMGI5ODEiLCJvcmllbnRhdGlvbiI6InBvcnRyYWl0LXByaW1hcnkiLCJpY29ucyI6W3sic3JjIjoiZGF0YTppbWFnZS9zdmcreG1sLDxzdmcgeG1sbnM9J2h0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnJyB2aWV3Qm94PScwIDAgMTAwIDEwMCc+PHJlY3QgZmlsbD0nJTIzMTBiOTgxJyB3aWR0aD0nMTAwJyBoZWlnaHQ9JzEwMCcgcng9JzIwJy8+PHRleHQgeD0nNTAnIHk9JzY1JyBmb250LXNpemU9JzUwJyB0ZXh0LWFuY2hvcj0nbWlkZGxlJyBmaWxsPSd3aGl0ZSc+8J+TijwvdGV4dD48L3N2Zz4iLCJzaXplcyI6IjUxMng1MTIiLCJ0eXBlIjoiaW1hZ2Uvc3ZnK3htbCIsInB1cnBvc2UiOiJhbnkgbWFza2FibGUifV19">
+
+    <!-- iOS Splash Screens & Icons -->
     <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect fill='%2310b981' width='100' height='100' rx='20'/><text x='50' y='65' font-size='50' text-anchor='middle' fill='white'>📊</text></svg>">
+    <link rel="apple-touch-icon" sizes="180x180" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'><rect fill='%2310b981' width='180' height='180' rx='36'/><text x='90' y='115' font-size='80' text-anchor='middle' fill='white'>📊</text></svg>">
 
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
@@ -1331,6 +1335,91 @@
 
         .toast.success i { color: var(--profit); }
         .toast.error i { color: var(--loss); }
+
+        /* Market Editor Styles */
+        .market-editor-section {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 14px;
+            margin-bottom: 12px;
+            border: 1px solid var(--border);
+        }
+
+        .market-editor-section-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--accent);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .market-editor-items {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .market-editor-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--bg-input);
+            border-radius: 8px;
+            padding: 8px 10px;
+            border: 1px solid var(--border);
+            font-size: 12px;
+            transition: all 0.2s;
+        }
+
+        .market-editor-item:hover {
+            border-color: var(--loss);
+            background: rgba(239, 68, 68, 0.1);
+        }
+
+        .item-symbol {
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .item-name {
+            color: var(--text-secondary);
+            max-width: 100px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .item-remove {
+            width: 20px;
+            height: 20px;
+            border-radius: 6px;
+            border: none;
+            background: transparent;
+            color: var(--text-secondary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            font-size: 10px;
+            opacity: 0.6;
+        }
+
+        .market-editor-item:hover .item-remove {
+            opacity: 1;
+            color: var(--loss);
+            background: rgba(239, 68, 68, 0.15);
+        }
+
+        .icon-btn.small {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            font-size: 12px;
+        }
     </style>
 </head>
 <body>
@@ -1581,6 +1670,9 @@
                 <h2 class="section-title">📈 Piyasa Verileri</h2>
                 <div class="market-update-info">
                     <span class="last-update" id="marketDataUpdate"><i class="fas fa-clock"></i> --:--</span>
+                    <button class="icon-btn small" onclick="openMarketEditor()" title="Düzenle">
+                        <i class="fas fa-edit"></i>
+                    </button>
                     <button class="icon-btn small" onclick="refreshMarketData()" title="Güncelle">
                         <i class="fas fa-sync-alt" id="marketRefreshIcon"></i>
                     </button>
@@ -1786,17 +1878,26 @@
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">💾 Veri Yedekleme</label>
-                    <div style="display: flex; gap: 10px;">
-                        <button type="button" class="submit-btn" style="flex: 1; background: var(--accent);" onclick="exportJSON()">
-                            <i class="fas fa-download"></i> Yedekle (JSON)
+                    <label class="form-label">💾 Hızlı Yedekleme (Panoya)</label>
+                    <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                        <button type="button" class="submit-btn" style="flex: 1; background: #f59e0b;" onclick="copyToClipboard()">
+                            <i class="fas fa-copy"></i> Kopyala
                         </button>
-                        <button type="button" class="submit-btn" style="flex: 1; background: #6366f1;" onclick="importJSON()">
-                            <i class="fas fa-upload"></i> Geri Yükle
+                        <button type="button" class="submit-btn" style="flex: 1; background: #8b5cf6;" onclick="pasteFromClipboard()">
+                            <i class="fas fa-paste"></i> Yapıştır
                         </button>
                     </div>
-                    <p style="margin-top: 8px; font-size: 11px; color: var(--text-secondary);">
-                        💡 Verileriniz otomatik olarak tarayıcıda saklanır. Tarayıcı verisi silinirse, JSON yedekten geri yükleyebilirsiniz.
+                    <label class="form-label">📁 Dosya Yedekleme</label>
+                    <div style="display: flex; gap: 10px;">
+                        <button type="button" class="submit-btn" style="flex: 1; background: var(--accent);" onclick="exportJSON()">
+                            <i class="fas fa-download"></i> İndir
+                        </button>
+                        <button type="button" class="submit-btn" style="flex: 1; background: #6366f1;" onclick="importJSON()">
+                            <i class="fas fa-upload"></i> Yükle
+                        </button>
+                    </div>
+                    <p style="margin-top: 10px; font-size: 11px; color: var(--text-secondary); line-height: 1.5;">
+                        ⚠️ <strong>Önemli:</strong> Uygulama yeniden yüklendiğinde veriler silinebilir. Düzenli olarak "Kopyala" ile yedek alın, "Yapıştır" ile geri yükleyin.
                     </p>
                 </div>
 
@@ -6188,6 +6289,10 @@
             const dbReady = await initDB();
             if (dbReady) {
                 portfolio = await loadFromDB();
+
+                // Load custom market settings
+                await loadMarketSettings();
+
                 if (portfolio.length > 0) {
                     showToast(`${portfolio.length} varlık yüklendi`, 'success');
                 }
@@ -6309,7 +6414,8 @@
         }
 
         // ========== MARKET DATA ==========
-        const MARKET_SYMBOLS = {
+        // Default market symbols (can be customized by user)
+        const DEFAULT_MARKET_SYMBOLS = {
             usa: {
                 title: 'USA',
                 items: [
@@ -6411,8 +6517,235 @@
             }
         };
 
+        // Custom market symbols (will be loaded from DB or use defaults)
+        let MARKET_SYMBOLS = JSON.parse(JSON.stringify(DEFAULT_MARKET_SYMBOLS));
+        let customMarketItems = []; // User-added items
+
         let marketDataCache = {};
         let marketDataLoading = false;
+
+        // ========== MARKET EDITOR ==========
+        function openMarketEditor() {
+            const modal = document.createElement('div');
+            modal.className = 'modal-overlay active';
+            modal.id = 'marketEditorModal';
+
+            let sectionsHtml = '';
+            Object.entries(MARKET_SYMBOLS).forEach(([key, section]) => {
+                sectionsHtml += `
+                    <div class="market-editor-section">
+                        <div class="market-editor-section-title">${section.title}</div>
+                        <div class="market-editor-items" id="editor-${key}">
+                            ${section.items.map(item => `
+                                <div class="market-editor-item" data-section="${key}" data-symbol="${item.symbol}">
+                                    <span class="item-symbol">${item.symbol}</span>
+                                    <span class="item-name">${item.name}</span>
+                                    <button class="item-remove" onclick="removeMarketItem('${key}', '${item.symbol}')">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            });
+
+            modal.innerHTML = `
+                <div class="modal" style="max-height: 85vh;">
+                    <div class="modal-header">
+                        <div class="modal-handle"></div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                            <h3 class="modal-title">📊 Piyasa Listesi Düzenle</h3>
+                            <button class="modal-close" onclick="closeMarketEditor()">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="modal-body" style="max-height: 60vh; overflow-y: auto;">
+                        <div class="form-group">
+                            <label class="form-label">➕ Yeni Sembol Ekle</label>
+                            <div style="display: flex; gap: 8px;">
+                                <select id="newItemSection" class="form-input" style="flex: 1;">
+                                    ${Object.entries(MARKET_SYMBOLS).map(([key, section]) =>
+                                        `<option value="${key}">${section.title}</option>`
+                                    ).join('')}
+                                    <option value="custom">+ Yeni Kategori</option>
+                                </select>
+                            </div>
+                            <div style="display: flex; gap: 8px; margin-top: 8px;">
+                                <input type="text" id="newItemSymbol" class="form-input" placeholder="AAPL" style="flex: 1;">
+                                <input type="text" id="newItemYahoo" class="form-input" placeholder="Yahoo: AAPL" style="flex: 1;">
+                            </div>
+                            <div style="display: flex; gap: 8px; margin-top: 8px;">
+                                <input type="text" id="newItemName" class="form-input" placeholder="İsim: Apple Inc." style="flex: 2;">
+                                <button class="submit-btn" style="flex: 1;" onclick="addMarketItem()">
+                                    <i class="fas fa-plus"></i> Ekle
+                                </button>
+                            </div>
+                            <p style="font-size: 11px; color: var(--text-secondary); margin-top: 8px;">
+                                💡 Yahoo sembolü: BIST için .IS ekleyin (örn: THYAO.IS), döviz için =X (örn: USDTRY=X)
+                            </p>
+                        </div>
+
+                        <div class="form-group" id="newCategoryGroup" style="display: none;">
+                            <label class="form-label">📁 Yeni Kategori</label>
+                            <div style="display: flex; gap: 8px;">
+                                <input type="text" id="newCategoryKey" class="form-input" placeholder="myCategory" style="flex: 1;">
+                                <input type="text" id="newCategoryTitle" class="form-input" placeholder="Kategori Adı" style="flex: 1;">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">📋 Mevcut Semboller</label>
+                            <div id="marketEditorSections">
+                                ${sectionsHtml}
+                            </div>
+                        </div>
+                    </div>
+                    <div style="padding: 16px; border-top: 1px solid var(--border);">
+                        <div style="display: flex; gap: 8px;">
+                            <button class="submit-btn" style="flex: 1; background: var(--accent);" onclick="saveMarketSettings()">
+                                <i class="fas fa-save"></i> Kaydet
+                            </button>
+                            <button class="submit-btn" style="flex: 1; background: #ef4444;" onclick="resetMarketSettings()">
+                                <i class="fas fa-undo"></i> Sıfırla
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            document.body.appendChild(modal);
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) closeMarketEditor();
+            });
+
+            // Toggle new category fields
+            document.getElementById('newItemSection').addEventListener('change', (e) => {
+                document.getElementById('newCategoryGroup').style.display =
+                    e.target.value === 'custom' ? 'block' : 'none';
+            });
+        }
+
+        function closeMarketEditor() {
+            const modal = document.getElementById('marketEditorModal');
+            if (modal) modal.remove();
+        }
+
+        function addMarketItem() {
+            let sectionKey = document.getElementById('newItemSection').value;
+            const symbol = document.getElementById('newItemSymbol').value.trim().toUpperCase();
+            const yahoo = document.getElementById('newItemYahoo').value.trim() || symbol;
+            const name = document.getElementById('newItemName').value.trim() || symbol;
+
+            if (!symbol) {
+                showToast('Sembol gerekli!', 'error');
+                return;
+            }
+
+            // Check if custom category
+            if (sectionKey === 'custom') {
+                const newKey = document.getElementById('newCategoryKey').value.trim().toLowerCase().replace(/\s/g, '');
+                const newTitle = document.getElementById('newCategoryTitle').value.trim();
+
+                if (!newKey || !newTitle) {
+                    showToast('Kategori bilgileri gerekli!', 'error');
+                    return;
+                }
+
+                if (!MARKET_SYMBOLS[newKey]) {
+                    MARKET_SYMBOLS[newKey] = { title: newTitle, items: [] };
+                }
+                sectionKey = newKey;
+            }
+
+            // Check duplicate
+            if (MARKET_SYMBOLS[sectionKey].items.some(i => i.symbol === symbol)) {
+                showToast('Bu sembol zaten mevcut!', 'error');
+                return;
+            }
+
+            // Add item
+            MARKET_SYMBOLS[sectionKey].items.push({
+                symbol: symbol,
+                yahoo: yahoo,
+                name: name,
+                type: 'custom'
+            });
+
+            // Clear inputs
+            document.getElementById('newItemSymbol').value = '';
+            document.getElementById('newItemYahoo').value = '';
+            document.getElementById('newItemName').value = '';
+
+            // Refresh editor
+            closeMarketEditor();
+            openMarketEditor();
+            showToast(`${symbol} eklendi!`, 'success');
+        }
+
+        function removeMarketItem(sectionKey, symbol) {
+            if (!MARKET_SYMBOLS[sectionKey]) return;
+
+            MARKET_SYMBOLS[sectionKey].items = MARKET_SYMBOLS[sectionKey].items.filter(
+                item => item.symbol !== symbol
+            );
+
+            // Remove section if empty
+            if (MARKET_SYMBOLS[sectionKey].items.length === 0) {
+                delete MARKET_SYMBOLS[sectionKey];
+            }
+
+            // Refresh editor
+            closeMarketEditor();
+            openMarketEditor();
+            showToast(`${symbol} silindi!`, 'success');
+        }
+
+        async function saveMarketSettings() {
+            try {
+                // Save to IndexedDB
+                const tx = db.transaction(STORE_NAME, 'readwrite');
+                const store = tx.objectStore(STORE_NAME);
+                await store.put({ id: 'marketSettings', data: MARKET_SYMBOLS });
+
+                closeMarketEditor();
+                renderMarketSections();
+                loadMarketData();
+                showToast('Piyasa listesi kaydedildi!', 'success');
+            } catch (e) {
+                console.log('Save market settings error:', e);
+                showToast('Kaydetme hatası!', 'error');
+            }
+        }
+
+        function resetMarketSettings() {
+            MARKET_SYMBOLS = JSON.parse(JSON.stringify(DEFAULT_MARKET_SYMBOLS));
+            closeMarketEditor();
+            openMarketEditor();
+            showToast('Liste varsayılana sıfırlandı!', 'success');
+        }
+
+        async function loadMarketSettings() {
+            try {
+                if (!db) return;
+                const tx = db.transaction(STORE_NAME, 'readonly');
+                const store = tx.objectStore(STORE_NAME);
+                const request = store.get('marketSettings');
+
+                return new Promise((resolve) => {
+                    request.onsuccess = () => {
+                        if (request.result && request.result.data) {
+                            MARKET_SYMBOLS = request.result.data;
+                        }
+                        resolve();
+                    };
+                    request.onerror = () => resolve();
+                });
+            } catch (e) {
+                console.log('Load market settings error:', e);
+            }
+        }
 
         async function fetchSingleQuote(yahooSymbol) {
             const targetUrl = API_CONFIG.yahooFinance + yahooSymbol;
@@ -7640,7 +7973,7 @@
                 return;
             }
             if ((!buyPrice || buyPrice <= 0) && selectedType !== 'cash') {
-                showToast('Lütfen alı�� fiyatı girin!', 'error');
+                showToast('Lütfen alış fiyatı girin!', 'error');
                 return;
             }
             if ((!currentPrice || currentPrice <= 0) && selectedType !== 'cash') {
@@ -7775,6 +8108,151 @@
             a.click();
             URL.revokeObjectURL(url);
             showToast('CSV olarak indirildi!', 'success');
+        }
+
+        // ========== CLIPBOARD BACKUP ==========
+        async function copyToClipboard() {
+            if (portfolio.length === 0) {
+                showToast('Kopyalanacak varlık yok!', 'error');
+                return;
+            }
+
+            const data = {
+                version: 1,
+                exportDate: new Date().toISOString(),
+                portfolio: portfolio
+            };
+
+            try {
+                await navigator.clipboard.writeText(JSON.stringify(data));
+                showToast(`${portfolio.length} varlık panoya kopyalandı! 📋`, 'success');
+            } catch (err) {
+                // Fallback for older browsers
+                const textarea = document.createElement('textarea');
+                textarea.value = JSON.stringify(data);
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                showToast(`${portfolio.length} varlık panoya kopyalandı! 📋`, 'success');
+            }
+        }
+
+        async function pasteFromClipboard() {
+            try {
+                const text = await navigator.clipboard.readText();
+
+                if (!text || text.trim() === '') {
+                    showToast('Pano boş! Önce veri kopyalayın.', 'error');
+                    return;
+                }
+
+                let data;
+                try {
+                    data = JSON.parse(text);
+                } catch {
+                    showToast('Panodaki veri geçersiz JSON formatında!', 'error');
+                    return;
+                }
+
+                if (!data.portfolio || !Array.isArray(data.portfolio)) {
+                    showToast('Geçersiz yedek formatı!', 'error');
+                    return;
+                }
+
+                const validAssets = data.portfolio.filter(a =>
+                    a.id && a.type && a.symbol && typeof a.amount === 'number'
+                );
+
+                if (validAssets.length === 0) {
+                    showToast('Geçerli varlık bulunamadı!', 'error');
+                    return;
+                }
+
+                portfolio = validAssets;
+                await saveToDB();
+                renderPortfolio();
+                updateSummary();
+                updatePerformance();
+                closeSettings();
+                showToast(`✓ ${validAssets.length} varlık geri yüklendi!`, 'success');
+
+            } catch (err) {
+                // Clipboard read permission denied - show manual input
+                showManualPasteDialog();
+            }
+        }
+
+        function showManualPasteDialog() {
+            const modal = document.createElement('div');
+            modal.className = 'modal-overlay active';
+            modal.id = 'pasteModal';
+            modal.innerHTML = `
+                <div class="modal" style="max-height: 80vh;">
+                    <div class="modal-header">
+                        <div class="modal-handle"></div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                            <h3 class="modal-title">Veri Yapıştır</h3>
+                            <button class="modal-close" onclick="document.getElementById('pasteModal').remove()">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="modal-body">
+                        <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 12px;">
+                            Daha önce kopyaladığınız yedek verisini aşağıya yapıştırın:
+                        </p>
+                        <textarea id="pasteTextarea" style="width: 100%; height: 150px; padding: 12px; border-radius: 12px; border: 1px solid var(--border); background: var(--bg-input); color: var(--text-primary); font-family: 'JetBrains Mono', monospace; font-size: 11px; resize: none;" placeholder='{"version":1,"portfolio":[...]}'></textarea>
+                        <button class="submit-btn" style="width: 100%; margin-top: 12px;" onclick="restoreFromTextarea()">
+                            <i class="fas fa-check"></i> Geri Yükle
+                        </button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) modal.remove();
+            });
+        }
+
+        async function restoreFromTextarea() {
+            const textarea = document.getElementById('pasteTextarea');
+            const text = textarea.value.trim();
+
+            if (!text) {
+                showToast('Lütfen veri yapıştırın!', 'error');
+                return;
+            }
+
+            try {
+                const data = JSON.parse(text);
+
+                if (!data.portfolio || !Array.isArray(data.portfolio)) {
+                    showToast('Geçersiz yedek formatı!', 'error');
+                    return;
+                }
+
+                const validAssets = data.portfolio.filter(a =>
+                    a.id && a.type && a.symbol && typeof a.amount === 'number'
+                );
+
+                if (validAssets.length === 0) {
+                    showToast('Geçerli varlık bulunamadı!', 'error');
+                    return;
+                }
+
+                portfolio = validAssets;
+                await saveToDB();
+                renderPortfolio();
+                updateSummary();
+                updatePerformance();
+                document.getElementById('pasteModal').remove();
+                closeSettings();
+                showToast(`✓ ${validAssets.length} varlık geri yüklendi!`, 'success');
+
+            } catch (err) {
+                showToast('JSON parse hatası: ' + err.message, 'error');
+            }
         }
 
         // ========== JSON BACKUP ==========
@@ -7958,8 +8436,286 @@
             document.getElementById(id).addEventListener('input', updateInterestPreview);
         });
 
+        // ========== SERVICE WORKER & PWA ==========
+        const SW_VERSION = 'v1.0.0';
+
+        // Register Service Worker
+        if ('serviceWorker' in navigator) {
+            const swCode = `
+                const CACHE_NAME = 'portfolio-cache-${SW_VERSION}';
+                const ASSETS_TO_CACHE = [
+                    'https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap',
+                    'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css'
+                ];
+
+                self.addEventListener('install', event => {
+                    event.waitUntil(
+                        caches.open(CACHE_NAME)
+                            .then(cache => cache.addAll(ASSETS_TO_CACHE))
+                            .then(() => self.skipWaiting())
+                    );
+                });
+
+                self.addEventListener('activate', event => {
+                    event.waitUntil(
+                        caches.keys().then(keys =>
+                            Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)))
+                        ).then(() => self.clients.claim())
+                    );
+                });
+
+                self.addEventListener('fetch', event => {
+                    if (event.request.method !== 'GET') return;
+
+                    event.respondWith(
+                        caches.match(event.request)
+                            .then(cached => {
+                                const fetched = fetch(event.request)
+                                    .then(response => {
+                                        if (response.ok) {
+                                            const clone = response.clone();
+                                            caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
+                                        }
+                                        return response;
+                                    })
+                                    .catch(() => cached);
+                                return cached || fetched;
+                            })
+                    );
+                });
+            `;
+
+            const swBlob = new Blob([swCode], { type: 'application/javascript' });
+            const swUrl = URL.createObjectURL(swBlob);
+
+            navigator.serviceWorker.register(swUrl, { scope: '/' })
+                .then(reg => console.log('Service Worker registered:', reg.scope))
+                .catch(err => console.log('SW registration failed:', err));
+        }
+
+        // PWA Install Prompt
+        let deferredPrompt = null;
+        let installDismissed = false;
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            showInstallBanner();
+        });
+
+        function showInstallBanner() {
+            // Check if already installed or dismissed
+            if (window.matchMedia('(display-mode: standalone)').matches) return;
+            if (installDismissed) return;
+
+            const banner = document.createElement('div');
+            banner.id = 'installBanner';
+            banner.innerHTML = `
+                <div class="install-content">
+                    <div class="install-icon">📊</div>
+                    <div class="install-text">
+                        <strong>Portföy Takip</strong>
+                        <span>Ana ekrana ekle, uygulama gibi kullan!</span>
+                    </div>
+                </div>
+                <div class="install-actions">
+                    <button class="install-btn" onclick="installPWA()">Ekle</button>
+                    <button class="install-close" onclick="dismissInstall()">✕</button>
+                </div>
+            `;
+            document.body.appendChild(banner);
+
+            // Animate in
+            setTimeout(() => banner.classList.add('show'), 100);
+        }
+
+        async function installPWA() {
+            if (!deferredPrompt) {
+                // For iOS Safari
+                showIOSInstallGuide();
+                return;
+            }
+
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+
+            if (outcome === 'accepted') {
+                showToast('Uygulama yüklendi! 🎉', 'success');
+            }
+
+            deferredPrompt = null;
+            dismissInstall();
+        }
+
+        function dismissInstall() {
+            const banner = document.getElementById('installBanner');
+            if (banner) {
+                banner.classList.remove('show');
+                setTimeout(() => banner.remove(), 300);
+            }
+            installDismissed = true;
+        }
+
+        function showIOSInstallGuide() {
+            const modal = document.createElement('div');
+            modal.className = 'modal-overlay active';
+            modal.id = 'iosInstallModal';
+            modal.innerHTML = `
+                <div class="modal">
+                    <div class="modal-header">
+                        <div class="modal-handle"></div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                            <h3 class="modal-title">📱 Ana Ekrana Ekle</h3>
+                            <button class="modal-close" onclick="document.getElementById('iosInstallModal').remove()">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="modal-body">
+                        <div style="text-align: center; padding: 20px 0;">
+                            <p style="font-size: 14px; margin-bottom: 20px; color: var(--text-secondary);">
+                                Bu uygulamayı iPhone'unuza yüklemek için:
+                            </p>
+                            <div style="background: var(--bg-input); padding: 16px; border-radius: 12px; text-align: left;">
+                                <p style="margin-bottom: 12px;"><strong>1.</strong> Safari'de <i class="fas fa-share-square" style="color: var(--accent);"></i> (Paylaş) butonuna tıklayın</p>
+                                <p style="margin-bottom: 12px;"><strong>2.</strong> "Ana Ekrana Ekle" seçeneğini bulun</p>
+                                <p><strong>3.</strong> "Ekle" butonuna t��klayın</p>
+                            </div>
+                            <p style="font-size: 12px; margin-top: 16px; color: var(--text-secondary);">
+                                ✓ Uygulama tam ekran açılacak<br>
+                                ✓ Verileriniz kaydedilecek<br>
+                                ✓ Offline çalışabilecek
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) modal.remove();
+            });
+            dismissInstall();
+        }
+
+        // Detect if running as standalone app
+        if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone) {
+            console.log('Running as installed PWA');
+            document.body.classList.add('standalone');
+        }
+
+        // Offline/Online detection
+        function updateOnlineStatus() {
+            const indicator = document.getElementById('liveIndicator');
+            if (!navigator.onLine) {
+                if (indicator) {
+                    indicator.className = 'live-indicator offline';
+                    indicator.innerHTML = '<span class="live-dot"></span> OFFLINE';
+                }
+                showToast('İnternet bağlantısı yok', 'warning');
+            } else {
+                if (indicator && !isLiveEnabled) {
+                    indicator.className = 'live-indicator';
+                    indicator.innerHTML = '<span class="live-dot"></span> DURDURULDU';
+                } else if (indicator) {
+                    indicator.className = 'live-indicator active';
+                    indicator.innerHTML = '<span class="live-dot"></span> CANLI';
+                }
+            }
+        }
+
+        window.addEventListener('online', () => {
+            updateOnlineStatus();
+            showToast('İnternet bağlantısı sağlandı', 'success');
+            if (isLiveEnabled) startLiveUpdates();
+        });
+
+        window.addEventListener('offline', updateOnlineStatus);
+
+        // Check initial status
+        updateOnlineStatus();
+
         // Initialize
         init();
     </script>
+
+    <style>
+        /* Install Banner Styles */
+        #installBanner {
+            position: fixed;
+            bottom: -100px;
+            left: 16px;
+            right: 16px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.3);
+            z-index: 10000;
+            transition: bottom 0.3s ease;
+        }
+
+        #installBanner.show {
+            bottom: calc(16px + env(safe-area-inset-bottom));
+        }
+
+        .install-content {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .install-icon {
+            font-size: 32px;
+        }
+
+        .install-text {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .install-text strong {
+            font-size: 14px;
+            color: var(--text-primary);
+        }
+
+        .install-text span {
+            font-size: 11px;
+            color: var(--text-secondary);
+        }
+
+        .install-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .install-btn {
+            background: var(--accent);
+            color: #000;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+        }
+
+        .install-close {
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 18px;
+            cursor: pointer;
+            padding: 4px;
+        }
+
+        .live-indicator.offline {
+            background: rgba(239, 68, 68, 0.15);
+            color: #ef4444;
+        }
+    </style>
 </body>
 </html>
