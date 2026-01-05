@@ -1878,6 +1878,27 @@
                 </div>
 
                 <div class="form-group">
+                    <label class="form-label">🖼️ Uygulama İkonu</label>
+                    <div style="display: flex; align-items: center; gap: 14px; padding: 14px; background: var(--bg-input); border-radius: 12px;">
+                        <div id="currentAppIcon" style="width: 60px; height: 60px; border-radius: 14px; background: linear-gradient(135deg, var(--accent), var(--accent-light)); display: flex; align-items: center; justify-content: center; font-size: 28px; flex-shrink: 0; overflow: hidden;">
+                            📊
+                        </div>
+                        <div style="flex: 1;">
+                            <p style="font-size: 12px; color: var(--text-secondary); margin-bottom: 10px;">Kendi resminizi yükleyerek uygulama ikonunu değiştirin</p>
+                            <div style="display: flex; gap: 8px;">
+                                <button type="button" class="submit-btn" style="flex: 1; font-size: 12px; padding: 10px;" onclick="changeAppIcon()">
+                                    <i class="fas fa-image"></i> Değiştir
+                                </button>
+                                <button type="button" class="submit-btn" style="flex: 0; padding: 10px 14px; background: var(--text-secondary);" onclick="resetAppIcon()">
+                                    <i class="fas fa-undo"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <input type="file" id="iconFileInput" accept="image/*" style="display: none;" onchange="handleIconUpload(event)">
+                </div>
+
+                <div class="form-group">
                     <label class="form-label">💾 Hızlı Yedekleme (Panoya)</label>
                     <div style="display: flex; gap: 10px; margin-bottom: 10px;">
                         <button type="button" class="submit-btn" style="flex: 1; background: #f59e0b;" onclick="copyToClipboard()">
@@ -6293,6 +6314,9 @@
                 // Load custom market settings
                 await loadMarketSettings();
 
+                // Load custom app icon
+                await loadAppIcon();
+
                 if (portfolio.length > 0) {
                     showToast(`${portfolio.length} varlık yüklendi`, 'success');
                 }
@@ -8372,6 +8396,191 @@
             }
         }
 
+        // ========== APP ICON CUSTOMIZATION ==========
+        let customAppIcon = null;
+
+        function changeAppIcon() {
+            document.getElementById('iconFileInput').click();
+        }
+
+        async function handleIconUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            if (!file.type.startsWith('image/')) {
+                showToast('Lütfen bir resim dosyası seçin', 'error');
+                return;
+            }
+
+            try {
+                showToast('İkon işleniyor...', 'success');
+
+                // Read file and create image
+                const reader = new FileReader();
+                reader.onload = async (e) => {
+                    const img = new Image();
+                    img.onload = async () => {
+                        // Create canvas for resizing
+                        const canvas = document.createElement('canvas');
+                        const size = 512; // PWA icon size
+                        canvas.width = size;
+                        canvas.height = size;
+                        const ctx = canvas.getContext('2d');
+
+                        // Fill with background color
+                        ctx.fillStyle = '#10b981';
+                        ctx.fillRect(0, 0, size, size);
+
+                        // Calculate scaling to fit image (cover)
+                        const scale = Math.max(size / img.width, size / img.height);
+                        const x = (size - img.width * scale) / 2;
+                        const y = (size - img.height * scale) / 2;
+
+                        // Draw rounded rect clip
+                        const radius = size * 0.2;
+                        ctx.beginPath();
+                        ctx.roundRect(0, 0, size, size, radius);
+                        ctx.clip();
+
+                        // Draw image
+                        ctx.drawImage(img, x, y, img.width * scale, img.height * scale);
+
+                        // Get base64
+                        const iconDataUrl = canvas.toDataURL('image/png');
+                        customAppIcon = iconDataUrl;
+
+                        // Save to IndexedDB
+                        await saveAppIcon(iconDataUrl);
+
+                        // Update UI
+                        updateAppIconDisplay();
+                        updatePWAIcons();
+
+                        showToast('Uygulama ikonu değiştirildi! 🎉', 'success');
+                    };
+                    img.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            } catch (e) {
+                console.log('Icon upload error:', e);
+                showToast('İkon yüklenirken hata oluştu', 'error');
+            }
+
+            // Reset input
+            event.target.value = '';
+        }
+
+        async function saveAppIcon(iconDataUrl) {
+            if (!db) return;
+            try {
+                const tx = db.transaction(STORE_NAME, 'readwrite');
+                const store = tx.objectStore(STORE_NAME);
+                await store.put({ id: 'appIcon', data: iconDataUrl });
+            } catch (e) {
+                console.log('Save app icon error:', e);
+            }
+        }
+
+        async function loadAppIcon() {
+            if (!db) return;
+            try {
+                const tx = db.transaction(STORE_NAME, 'readonly');
+                const store = tx.objectStore(STORE_NAME);
+                const request = store.get('appIcon');
+
+                return new Promise((resolve) => {
+                    request.onsuccess = () => {
+                        if (request.result && request.result.data) {
+                            customAppIcon = request.result.data;
+                            updateAppIconDisplay();
+                            updatePWAIcons();
+                        }
+                        resolve();
+                    };
+                    request.onerror = () => resolve();
+                });
+            } catch (e) {
+                console.log('Load app icon error:', e);
+            }
+        }
+
+        function updateAppIconDisplay() {
+            const iconContainer = document.getElementById('currentAppIcon');
+            if (!iconContainer) return;
+
+            if (customAppIcon) {
+                iconContainer.innerHTML = `<img src="${customAppIcon}" style="width: 100%; height: 100%; object-fit: cover;">`;
+                iconContainer.style.background = 'transparent';
+            } else {
+                iconContainer.innerHTML = '📊';
+                iconContainer.style.background = 'linear-gradient(135deg, var(--accent), var(--accent-light))';
+            }
+        }
+
+        function updatePWAIcons() {
+            if (!customAppIcon) return;
+
+            // Update apple-touch-icon
+            const appleIcons = document.querySelectorAll('link[rel="apple-touch-icon"]');
+            appleIcons.forEach(icon => {
+                icon.href = customAppIcon;
+            });
+
+            // Update manifest with custom icon
+            const manifestLink = document.querySelector('link[rel="manifest"]');
+            if (manifestLink) {
+                const manifestData = {
+                    name: "Portföy Takip",
+                    short_name: "Portföy",
+                    description: "Hisse, ETF, Altın, Gümüş ve daha fazlasını takip edin",
+                    start_url: ".",
+                    display: "standalone",
+                    background_color: "#08080c",
+                    theme_color: "#10b981",
+                    orientation: "portrait-primary",
+                    icons: [{
+                        src: customAppIcon,
+                        sizes: "512x512",
+                        type: "image/png",
+                        purpose: "any maskable"
+                    }]
+                };
+                const manifestBlob = new Blob([JSON.stringify(manifestData)], { type: 'application/json' });
+                manifestLink.href = URL.createObjectURL(manifestBlob);
+            }
+        }
+
+        async function resetAppIcon() {
+            if (!db) return;
+
+            try {
+                const tx = db.transaction(STORE_NAME, 'readwrite');
+                const store = tx.objectStore(STORE_NAME);
+                store.delete('appIcon');
+
+                customAppIcon = null;
+                updateAppIconDisplay();
+
+                // Reset to default manifest
+                const manifestLink = document.querySelector('link[rel="manifest"]');
+                if (manifestLink) {
+                    manifestLink.href = "data:application/json;base64,eyJuYW1lIjoiUG9ydGbDtnkgVGFraXAiLCJzaG9ydF9uYW1lIjoiUG9ydGbDtnkiLCJkZXNjcmlwdGlvbiI6Ikhpc3NlLCBFVEYsIEFsdMSxbiwgR8O8bcO8xZ8gdmUgZGFoYSBmYXpsYXPEsW7EsSB0YWtpcCBlZGluIiwic3RhcnRfdXJsIjoiLiIsImRpc3BsYXkiOiJzdGFuZGFsb25lIiwiYmFja2dyb3VuZF9jb2xvciI6IiMwODA4MGMiLCJ0aGVtZV9jb2xvciI6IiMxMGI5ODEiLCJvcmllbnRhdGlvbiI6InBvcnRyYWl0LXByaW1hcnkiLCJpY29ucyI6W3sic3JjIjoiZGF0YTppbWFnZS9zdmcreG1sLDxzdmcgeG1sbnM9J2h0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnJyB2aWV3Qm94PScwIDAgMTAwIDEwMCc+PHJlY3QgZmlsbD0nJTIzMTBiOTgxJyB3aWR0aD0nMTAwJyBoZWlnaHQ9JzEwMCcgcng9JzIwJy8+PHRleHQgeD0nNTAnIHk9JzY1JyBmb250LXNpemU9JzUwJyB0ZXh0LWFuY2hvcj0nbWlkZGxlJyBmaWxsPSd3aGl0ZSc+8J+TijwvdGV4dD48L3N2Zz4iLCJzaXplcyI6IjUxMng1MTIiLCJ0eXBlIjoiaW1hZ2Uvc3ZnK3htbCIsInB1cnBvc2UiOiJhbnkgbWFza2FibGUifV19";
+                }
+
+                // Reset apple icons
+                const defaultIconSvg = "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect fill='%2310b981' width='100' height='100' rx='20'/><text x='50' y='65' font-size='50' text-anchor='middle' fill='white'>📊</text></svg>";
+                const appleIcons = document.querySelectorAll('link[rel="apple-touch-icon"]');
+                appleIcons.forEach(icon => {
+                    icon.href = defaultIconSvg;
+                });
+
+                showToast('İkon varsayılana sıfırlandı', 'success');
+            } catch (e) {
+                console.log('Reset app icon error:', e);
+                showToast('Sıfırlama hatası', 'error');
+            }
+        }
+
         // ========== PWA / NATIVE APP BEHAVIOR ==========
 
         // Prevent pull-to-refresh - handled by CSS overscroll-behavior
@@ -8579,7 +8788,7 @@
                             <div style="background: var(--bg-input); padding: 16px; border-radius: 12px; text-align: left;">
                                 <p style="margin-bottom: 12px;"><strong>1.</strong> Safari'de <i class="fas fa-share-square" style="color: var(--accent);"></i> (Paylaş) butonuna tıklayın</p>
                                 <p style="margin-bottom: 12px;"><strong>2.</strong> "Ana Ekrana Ekle" seçeneğini bulun</p>
-                                <p><strong>3.</strong> "Ekle" butonuna t��klayın</p>
+                                <p><strong>3.</strong> "Ekle" butonuna tıklayın</p>
                             </div>
                             <p style="font-size: 12px; margin-top: 16px; color: var(--text-secondary);">
                                 ✓ Uygulama tam ekran açılacak<br>
