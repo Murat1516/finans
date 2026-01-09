@@ -320,6 +320,60 @@
             font-weight: 500;
         }
 
+        /* Category Daily Breakdown */
+        .category-daily-container {
+            margin-bottom: 16px;
+        }
+
+        .category-daily-scroll {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding: 4px 0;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        .category-daily-scroll::-webkit-scrollbar {
+            display: none;
+        }
+
+        .category-daily-item {
+            flex-shrink: 0;
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 12px 16px;
+            min-width: 100px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+
+        .dark .category-daily-item {
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+
+        .category-daily-label {
+            font-size: 11px;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+            font-weight: 500;
+        }
+
+        .category-daily-value {
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .category-daily-value.profit { color: var(--profit); }
+        .category-daily-value.loss { color: var(--loss); }
+
+        .category-daily-pct {
+            font-size: 11px;
+            margin-top: 2px;
+        }
+
+        .category-daily-pct.profit { color: var(--profit); }
+        .category-daily-pct.loss { color: var(--loss); }
+
         /* Performance Section */
         .performance-grid {
             display: grid;
@@ -1765,6 +1819,13 @@
                 </div>
                 <div class="summary-sub" id="totalUSDValue" style="margin-top: 10px; font-size: 13px; color: var(--text-secondary);">
                     <span>🇺🇸 USD: $0.00</span>
+                </div>
+            </div>
+
+            <!-- Category Daily Breakdown -->
+            <div class="category-daily-container" id="categoryDailyContainer">
+                <div class="category-daily-scroll" id="categoryDailyScroll">
+                    <!-- Will be populated by JS -->
                 </div>
             </div>
 
@@ -7802,12 +7863,28 @@
         function updateSummary() {
             const usdRate = cachedUSDTRY || 43;
 
-            // Calculate TL and USD portfolios separately
+            // Calculate totals for ALL assets (for main display)
             let tlValue = 0, tlCost = 0;
             let usdValue = 0, usdCost = 0;
             let dailyChangeTL = 0, dailyChangeUSD = 0;
 
-            // First pass: calculate daily changes using same logic as renderPortfolio
+            // Calculate totals for FILTERED assets (for category display)
+            let filteredValue = 0, filteredCost = 0;
+            let filteredDailyChange = 0;
+            let filteredIsUSD = false;
+
+            // Category breakdown for daily changes
+            const categoryDaily = {
+                bist: { change: 0, value: 0 },
+                us: { change: 0, value: 0 },
+                etf: { change: 0, value: 0 },
+                viop: { change: 0, value: 0 },
+                fon: { change: 0, value: 0 },
+                gold: { change: 0, value: 0 },
+                silver: { change: 0, value: 0 }
+            };
+
+            // Calculate daily changes using same logic as renderPortfolio
             for (let i = 0; i < portfolio.length; i++) {
                 const asset = portfolio[i];
                 const isUSD = asset.type === 'us' || asset.type === 'etf';
@@ -7825,6 +7902,14 @@
                     tlCost += cost;
                 }
 
+                // Check if this asset matches current filter
+                const matchesFilter = currentCategory === 'all' || asset.type === currentCategory;
+                if (matchesFilter) {
+                    filteredValue += isUSD ? value * usdRate : value;
+                    filteredCost += isUSD ? cost * usdRate : cost;
+                    filteredIsUSD = isUSD;
+                }
+
                 // Skip deposits and cash for daily change calculation
                 if (asset.type === 'deposit' || asset.type === 'cash') {
                     continue;
@@ -7834,6 +7919,17 @@
                 const dailyPct = asset.dailyChangePct;
                 if (dailyPct !== undefined && dailyPct !== null && dailyPct !== 0) {
                     const dailyChangeAmount = value * dailyPct / 100;
+
+                    // Add to category breakdown
+                    if (categoryDaily[asset.type]) {
+                        categoryDaily[asset.type].change += isUSD ? dailyChangeAmount * usdRate : dailyChangeAmount;
+                        categoryDaily[asset.type].value += isUSD ? value * usdRate : value;
+                    }
+
+                    // Add to filtered totals
+                    if (matchesFilter) {
+                        filteredDailyChange += isUSD ? dailyChangeAmount * usdRate : dailyChangeAmount;
+                    }
 
                     if (isUSD) {
                         dailyChangeUSD += dailyChangeAmount;
@@ -7922,6 +8018,60 @@
                     <span>🇺🇸 USD karşılığı: ${formatUSD(totalUSD)}</span>
                 `;
             }
+
+            // Update category daily breakdown (only show in daily mode)
+            updateCategoryDailyBreakdown(categoryDaily, usdRate);
+        }
+
+        function updateCategoryDailyBreakdown(categoryDaily, usdRate) {
+            const container = document.getElementById('categoryDailyScroll');
+            if (!container) return;
+
+            // Only show if in daily mode
+            const mainContainer = document.getElementById('categoryDailyContainer');
+            if (mainContainer) {
+                mainContainer.style.display = displayMode === 'daily' ? 'block' : 'none';
+            }
+
+            if (displayMode !== 'daily') return;
+
+            const categoryLabels = {
+                bist: { name: 'BIST', icon: '🇹🇷' },
+                us: { name: 'ABD', icon: '🇺🇸' },
+                etf: { name: 'ETF', icon: '📊' },
+                viop: { name: 'VİOP', icon: '📈' },
+                fon: { name: 'Fon', icon: '💼' },
+                gold: { name: 'Altın', icon: '🪙' },
+                silver: { name: 'Gümüş', icon: '⚪' }
+            };
+
+            let html = '';
+            const showInUSD = displayCurrency === 'usd';
+
+            // Add categories that have values
+            for (const [key, data] of Object.entries(categoryDaily)) {
+                if (data.value > 0) {
+                    const label = categoryLabels[key] || { name: key, icon: '📌' };
+                    const changeValue = showInUSD ? data.change / usdRate : data.change;
+                    const pct = data.value > 0 ? (data.change / (data.value - data.change)) * 100 : 0;
+                    const isProfit = changeValue >= 0;
+                    const formattedValue = showInUSD ? formatUSD(changeValue) : formatCur(changeValue);
+
+                    html += `
+                        <div class="category-daily-item">
+                            <div class="category-daily-label">${label.icon} ${label.name}</div>
+                            <div class="category-daily-value ${isProfit ? 'profit' : 'loss'}">
+                                ${isProfit ? '+' : ''}${formattedValue}
+                            </div>
+                            <div class="category-daily-pct ${isProfit ? 'profit' : 'loss'}">
+                                ${isProfit ? '+' : ''}${pct.toFixed(2)}%
+                            </div>
+                        </div>
+                    `;
+                }
+            }
+
+            container.innerHTML = html || '<div style="color: var(--text-secondary); font-size: 12px; padding: 10px;">Günlük değişim verisi bekleniyor...</div>';
         }
 
         // ========== PERIOD SELECTOR ==========
