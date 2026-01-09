@@ -7800,33 +7800,50 @@
         }
 
         function updateSummary() {
-            const usdRate = cachedUSDTRY;
+            const usdRate = cachedUSDTRY || 43;
 
             // Calculate TL and USD portfolios separately
             let tlValue = 0, tlCost = 0;
             let usdValue = 0, usdCost = 0;
             let dailyChangeTL = 0, dailyChangeUSD = 0;
 
-            portfolio.forEach(asset => {
-                const value = calcNativeValue(asset);
-                const cost = calcNativeCost(asset);
+            // First pass: calculate daily changes using same logic as renderPortfolio
+            for (let i = 0; i < portfolio.length; i++) {
+                const asset = portfolio[i];
+                const isUSD = asset.type === 'us' || asset.type === 'etf';
 
-                // Get daily change for this asset
-                const dailyInfo = getDailyChangeInfo(asset);
-                const dailyChange = dailyInfo ? (asset.amount * asset.currentPrice * dailyInfo.pct / 100) : 0;
+                // Calculate value using calcValue (same as renderPortfolio)
+                const value = calcValue(asset);
+                const cost = calcCost(asset);
 
-                if (isUSDAsset(asset)) {
+                // Add to totals
+                if (isUSD) {
                     usdValue += value;
                     usdCost += cost;
-                    dailyChangeUSD += dailyChange;
-                    dailyChangeTL += dailyChange * usdRate;
                 } else {
                     tlValue += value;
                     tlCost += cost;
-                    dailyChangeTL += dailyChange;
-                    dailyChangeUSD += dailyChange / usdRate;
                 }
-            });
+
+                // Skip deposits and cash for daily change calculation
+                if (asset.type === 'deposit' || asset.type === 'cash') {
+                    continue;
+                }
+
+                // Calculate daily change (same formula as renderPortfolio cards)
+                const dailyPct = asset.dailyChangePct;
+                if (dailyPct !== undefined && dailyPct !== null && dailyPct !== 0) {
+                    const dailyChangeAmount = value * dailyPct / 100;
+
+                    if (isUSD) {
+                        dailyChangeUSD += dailyChangeAmount;
+                        dailyChangeTL += dailyChangeAmount * usdRate;
+                    } else {
+                        dailyChangeTL += dailyChangeAmount;
+                        dailyChangeUSD += dailyChangeAmount / usdRate;
+                    }
+                }
+            }
 
             // Total in TL (convert USD to TL)
             const totalTL = tlValue + (usdValue * usdRate);
