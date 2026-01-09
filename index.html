@@ -251,70 +251,73 @@
 
         /* Summary Card */
         .summary-card {
-            background: linear-gradient(135deg, var(--bg-card), var(--bg-secondary));
-            border-radius: 20px;
-            padding: 24px;
-            border: 1px solid var(--border);
-            margin-bottom: 20px;
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 20px;
+            border: none;
+            margin-bottom: 16px;
             position: relative;
             overflow: hidden;
+            box-shadow: var(--shadow);
         }
 
         .summary-card::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            right: -50%;
-            width: 200px;
-            height: 200px;
-            background: radial-gradient(circle, var(--accent-glow), transparent);
-            opacity: 0.6;
+            display: none;
         }
 
         .summary-label {
-            font-size: 13px;
+            font-size: 12px;
             color: var(--text-secondary);
-            margin-bottom: 6px;
+            margin-bottom: 4px;
             font-weight: 500;
+            letter-spacing: 0.3px;
         }
 
         .summary-value {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 32px;
+            font-family: 'Outfit', sans-serif;
+            font-size: 36px;
             font-weight: 700;
-            margin-bottom: 12px;
+            margin-bottom: 8px;
             position: relative;
+            letter-spacing: -1px;
+        }
+
+        .summary-value .decimal {
+            color: var(--text-secondary);
+            font-weight: 400;
         }
 
         .summary-stats {
             display: flex;
-            gap: 16px;
+            gap: 10px;
             flex-wrap: wrap;
+            align-items: center;
         }
 
         .stat-badge {
             display: inline-flex;
             align-items: center;
-            gap: 6px;
-            padding: 8px 14px;
-            border-radius: 10px;
+            gap: 5px;
+            padding: 6px 12px;
+            border-radius: 20px;
             font-size: 13px;
             font-weight: 600;
         }
 
         .stat-badge.profit {
-            background: rgba(16, 185, 129, 0.15);
+            background: rgba(16, 185, 129, 0.12);
             color: var(--profit);
         }
 
         .stat-badge.loss {
-            background: rgba(239, 68, 68, 0.15);
+            background: rgba(239, 68, 68, 0.12);
             color: var(--loss);
         }
 
         .stat-badge.neutral {
             background: var(--bg-input);
             color: var(--text-secondary);
+            font-weight: 500;
         }
 
         /* Performance Section */
@@ -472,13 +475,13 @@
 
         .category-pill {
             flex-shrink: 0;
-            padding: 10px 16px;
-            border-radius: 12px;
-            border: 1px solid var(--border);
-            background: var(--bg-card);
+            padding: 10px 18px;
+            border-radius: 24px;
+            border: none;
+            background: var(--bg-input);
             color: var(--text-secondary);
             font-size: 13px;
-            font-weight: 500;
+            font-weight: 600;
             cursor: pointer;
             transition: all 0.2s;
             display: flex;
@@ -486,10 +489,14 @@
             gap: 6px;
         }
 
+        .category-pill:hover {
+            background: var(--bg-card);
+        }
+
         .category-pill.active {
-            background: var(--accent);
-            color: #000;
-            border-color: var(--accent);
+            background: var(--text-primary);
+            color: var(--bg-primary);
+            border: none;
         }
 
         /* Asset List */
@@ -497,39 +504,47 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 14px;
+            margin-bottom: 12px;
+            margin-top: 8px;
         }
 
         .section-title {
-            font-size: 16px;
-            font-weight: 600;
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--text-primary);
         }
 
         .asset-count {
             font-size: 12px;
             color: var(--text-secondary);
-            background: var(--bg-input);
-            padding: 4px 10px;
-            border-radius: 8px;
+            background: transparent;
+            padding: 0;
+            font-weight: 500;
         }
 
         .asset-list {
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 0;
         }
 
         .asset-card {
             background: var(--bg-card);
-            border-radius: 14px;
-            padding: 14px 16px;
-            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 16px;
+            border: none;
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 14px;
             cursor: pointer;
             transition: all 0.2s;
             animation: fadeIn 0.3s ease-out;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            margin-bottom: 10px;
+        }
+
+        .dark .asset-card {
+            box-shadow: 0 2px 12px rgba(0,0,0,0.3);
         }
 
         @keyframes fadeIn {
@@ -539,28 +554,41 @@
 
         .asset-card:active {
             transform: scale(0.98);
+            opacity: 0.9;
         }
 
         .asset-icon {
-            width: 44px;
-            height: 44px;
-            border-radius: 12px;
+            width: 48px;
+            height: 48px;
+            border-radius: 14px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 14px;
+            font-size: 15px;
             font-weight: 700;
             flex-shrink: 0;
+            letter-spacing: -0.5px;
         }
 
-        .asset-icon.bist { background: linear-gradient(135deg, #ef4444, #dc2626); color: #fff; }
-        .asset-icon.us { background: linear-gradient(135deg, #3b82f6, #2563eb); color: #fff; }
-        .asset-icon.etf { background: linear-gradient(135deg, #8b5cf6, #7c3aed); color: #fff; }
-        .asset-icon.viop { background: linear-gradient(135deg, #f97316, #ea580c); color: #fff; }
-        .asset-icon.gold { background: linear-gradient(135deg, #fbbf24, #f59e0b); color: #000; }
-        .asset-icon.silver { background: linear-gradient(135deg, #9ca3af, #6b7280); color: #fff; }
-        .asset-icon.deposit { background: linear-gradient(135deg, #10b981, #059669); color: #fff; }
-        .asset-icon.cash { background: linear-gradient(135deg, #6366f1, #4f46e5); color: #fff; }
+        .asset-icon.bist { background: #fee2e2; color: #dc2626; }
+        .asset-icon.us { background: #dbeafe; color: #2563eb; }
+        .asset-icon.etf { background: #ede9fe; color: #7c3aed; }
+        .asset-icon.viop { background: #ffedd5; color: #ea580c; }
+        .asset-icon.fon { background: #ccfbf1; color: #0d9488; }
+        .asset-icon.gold { background: #fef3c7; color: #d97706; }
+        .asset-icon.silver { background: #f3f4f6; color: #4b5563; }
+        .asset-icon.deposit { background: #d1fae5; color: #059669; }
+        .asset-icon.cash { background: #e0e7ff; color: #4f46e5; }
+
+        .dark .asset-icon.bist { background: rgba(239, 68, 68, 0.15); color: #f87171; }
+        .dark .asset-icon.us { background: rgba(59, 130, 246, 0.15); color: #60a5fa; }
+        .dark .asset-icon.etf { background: rgba(139, 92, 246, 0.15); color: #a78bfa; }
+        .dark .asset-icon.viop { background: rgba(249, 115, 22, 0.15); color: #fb923c; }
+        .dark .asset-icon.fon { background: rgba(20, 184, 166, 0.15); color: #2dd4bf; }
+        .dark .asset-icon.gold { background: rgba(251, 191, 36, 0.15); color: #fbbf24; }
+        .dark .asset-icon.silver { background: rgba(156, 163, 175, 0.15); color: #9ca3af; }
+        .dark .asset-icon.deposit { background: rgba(16, 185, 129, 0.15); color: #34d399; }
+        .dark .asset-icon.cash { background: rgba(99, 102, 241, 0.15); color: #818cf8; }
 
         .asset-info {
             flex: 1;
@@ -568,33 +596,47 @@
         }
 
         .asset-name {
-            font-size: 14px;
+            font-size: 15px;
             font-weight: 600;
-            margin-bottom: 3px;
+            margin-bottom: 4px;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
         }
 
         .asset-details {
+            font-size: 13px;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .asset-price {
             font-size: 12px;
             color: var(--text-secondary);
+            margin-top: 2px;
         }
 
         .asset-values {
             text-align: right;
+            flex-shrink: 0;
         }
 
         .asset-total {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 14px;
-            font-weight: 600;
-            margin-bottom: 3px;
+            font-family: 'Outfit', sans-serif;
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 4px;
         }
 
         .asset-change {
-            font-size: 12px;
-            font-weight: 500;
+            font-size: 13px;
+            font-weight: 600;
             display: flex;
             align-items: center;
             justify-content: flex-end;
@@ -1446,6 +1488,36 @@
             color: #000;
         }
 
+        /* Display Mode Toggle (Günlük/Toplam) */
+        .display-mode-toggle {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 6px 12px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-primary);
+            transition: all 0.2s;
+        }
+
+        .display-mode-toggle:hover {
+            background: var(--bg-card);
+            border-color: var(--accent);
+        }
+
+        .display-mode-toggle i {
+            font-size: 10px;
+            color: var(--accent);
+        }
+
+        .display-mode-toggle .mode-label {
+            color: var(--accent);
+        }
+
         /* After Hours Badge */
         .after-hours-badge {
             display: inline-flex;
@@ -1481,21 +1553,21 @@
         .daily-change-badge {
             display: inline-flex;
             align-items: center;
-            font-size: 10px;
+            font-size: 11px;
             font-weight: 600;
-            padding: 2px 6px;
-            border-radius: 4px;
-            margin-left: 6px;
-            font-family: 'JetBrains Mono', monospace;
+            padding: 3px 8px;
+            border-radius: 6px;
+            margin-left: 0;
+            font-family: 'Outfit', sans-serif;
         }
 
         .daily-change-badge.profit {
-            background: rgba(16, 185, 129, 0.15);
+            background: rgba(16, 185, 129, 0.12);
             color: #10b981;
         }
 
         .daily-change-badge.loss {
-            background: rgba(239, 68, 68, 0.15);
+            background: rgba(239, 68, 68, 0.12);
             color: #ef4444;
         }
 
@@ -1680,6 +1752,12 @@
                         <i class="fas fa-arrow-up"></i>
                         <span>₺0 (0%)</span>
                     </div>
+                    <button onclick="toggleDisplayMode()" class="display-mode-toggle" id="displayModeToggle">
+                        <span class="mode-label" id="displayModeLabel">Günlük</span>
+                        <i class="fas fa-exchange-alt"></i>
+                    </button>
+                </div>
+                <div class="summary-stats" style="margin-top: 8px;">
                     <div class="stat-badge neutral" id="totalCost">
                         <i class="fas fa-coins"></i>
                         <span>Maliyet: ₺0</span>
@@ -5615,10 +5693,10 @@
                 { s: 'BIOR', n: 'Biora Therapeutics' },
                 { s: 'BIOS', n: 'BioPlus Acquisition' },
                 { s: 'BIOX', n: 'Bioceres Crop' },
-                { s: 'IREN', n: 'Iris Energy Limited' },
-                { s: 'IRE', n: 'Daily 2x Long IREN ETF' }
+                { s: 'IREN', n: 'Iris Energy Limited' }
             ],
             etf: [
+                { s: 'IRE', n: 'Daily 2x Long IREN ETF' },
                 { s: 'SPY', n: 'SPDR S&P 500 ETF Trust' },
                 { s: 'VOO', n: 'Vanguard S&P 500 ETF' },
                 { s: 'IVV', n: 'iShares Core S&P 500' },
@@ -6444,7 +6522,39 @@
                 { s: 'ALT', n: 'Altın Fonu' },
                 { s: 'DLR', n: 'Dolar Fonu' },
                 { s: 'EUR', n: 'Euro Fonu' },
-                { s: 'GMY', n: 'Gayrimenkul Yatırım Fonu' }
+                { s: 'GMY', n: 'Gayrimenkul Yatırım Fonu' },
+
+                // Para Piyasası Fonları (PPF)
+                { s: 'IPP', n: 'İş Portföy Para Piyasası Fonu' },
+                { s: 'YPP', n: 'Yapı Kredi Para Piyasası Fonu' },
+                { s: 'GPP', n: 'Garanti Para Piyasası Fonu' },
+                { s: 'APP', n: 'Ak Portföy Para Piyasası Fonu' },
+                { s: 'ZPP', n: 'Ziraat Para Piyasası Fonu' },
+                { s: 'VPP', n: 'Vakıf Para Piyasası Fonu' },
+                { s: 'HPP', n: 'Halk Para Piyasası Fonu' },
+                { s: 'DPP', n: 'Deniz Para Piyasası Fonu' },
+                { s: 'TPP', n: 'TEB Para Piyasası Fonu' },
+                { s: 'QPP', n: 'QNB Finans Para Piyasası Fonu' },
+                { s: 'FPP', n: 'Fibabanka Para Piyasası Fonu' },
+                { s: 'SPP', n: 'Şeker Para Piyasası Fonu' },
+                { s: 'APY', n: 'Ak Portföy Kısa Vadeli Fon' },
+                { s: 'IPY', n: 'İş Portföy Kısa Vadeli Fon' },
+                { s: 'YPY', n: 'Yapı Kredi Kısa Vadeli Fon' },
+                { s: 'GPY', n: 'Garanti Kısa Vadeli Fon' },
+                { s: 'ZKV', n: 'Ziraat Kısa Vadeli Fon' },
+                { s: 'VKV', n: 'Vakıf Kısa Vadeli Fon' },
+
+                // Likit Fonlar
+                { s: 'ILK', n: 'İş Portföy Likit Fon' },
+                { s: 'YLK', n: 'Yapı Kredi Likit Fon' },
+                { s: 'GLK', n: 'Garanti Likit Fon' },
+                { s: 'ALK', n: 'Ak Portföy Likit Fon' },
+                { s: 'ZLK', n: 'Ziraat Likit Fon' },
+                { s: 'VLK', n: 'Vakıf Likit Fon' },
+                { s: 'HLK', n: 'Halk Likit Fon' },
+                { s: 'DLK', n: 'Deniz Likit Fon' },
+                { s: 'TLK', n: 'TEB Likit Fon' },
+                { s: 'QLK', n: 'QNB Finans Likit Fon' }
             ],
             gold: [
                 { s: 'XAU', n: 'Ons Altın (USD)' },
@@ -6514,6 +6624,7 @@
         let selectedPeriod = 'all'; // 'week', 'month', 'all'
         let db = null; // IndexedDB reference
         let displayCurrency = 'usd'; // 'usd' or 'tl' for main display (default: USD)
+        let displayMode = 'daily'; // 'daily' or 'total' - Günlük veya Toplam getiri
         let afterHoursData = {}; // Store after-hours prices
         let tradeHistory = []; // Al-sat işlem geçmişi
 
@@ -7570,11 +7681,29 @@
                 const dailyChangeClass = dailyChangePct >= 0 ? 'profit' : 'loss';
                 const dailyChangeSign = dailyChangePct >= 0 ? '+' : '';
 
+                // Calculate daily change in value
+                const dailyChangeValue = hasDailyChange ? (value * dailyChangePct / 100) : 0;
+
                 // After-hours info for US stocks
                 let afterHoursHtml = '';
                 if (isUSD && asset.postMarketPrice && (asset.marketState === 'POST' || asset.marketState === 'CLOSED')) {
                     const ahChangePct = asset.postMarketChangePct || 0;
                     afterHoursHtml = `<span class="after-hours-badge"><span class="market-status-dot after-hours"></span> AH ${ahChangePct >= 0 ? '+' : ''}${ahChangePct.toFixed(2)}%</span>`;
+                }
+
+                // Determine what to show based on displayMode
+                let changeDisplay, changeClass, changeIcon, changeAmount;
+                if (displayMode === 'daily' && hasDailyChange) {
+                    // Show daily change
+                    const isPositive = dailyChangePct >= 0;
+                    changeClass = isPositive ? 'profit' : 'loss';
+                    changeIcon = isPositive ? 'up' : 'down';
+                    changeAmount = `${isPositive ? '+' : ''}${formatValue(dailyChangeValue)} (${dailyChangeSign}${dailyChangePct.toFixed(1)}%)`;
+                } else {
+                    // Show total P/L
+                    changeClass = isPl ? 'profit' : 'loss';
+                    changeIcon = isPl ? 'up' : 'down';
+                    changeAmount = `${isPl ? '+' : ''}${formatValue(nativePL)} (${plPct >= 0 ? '+' : ''}${plPct.toFixed(1)}%)`;
                 }
 
                 return `
@@ -7591,9 +7720,9 @@
                         </div>
                         <div class="asset-values">
                             <div class="asset-total">${formatValue(nativeValue)}</div>
-                            <div class="asset-change ${isPl ? 'profit' : 'loss'}">
-                                <i class="fas fa-arrow-${isPl ? 'up' : 'down'}"></i>
-                                ${isPl ? '+' : ''}${formatValue(nativePL)} (${plPct >= 0 ? '+' : ''}${plPct.toFixed(1)}%)
+                            <div class="asset-change ${changeClass}">
+                                <i class="fas fa-arrow-${changeIcon}"></i>
+                                ${changeAmount}
                             </div>
                         </div>
                     </div>
@@ -7654,6 +7783,20 @@
             }
 
             updateSummary();
+            renderPortfolio();
+        }
+
+        function toggleDisplayMode() {
+            displayMode = displayMode === 'daily' ? 'total' : 'daily';
+
+            // Update toggle button label
+            const label = document.getElementById('displayModeLabel');
+            if (label) {
+                label.textContent = displayMode === 'daily' ? 'Günlük' : 'Toplam';
+            }
+
+            updateSummary();
+            renderPortfolio();
         }
 
         function updateSummary() {
@@ -7662,17 +7805,26 @@
             // Calculate TL and USD portfolios separately
             let tlValue = 0, tlCost = 0;
             let usdValue = 0, usdCost = 0;
+            let dailyChangeTL = 0, dailyChangeUSD = 0;
 
             portfolio.forEach(asset => {
                 const value = calcNativeValue(asset);
                 const cost = calcNativeCost(asset);
 
+                // Get daily change for this asset
+                const dailyInfo = getDailyChangeInfo(asset);
+                const dailyChange = dailyInfo ? (asset.amount * asset.currentPrice * dailyInfo.pct / 100) : 0;
+
                 if (isUSDAsset(asset)) {
                     usdValue += value;
                     usdCost += cost;
+                    dailyChangeUSD += dailyChange;
+                    dailyChangeTL += dailyChange * usdRate;
                 } else {
                     tlValue += value;
                     tlCost += cost;
+                    dailyChangeTL += dailyChange;
+                    dailyChangeUSD += dailyChange / usdRate;
                 }
             });
 
@@ -7688,17 +7840,33 @@
             const plUSD = totalUSD - totalCostUSD;
             const plPctUSD = totalCostUSD > 0 ? (plUSD / totalCostUSD) * 100 : 0;
 
+            // Daily change percentages
+            const prevTotalTL = totalTL - dailyChangeTL;
+            const prevTotalUSD = totalUSD - dailyChangeUSD;
+            const dailyPctTL = prevTotalTL > 0 ? (dailyChangeTL / prevTotalTL) * 100 : 0;
+            const dailyPctUSD = prevTotalUSD > 0 ? (dailyChangeUSD / prevTotalUSD) * 100 : 0;
+
             // Display based on selected currency
             if (displayCurrency === 'usd') {
                 document.getElementById('totalValue').textContent = formatUSD(totalUSD);
 
-                const isPl = plUSD >= 0;
+                // Show daily or total based on displayMode
                 const profitEl = document.getElementById('totalProfit');
-                profitEl.className = `stat-badge ${isPl ? 'profit' : 'loss'}`;
-                profitEl.innerHTML = `
-                    <i class="fas fa-arrow-${isPl ? 'up' : 'down'}"></i>
-                    <span>${isPl ? '+' : ''}${formatUSD(plUSD)} (${plPctUSD >= 0 ? '+' : ''}${plPctUSD.toFixed(2)}%)</span>
-                `;
+                if (displayMode === 'daily') {
+                    const isDaily = dailyChangeUSD >= 0;
+                    profitEl.className = `stat-badge ${isDaily ? 'profit' : 'loss'}`;
+                    profitEl.innerHTML = `
+                        <i class="fas fa-arrow-${isDaily ? 'up' : 'down'}"></i>
+                        <span>${isDaily ? '+' : ''}${formatUSD(dailyChangeUSD)} (${dailyPctUSD >= 0 ? '+' : ''}${dailyPctUSD.toFixed(2)}%)</span>
+                    `;
+                } else {
+                    const isPl = plUSD >= 0;
+                    profitEl.className = `stat-badge ${isPl ? 'profit' : 'loss'}`;
+                    profitEl.innerHTML = `
+                        <i class="fas fa-arrow-${isPl ? 'up' : 'down'}"></i>
+                        <span>${isPl ? '+' : ''}${formatUSD(plUSD)} (${plPctUSD >= 0 ? '+' : ''}${plPctUSD.toFixed(2)}%)</span>
+                    `;
+                }
 
                 document.getElementById('totalCost').innerHTML = `
                     <i class="fas fa-coins"></i>
@@ -7709,15 +7877,24 @@
                     <span>🇹🇷 TL karşılığı: ${formatCur(totalTL)}</span>
                 `;
             } else {
-                const isPl = plTL >= 0;
                 document.getElementById('totalValue').textContent = formatCur(totalTL);
 
                 const profitEl = document.getElementById('totalProfit');
-                profitEl.className = `stat-badge ${isPl ? 'profit' : 'loss'}`;
-                profitEl.innerHTML = `
-                    <i class="fas fa-arrow-${isPl ? 'up' : 'down'}"></i>
-                    <span>${isPl ? '+' : ''}${formatCur(plTL)} (${plPctTL >= 0 ? '+' : ''}${plPctTL.toFixed(2)}%)</span>
-                `;
+                if (displayMode === 'daily') {
+                    const isDaily = dailyChangeTL >= 0;
+                    profitEl.className = `stat-badge ${isDaily ? 'profit' : 'loss'}`;
+                    profitEl.innerHTML = `
+                        <i class="fas fa-arrow-${isDaily ? 'up' : 'down'}"></i>
+                        <span>${isDaily ? '+' : ''}${formatCur(dailyChangeTL)} (${dailyPctTL >= 0 ? '+' : ''}${dailyPctTL.toFixed(2)}%)</span>
+                    `;
+                } else {
+                    const isPl = plTL >= 0;
+                    profitEl.className = `stat-badge ${isPl ? 'profit' : 'loss'}`;
+                    profitEl.innerHTML = `
+                        <i class="fas fa-arrow-${isPl ? 'up' : 'down'}"></i>
+                        <span>${isPl ? '+' : ''}${formatCur(plTL)} (${plPctTL >= 0 ? '+' : ''}${plPctTL.toFixed(2)}%)</span>
+                    `;
+                }
 
                 document.getElementById('totalCost').innerHTML = `
                     <i class="fas fa-coins"></i>
