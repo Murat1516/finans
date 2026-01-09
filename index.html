@@ -1420,6 +1420,210 @@
             border-radius: 8px;
             font-size: 12px;
         }
+
+        /* Currency Toggle */
+        .currency-toggle {
+            display: flex;
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 2px;
+            gap: 2px;
+            cursor: pointer;
+        }
+
+        .currency-option {
+            padding: 4px 10px;
+            font-size: 11px;
+            font-weight: 600;
+            border-radius: 6px;
+            color: var(--text-secondary);
+            transition: all 0.2s;
+        }
+
+        .currency-option.active {
+            background: var(--accent);
+            color: #000;
+        }
+
+        /* After Hours Badge */
+        .after-hours-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 9px;
+            font-weight: 600;
+            padding: 2px 6px;
+            border-radius: 4px;
+            background: rgba(139, 92, 246, 0.15);
+            color: #a78bfa;
+            margin-left: 6px;
+        }
+
+        .after-hours-price {
+            font-size: 11px;
+            color: #a78bfa;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .market-status-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .market-status-dot.open { background: #10b981; }
+        .market-status-dot.closed { background: #6b7280; }
+        .market-status-dot.after-hours { background: #a78bfa; }
+
+        /* Daily Change Badge */
+        .daily-change-badge {
+            display: inline-flex;
+            align-items: center;
+            font-size: 10px;
+            font-weight: 600;
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin-left: 6px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .daily-change-badge.profit {
+            background: rgba(16, 185, 129, 0.15);
+            color: #10b981;
+        }
+
+        .daily-change-badge.loss {
+            background: rgba(239, 68, 68, 0.15);
+            color: #ef4444;
+        }
+
+        /* Realized P/L Section */
+        .realized-pl-card {
+            background: var(--bg-card);
+            border-radius: 14px;
+            padding: 16px;
+            margin-bottom: 16px;
+            border: 1px solid var(--border);
+        }
+
+        .realized-pl-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .realized-pl-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .realized-pl-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .realized-pl-value.profit { color: var(--profit); }
+        .realized-pl-value.loss { color: var(--loss); }
+
+        .trade-history-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .trade-history-item:last-child {
+            border-bottom: none;
+        }
+
+        .trade-info {
+            flex: 1;
+        }
+
+        .trade-symbol {
+            font-weight: 600;
+            font-size: 13px;
+        }
+
+        .trade-details {
+            font-size: 11px;
+            color: var(--text-secondary);
+        }
+
+        .trade-pl {
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 600;
+            font-size: 13px;
+        }
+
+        /* Sell Modal Styles */
+        .sell-asset-info {
+            background: var(--bg-input);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .sell-asset-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 16px;
+        }
+
+        .sell-asset-details h4 {
+            font-size: 16px;
+            margin-bottom: 4px;
+        }
+
+        .sell-asset-details p {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .sell-btn {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+
+        .sell-btn:hover {
+            transform: scale(0.98);
+            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);
+        }
+
+        .edit-actions-row {
+            display: flex;
+            gap: 10px;
+            margin-top: 16px;
+        }
+
+        .edit-actions-row button {
+            flex: 1;
+        }
     </style>
 </head>
 <body>
@@ -1463,7 +1667,13 @@
         <div class="tab-content active" id="portfolioTab">
             <!-- Summary -->
             <div class="summary-card">
-                <div class="summary-label">Toplam Portföy Değeri (TL)</div>
+                <div class="summary-label" style="display: flex; justify-content: space-between; align-items: center;">
+                    <span>Toplam Portföy Değeri</span>
+                    <button onclick="toggleCurrencyDisplay()" class="currency-toggle" id="currencyToggle">
+                        <span class="currency-option" data-currency="tl">₺ TL</span>
+                        <span class="currency-option active" data-currency="usd">$ USD</span>
+                    </button>
+                </div>
                 <div class="summary-value" id="totalValue">₺0,00</div>
                 <div class="summary-stats">
                     <div class="stat-badge profit" id="totalProfit">
@@ -1559,7 +1769,7 @@
                 <h2 class="section-title">🇹🇷 TL Portföy</h2>
             </div>
             <div class="summary-card currency-card" style="margin-bottom: 16px;">
-                <div class="summary-label">BIST, VİOP, Altın, Gümüş, Mevduat, Nakit TL</div>
+                <div class="summary-label">BIST, VİOP, Fon, Altın, Gümüş, Mevduat, Nakit TL</div>
                 <div class="summary-value" id="perfTLValue">₺0,00</div>
                 <div class="summary-stats">
                     <div class="stat-badge profit" id="perfTLPL">
@@ -1610,6 +1820,35 @@
                     <div class="perf-value" id="perfTotalUSD">$0</div>
                     <div class="perf-sub" id="perfTotalUSDPL">Kar/Zarar: $0</div>
                 </div>
+            </div>
+
+            <!-- Realized P/L Section -->
+            <div class="section-header" style="margin-bottom: 12px;">
+                <h2 class="section-title">💰 Gerçekleşen Kar/Zarar</h2>
+                <span class="asset-count" id="tradeCount">0 işlem</span>
+            </div>
+            <div class="realized-pl-card">
+                <div class="realized-pl-header">
+                    <div>
+                        <div class="realized-pl-title">Satışlardan Kar/Zarar</div>
+                        <div style="font-size: 11px; color: var(--text-secondary);">Tamamlanan işlemler</div>
+                    </div>
+                    <div class="realized-pl-value" id="realizedPLValue">₺0</div>
+                </div>
+                <div style="display: flex; gap: 12px; margin-top: 12px;">
+                    <div style="flex: 1; padding: 10px; background: var(--bg-input); border-radius: 8px;">
+                        <div style="font-size: 10px; color: var(--text-secondary);">🇹🇷 TL</div>
+                        <div style="font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 600;" id="realizedPLTL">₺0</div>
+                    </div>
+                    <div style="flex: 1; padding: 10px; background: var(--bg-input); border-radius: 8px;">
+                        <div style="font-size: 10px; color: var(--text-secondary);">🇺🇸 USD</div>
+                        <div style="font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 600;" id="realizedPLUSD">$0</div>
+                    </div>
+                </div>
+                <div id="recentTrades" style="margin-top: 12px;"></div>
+                <button onclick="showAllTrades()" class="submit-btn" style="margin-top: 12px; width: 100%; background: var(--bg-input); color: var(--text-secondary); font-size: 12px; padding: 10px;">
+                    <i class="fas fa-history"></i> Tüm İşlem Geçmişi
+                </button>
             </div>
 
             <!-- Period Stats Grid -->
@@ -1728,6 +1967,9 @@
                         <button type="button" class="type-btn" data-type="viop" onclick="selectType('viop')">
                             <i class="fas fa-chart-bar"></i> VİOP
                         </button>
+                        <button type="button" class="type-btn" data-type="fon" onclick="selectType('fon')">
+                            <i class="fas fa-chart-pie"></i> Fon
+                        </button>
                         <button type="button" class="type-btn" data-type="gold" onclick="selectType('gold')">
                             <i class="fas fa-coins"></i> Altın
                         </button>
@@ -1799,9 +2041,16 @@
                 <button type="button" class="submit-btn" id="submitBtn" onclick="saveAsset()">
                     <i class="fas fa-plus"></i> Varlık Ekle
                 </button>
-                <button type="button" class="delete-btn" id="deleteBtn" style="display: none;" onclick="confirmDelete()">
-                    <i class="fas fa-trash"></i> Varlığı Sil
-                </button>
+
+                <!-- Sell and Delete buttons (only visible when editing) -->
+                <div class="edit-actions-row" id="editActionsRow" style="display: none;">
+                    <button type="button" class="sell-btn" id="sellBtn" onclick="openSellModal()">
+                        <i class="fas fa-hand-holding-usd"></i> Sat
+                    </button>
+                    <button type="button" class="delete-btn" onclick="confirmDelete()">
+                        <i class="fas fa-trash"></i> Sil
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -1814,6 +2063,63 @@
             <div class="confirm-actions">
                 <button class="confirm-cancel" onclick="closeConfirm()">İptal</button>
                 <button class="confirm-delete" onclick="deleteAsset()">Sil</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sell Modal -->
+    <div class="modal-overlay" id="sellModal">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-handle"></div>
+                <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                    <h3 class="modal-title">💰 Satış Yap</h3>
+                    <button class="modal-close" onclick="closeSellModal()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="sell-asset-info" id="sellAssetInfo">
+                    <!-- Asset info will be populated here -->
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Satış Miktarı</label>
+                    <div style="display: flex; gap: 8px; align-items: center;">
+                        <input type="number" id="sellAmountInput" class="form-input" placeholder="Miktar" step="any" min="0" oninput="updateSellPreview()">
+                        <button type="button" class="submit-btn" style="padding: 14px 16px; white-space: nowrap;" onclick="setSellAll()">Tümü</button>
+                    </div>
+                    <div class="form-hint" id="sellAmountHint">Mevcut: 0 adet</div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Satış Fiyatı (Birim)</label>
+                    <div style="display: flex; gap: 8px; align-items: center;">
+                        <input type="number" id="sellPriceInput" class="form-input" placeholder="Fiyat" step="any" min="0" oninput="updateSellPreview()">
+                        <button type="button" class="submit-btn" style="padding: 14px 16px; white-space: nowrap; background: var(--text-secondary);" onclick="setCurrentPrice()">Güncel</button>
+                    </div>
+                    <div class="form-hint" id="sellPriceHint">Güncel fiyat: --</div>
+                </div>
+
+                <div class="sell-preview" id="sellPreview" style="background: var(--bg-input); border-radius: 12px; padding: 16px; margin-bottom: 16px;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                        <span style="color: var(--text-secondary);">Satış Tutarı</span>
+                        <span id="sellTotal" style="font-family: 'JetBrains Mono', monospace; font-weight: 600;">--</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                        <span style="color: var(--text-secondary);">Maliyet</span>
+                        <span id="sellCost" style="font-family: 'JetBrains Mono', monospace;">--</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; padding-top: 8px; border-top: 1px solid var(--border);">
+                        <span style="font-weight: 600;">Kar/Zarar</span>
+                        <span id="sellPL" style="font-family: 'JetBrains Mono', monospace; font-weight: 700;">--</span>
+                    </div>
+                </div>
+
+                <button type="button" class="submit-btn" style="width: 100%; background: #10b981;" onclick="executeSell()">
+                    <i class="fas fa-check"></i> Satışı Onayla
+                </button>
             </div>
         </div>
     </div>
@@ -2008,22 +2314,40 @@
 
             // Return cached if fresh
             if (cached && Date.now() - cached.timestamp < API_CONFIG.cacheDuration) {
-                return cached.price;
+                return cached.data || cached.price; // Support both old and new format
             }
 
-            let price = null;
+            let result = null;
 
             try {
-                price = await fetchYahooPrice(symbol, type);
+                result = await fetchYahooPrice(symbol, type);
 
-                if (price !== null) {
-                    API_CONFIG.priceCache[cacheKey] = { price, timestamp: Date.now() };
+                if (result !== null) {
+                    // Store full result with daily change info
+                    API_CONFIG.priceCache[cacheKey] = { data: result, timestamp: Date.now() };
                 }
             } catch (error) {
                 console.log(`API error for ${symbol}:`, error.message);
             }
 
-            return price;
+            return result;
+        }
+
+        // Get daily change info for a symbol
+        function getDailyChangeInfo(symbol, type) {
+            const cacheKey = `${type}_${symbol}`;
+            const cached = API_CONFIG.priceCache[cacheKey];
+            if (cached && cached.data) {
+                return {
+                    dailyChangePct: cached.data.dailyChangePct || 0,
+                    marketState: cached.data.marketState || 'REGULAR',
+                    postMarketPrice: cached.data.postMarketPrice,
+                    postMarketChangePct: cached.data.postMarketChangePct || 0,
+                    preMarketPrice: cached.data.preMarketPrice,
+                    preMarketChangePct: cached.data.preMarketChangePct || 0
+                };
+            }
+            return null;
         }
 
         // Unified Yahoo Finance fetcher
@@ -2066,6 +2390,11 @@
                         } else {
                             yahooSymbol = `${symbol}.IS`;
                         }
+                        break;
+
+                    case 'fon':
+                        // Türk yatırım fonları - BIST'te işlem görenler .IS alır
+                        yahooSymbol = `${symbol}.IS`;
                         break;
 
                     case 'gold':
@@ -2130,6 +2459,10 @@
                 if (!result?.meta?.regularMarketPrice) return null;
 
                 let price = result.meta.regularMarketPrice;
+                const meta = result.meta;
+                const prevClose = meta?.chartPreviousClose || meta?.previousClose || price;
+                const dailyChange = price - prevClose;
+                const dailyChangePct = prevClose > 0 ? (dailyChange / prevClose) * 100 : 0;
 
                 // Get USD/TRY rate if needed
                 if (needsTRYConversion) {
@@ -2139,7 +2472,17 @@
                     price = price * multiplier;
                 }
 
-                return price;
+                // Return object with price and daily change info
+                return {
+                    price,
+                    dailyChange,
+                    dailyChangePct,
+                    marketState: meta?.marketState || 'REGULAR',
+                    postMarketPrice: meta?.postMarketPrice || null,
+                    postMarketChangePct: meta?.postMarketChangePercent || 0,
+                    preMarketPrice: meta?.preMarketPrice || null,
+                    preMarketChangePct: meta?.preMarketChangePercent || 0
+                };
 
             } catch (e) {
                 console.log('Yahoo fetch error:', e.message);
@@ -5271,7 +5614,9 @@
                 { s: 'BIOL', n: 'Biolase Inc' },
                 { s: 'BIOR', n: 'Biora Therapeutics' },
                 { s: 'BIOS', n: 'BioPlus Acquisition' },
-                { s: 'BIOX', n: 'Bioceres Crop' }
+                { s: 'BIOX', n: 'Bioceres Crop' },
+                { s: 'IREN', n: 'Iris Energy Limited' },
+                { s: 'IRE', n: 'Daily 2x Long IREN ETF' }
             ],
             etf: [
                 { s: 'SPY', n: 'SPDR S&P 500 ETF Trust' },
@@ -6040,6 +6385,67 @@
                 { s: 'S_EURUSD', n: 'Euro/Dolar Takas' },
                 { s: 'S_GBPTRY', n: 'Sterlin/TL Takas' }
             ],
+            fon: [
+                // Borsa Yatırım Fonları (BYF)
+                { s: 'GLDTR', n: 'Gedik Altın BYF' },
+                { s: 'GLDSL', n: 'Gedik Altın Gümüş BYF' },
+                { s: 'GMSTR', n: 'Gedik Gümüş BYF' },
+                { s: 'DJIST', n: 'Dow Jones İstanbul 20 BYF' },
+                { s: 'SP500', n: 'İş Portföy S&P 500 BYF' },
+                { s: 'NSDQT', n: 'Nasdaq 100 BYF' },
+                { s: 'BIST30', n: 'BIST 30 Endeksi BYF' },
+
+                // Türk Yatırım Fonları - İş Portföy
+                { s: 'IPB', n: 'İş Portföy Birinci Hisse Senedi Fonu' },
+                { s: 'IYF', n: 'İş Portföy Yabancı Hisse Senedi Fonu' },
+                { s: 'ITF', n: 'İş Portföy Teknoloji Hisse Senedi Fonu' },
+                { s: 'IBK', n: 'İş Portföy BIST Banka Endeksi Fonu' },
+                { s: 'IPG', n: 'İş Portföy Gelişen Ülkeler Yabancı HSF' },
+
+                // Yapı Kredi Portföy
+                { s: 'YKP', n: 'Yapı Kredi Portföy Birinci HSF' },
+                { s: 'YKT', n: 'Yapı Kredi Portföy Teknoloji HSF' },
+                { s: 'YKS', n: 'Yapı Kredi Portföy Sürdürülebilir HSF' },
+
+                // Garanti Portföy
+                { s: 'GAF', n: 'Garanti Portföy Birinci HSF' },
+                { s: 'GAT', n: 'Garanti Portföy Teknoloji HSF' },
+                { s: 'GAK', n: 'Garanti Portföy Karma Fon' },
+
+                // Ak Portföy
+                { s: 'AKP', n: 'Ak Portföy Birinci HSF' },
+                { s: 'AKT', n: 'Ak Portföy Teknoloji HSF' },
+                { s: 'AKA', n: 'Ak Portföy Amerika HSF' },
+                { s: 'AKY', n: 'Ak Portföy Yabancı HSF' },
+
+                // QNB Finans Portföy
+                { s: 'QNB', n: 'QNB Finans Portföy Birinci HSF' },
+                { s: 'QNT', n: 'QNB Finans Portföy Teknoloji HSF' },
+
+                // Deniz Portföy
+                { s: 'DNZ', n: 'Deniz Portföy Birinci HSF' },
+                { s: 'DNT', n: 'Deniz Portföy Teknoloji HSF' },
+
+                // TEB Portföy
+                { s: 'TEB', n: 'TEB Portföy Birinci HSF' },
+
+                // Ziraat Portföy
+                { s: 'ZPK', n: 'Ziraat Portföy Karma Fon' },
+                { s: 'ZPH', n: 'Ziraat Portföy Hisse Senedi Fonu' },
+
+                // Vakıf Portföy
+                { s: 'VKF', n: 'Vakıf Portföy Birinci HSF' },
+                { s: 'VKT', n: 'Vakıf Portföy Teknoloji HSF' },
+
+                // Halk Portföy
+                { s: 'HLK', n: 'Halk Portföy Birinci HSF' },
+
+                // Diğer Fonlar
+                { s: 'ALT', n: 'Altın Fonu' },
+                { s: 'DLR', n: 'Dolar Fonu' },
+                { s: 'EUR', n: 'Euro Fonu' },
+                { s: 'GMY', n: 'Gayrimenkul Yatırım Fonu' }
+            ],
             gold: [
                 { s: 'XAU', n: 'Ons Altın (USD)' },
                 { s: 'XAUTRY', n: 'Gram Altın (TL)' },
@@ -6093,6 +6499,7 @@
             us: { name: 'ABD Hisse', color: '#3b82f6' },
             etf: { name: 'ETF', color: '#8b5cf6' },
             viop: { name: 'VİOP', color: '#f97316' },
+            fon: { name: 'Fon', color: '#14b8a6' },
             gold: { name: 'Altın', color: '#fbbf24' },
             silver: { name: 'Gümüş', color: '#9ca3af' },
             deposit: { name: 'Faiz', color: '#10b981' },
@@ -6106,6 +6513,9 @@
         let editingId = null;
         let selectedPeriod = 'all'; // 'week', 'month', 'all'
         let db = null; // IndexedDB reference
+        let displayCurrency = 'usd'; // 'usd' or 'tl' for main display (default: USD)
+        let afterHoursData = {}; // Store after-hours prices
+        let tradeHistory = []; // Al-sat işlem geçmişi
 
         // ========== DATABASE (IndexedDB) ==========
         const DB_NAME = 'PortfolioTrackerDB';
@@ -6275,11 +6685,20 @@
                     if (asset.type === 'deposit') return;
 
                     try {
-                        const newPrice = await fetchPrice(asset.symbol, asset.type);
-                        if (newPrice !== null) {
+                        const result = await fetchPrice(asset.symbol, asset.type);
+                        if (result !== null) {
                             asset.previousPrice = asset.currentPrice;
+                            // Handle both object and number returns
+                            const newPrice = typeof result === 'object' ? result.price : result;
                             asset.currentPrice = newPrice;
                             asset.priceSource = 'api';
+                            // Store daily change info
+                            if (typeof result === 'object') {
+                                asset.dailyChangePct = result.dailyChangePct || 0;
+                                asset.marketState = result.marketState;
+                                asset.postMarketPrice = result.postMarketPrice;
+                                asset.postMarketChangePct = result.postMarketChangePct;
+                            }
                         }
                     } catch (e) { }
                 });
@@ -6316,6 +6735,9 @@
 
                 // Load custom app icon
                 await loadAppIcon();
+
+                // Load trade history
+                await loadTradeHistory();
 
                 if (portfolio.length > 0) {
                     showToast(`${portfolio.length} varlık yüklendi`, 'success');
@@ -6387,12 +6809,21 @@
                 asset.previousPrice = asset.currentPrice;
 
                 try {
-                    const newPrice = await fetchPrice(asset.symbol, asset.type);
+                    const result = await fetchPrice(asset.symbol, asset.type);
 
-                    if (newPrice !== null) {
+                    if (result !== null) {
+                        // Handle both object and number returns
+                        const newPrice = typeof result === 'object' ? result.price : result;
                         asset.currentPrice = newPrice;
                         asset.priceSource = 'api';
                         apiSuccessCount++;
+                        // Store daily change info
+                        if (typeof result === 'object') {
+                            asset.dailyChangePct = result.dailyChangePct || 0;
+                            asset.marketState = result.marketState;
+                            asset.postMarketPrice = result.postMarketPrice;
+                            asset.postMarketChangePct = result.postMarketChangePct;
+                        }
                     } else {
                         // Fallback to simulation
                         asset.currentPrice = simulatePrice(asset.currentPrice, asset.type);
@@ -6811,7 +7242,21 @@
                             const change = price - prevClose;
                             const changePct = prevClose > 0 ? (change / prevClose) * 100 : 0;
 
-                            return { price, change, changePct };
+                            // After-hours / Pre-market data
+                            const postMarketPrice = meta?.postMarketPrice || null;
+                            const postMarketChange = meta?.postMarketChange || 0;
+                            const postMarketChangePct = meta?.postMarketChangePercent || 0;
+                            const preMarketPrice = meta?.preMarketPrice || null;
+                            const preMarketChange = meta?.preMarketChange || 0;
+                            const preMarketChangePct = meta?.preMarketChangePercent || 0;
+                            const marketState = meta?.marketState || 'REGULAR'; // PRE, REGULAR, POST, CLOSED
+
+                            return {
+                                price, change, changePct,
+                                postMarketPrice, postMarketChange, postMarketChangePct,
+                                preMarketPrice, preMarketChange, preMarketChangePct,
+                                marketState
+                            };
                         }
                     }
                 } catch (e) {
@@ -6925,6 +7370,50 @@
             const changePctEl = rowEl.querySelector('.market-change-pct');
             changePctEl.textContent = `${changeSign}${changePct.toFixed(2)}%`;
             changePctEl.className = `market-change-pct ${changeClass}`;
+
+            // After-hours / Pre-market display
+            let afterHoursEl = rowEl.querySelector('.after-hours-info');
+            if (!afterHoursEl) {
+                afterHoursEl = document.createElement('div');
+                afterHoursEl.className = 'after-hours-info';
+                afterHoursEl.style.cssText = 'font-size: 10px; margin-top: 2px; display: flex; align-items: center; gap: 4px;';
+                const priceContainer = rowEl.querySelector('.market-data');
+                if (priceContainer) priceContainer.appendChild(afterHoursEl);
+            }
+
+            const marketState = data.marketState;
+            const isUSMarket = ['AAPL', 'MSFT', 'GOOGL', 'AMZN', 'TSLA', 'NVDA', 'META', 'SPY', 'QQQ', 'VTI', 'VOO'].some(s => item.symbol.includes(s)) ||
+                               item.yahoo?.includes('.') === false;
+
+            if (isUSMarket && (marketState === 'POST' || marketState === 'POSTPOST' || marketState === 'CLOSED') && data.postMarketPrice) {
+                const ahChange = data.postMarketChange || 0;
+                const ahChangePct = data.postMarketChangePct || 0;
+                const ahClass = ahChange >= 0 ? 'positive' : 'negative';
+                const ahSign = ahChange >= 0 ? '+' : '';
+                afterHoursEl.innerHTML = `
+                    <span class="after-hours-badge">
+                        <span class="market-status-dot after-hours"></span> AH
+                    </span>
+                    <span class="after-hours-price">$${data.postMarketPrice.toFixed(2)}</span>
+                    <span style="color: ${ahChange >= 0 ? '#10b981' : '#ef4444'}; font-size: 9px;">${ahSign}${ahChangePct.toFixed(2)}%</span>
+                `;
+                afterHoursEl.style.display = 'flex';
+            } else if (isUSMarket && (marketState === 'PRE' || marketState === 'PREPRE') && data.preMarketPrice) {
+                const pmChange = data.preMarketChange || 0;
+                const pmChangePct = data.preMarketChangePct || 0;
+                const pmClass = pmChange >= 0 ? 'positive' : 'negative';
+                const pmSign = pmChange >= 0 ? '+' : '';
+                afterHoursEl.innerHTML = `
+                    <span class="after-hours-badge" style="background: rgba(59, 130, 246, 0.15); color: #60a5fa;">
+                        <span class="market-status-dot" style="background: #60a5fa;"></span> PM
+                    </span>
+                    <span class="after-hours-price" style="color: #60a5fa;">$${data.preMarketPrice.toFixed(2)}</span>
+                    <span style="color: ${pmChange >= 0 ? '#10b981' : '#ef4444'}; font-size: 9px;">${pmSign}${pmChangePct.toFixed(2)}%</span>
+                `;
+                afterHoursEl.style.display = 'flex';
+            } else {
+                afterHoursEl.style.display = 'none';
+            }
         }
 
         function renderMarketSections() {
@@ -7075,11 +7564,28 @@
                 const nativeValue = isUSD ? value : value;
                 const nativePL = isUSD ? pl : pl;
 
+                // Daily change percentage (for stocks/ETFs)
+                const dailyChangePct = asset.dailyChangePct || 0;
+                const hasDailyChange = asset.type !== 'deposit' && asset.type !== 'cash' && dailyChangePct !== 0;
+                const dailyChangeClass = dailyChangePct >= 0 ? 'profit' : 'loss';
+                const dailyChangeSign = dailyChangePct >= 0 ? '+' : '';
+
+                // After-hours info for US stocks
+                let afterHoursHtml = '';
+                if (isUSD && asset.postMarketPrice && (asset.marketState === 'POST' || asset.marketState === 'CLOSED')) {
+                    const ahChangePct = asset.postMarketChangePct || 0;
+                    afterHoursHtml = `<span class="after-hours-badge"><span class="market-status-dot after-hours"></span> AH ${ahChangePct >= 0 ? '+' : ''}${ahChangePct.toFixed(2)}%</span>`;
+                }
+
                 return `
                     <div class="asset-card" onclick="editAsset('${asset.id}')" style="animation-delay: ${i * 0.03}s">
                         <div class="asset-icon ${asset.type}">${getIconContent(asset)}</div>
                         <div class="asset-info">
-                            <div class="asset-name">${asset.name || asset.symbol}</div>
+                            <div class="asset-name">
+                                ${asset.name || asset.symbol}
+                                ${hasDailyChange ? `<span class="daily-change-badge ${dailyChangeClass}">${dailyChangeSign}${dailyChangePct.toFixed(2)}%</span>` : ''}
+                                ${afterHoursHtml}
+                            </div>
                             <div class="asset-details">${detailsLine}</div>
                             ${priceLine ? `<div class="asset-price">${priceLine}</div>` : ''}
                         </div>
@@ -7136,6 +7642,20 @@
             return asset.amount * (asset.interestRate / 100) * (asset.duration / 365);
         }
 
+        function toggleCurrencyDisplay() {
+            displayCurrency = displayCurrency === 'tl' ? 'usd' : 'tl';
+
+            // Update toggle button UI
+            const toggleBtn = document.getElementById('currencyToggle');
+            if (toggleBtn) {
+                toggleBtn.querySelectorAll('.currency-option').forEach(opt => {
+                    opt.classList.toggle('active', opt.dataset.currency === displayCurrency);
+                });
+            }
+
+            updateSummary();
+        }
+
         function updateSummary() {
             const usdRate = cachedUSDTRY;
 
@@ -7161,29 +7681,53 @@
             const totalCostTL = tlCost + (usdCost * usdRate);
             const plTL = totalTL - totalCostTL;
             const plPctTL = totalCostTL > 0 ? (plTL / totalCostTL) * 100 : 0;
-            const isPl = plTL >= 0;
 
             // Total in USD (convert TL to USD)
             const totalUSD = (tlValue / usdRate) + usdValue;
+            const totalCostUSD = (tlCost / usdRate) + usdCost;
+            const plUSD = totalUSD - totalCostUSD;
+            const plPctUSD = totalCostUSD > 0 ? (plUSD / totalCostUSD) * 100 : 0;
 
-            document.getElementById('totalValue').textContent = formatCur(totalTL);
+            // Display based on selected currency
+            if (displayCurrency === 'usd') {
+                document.getElementById('totalValue').textContent = formatUSD(totalUSD);
 
-            const profitEl = document.getElementById('totalProfit');
-            profitEl.className = `stat-badge ${isPl ? 'profit' : 'loss'}`;
-            profitEl.innerHTML = `
-                <i class="fas fa-arrow-${isPl ? 'up' : 'down'}"></i>
-                <span>${isPl ? '+' : ''}${formatCur(plTL)} (${plPctTL >= 0 ? '+' : ''}${plPctTL.toFixed(2)}%)</span>
-            `;
+                const isPl = plUSD >= 0;
+                const profitEl = document.getElementById('totalProfit');
+                profitEl.className = `stat-badge ${isPl ? 'profit' : 'loss'}`;
+                profitEl.innerHTML = `
+                    <i class="fas fa-arrow-${isPl ? 'up' : 'down'}"></i>
+                    <span>${isPl ? '+' : ''}${formatUSD(plUSD)} (${plPctUSD >= 0 ? '+' : ''}${plPctUSD.toFixed(2)}%)</span>
+                `;
 
-            document.getElementById('totalCost').innerHTML = `
-                <i class="fas fa-coins"></i>
-                <span>Maliyet: ${formatCur(totalCostTL)}</span>
-            `;
+                document.getElementById('totalCost').innerHTML = `
+                    <i class="fas fa-coins"></i>
+                    <span>Maliyet: ${formatUSD(totalCostUSD)}</span>
+                `;
 
-            // Update USD total
-            document.getElementById('totalUSDValue').innerHTML = `
-                <span>🇺🇸 USD karşılığı: ${formatUSD(totalUSD)}</span>
-            `;
+                document.getElementById('totalUSDValue').innerHTML = `
+                    <span>🇹🇷 TL karşılığı: ${formatCur(totalTL)}</span>
+                `;
+            } else {
+                const isPl = plTL >= 0;
+                document.getElementById('totalValue').textContent = formatCur(totalTL);
+
+                const profitEl = document.getElementById('totalProfit');
+                profitEl.className = `stat-badge ${isPl ? 'profit' : 'loss'}`;
+                profitEl.innerHTML = `
+                    <i class="fas fa-arrow-${isPl ? 'up' : 'down'}"></i>
+                    <span>${isPl ? '+' : ''}${formatCur(plTL)} (${plPctTL >= 0 ? '+' : ''}${plPctTL.toFixed(2)}%)</span>
+                `;
+
+                document.getElementById('totalCost').innerHTML = `
+                    <i class="fas fa-coins"></i>
+                    <span>Maliyet: ${formatCur(totalCostTL)}</span>
+                `;
+
+                document.getElementById('totalUSDValue').innerHTML = `
+                    <span>🇺🇸 USD karşılığı: ${formatUSD(totalUSD)}</span>
+                `;
+            }
         }
 
         // ========== PERIOD SELECTOR ==========
@@ -7398,6 +7942,150 @@
 
             // Recent Assets
             renderRecentAssets();
+
+            // Update Realized P/L section
+            updateRealizedPL();
+        }
+
+        function updateRealizedPL() {
+            const realizedPL = getTotalRealizedPL();
+            const totalPL = displayCurrency === 'usd' ? realizedPL.totalInUSD : realizedPL.totalInTL;
+            const isProfit = totalPL >= 0;
+
+            // Update main value
+            const mainValueEl = document.getElementById('realizedPLValue');
+            mainValueEl.textContent = displayCurrency === 'usd' ?
+                `${isProfit ? '+' : ''}${formatUSD(totalPL)}` :
+                `${isProfit ? '+' : ''}${formatCur(totalPL)}`;
+            mainValueEl.className = `realized-pl-value ${isProfit ? 'profit' : 'loss'}`;
+
+            // Update TL/USD breakdowns
+            const tlEl = document.getElementById('realizedPLTL');
+            const usdEl = document.getElementById('realizedPLUSD');
+            tlEl.textContent = `${realizedPL.tl >= 0 ? '+' : ''}${formatCur(realizedPL.tl)}`;
+            tlEl.style.color = realizedPL.tl >= 0 ? 'var(--profit)' : 'var(--loss)';
+            usdEl.textContent = `${realizedPL.usd >= 0 ? '+' : ''}${formatUSD(realizedPL.usd)}`;
+            usdEl.style.color = realizedPL.usd >= 0 ? 'var(--profit)' : 'var(--loss)';
+
+            // Update trade count
+            document.getElementById('tradeCount').textContent = `${tradeHistory.length} işlem`;
+
+            // Render recent trades (last 3)
+            const recentTradesEl = document.getElementById('recentTrades');
+            const recentTrades = [...tradeHistory].reverse().slice(0, 3);
+
+            if (recentTrades.length === 0) {
+                recentTradesEl.innerHTML = `<div style="text-align: center; padding: 16px; color: var(--text-secondary); font-size: 12px;">
+                    Henüz satış işlemi yok<br>
+                    <span style="font-size: 10px;">Portföyden silinen varlıklar burada görünecek</span>
+                </div>`;
+            } else {
+                recentTradesEl.innerHTML = recentTrades.map(trade => {
+                    const isProfit = trade.realizedPL >= 0;
+                    const formatFn = trade.currency === 'USD' ? formatUSD : formatCur;
+                    const date = new Date(trade.date).toLocaleDateString('tr-TR', { day: 'numeric', month: 'short' });
+                    return `
+                        <div class="trade-history-item">
+                            <div class="trade-info">
+                                <div class="trade-symbol">${trade.symbol}</div>
+                                <div class="trade-details">${trade.amount} adet • ${date}</div>
+                            </div>
+                            <div class="trade-pl" style="color: ${isProfit ? 'var(--profit)' : 'var(--loss)'}">
+                                ${isProfit ? '+' : ''}${formatFn(trade.realizedPL)}
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+        }
+
+        function showAllTrades() {
+            const modal = document.createElement('div');
+            modal.className = 'modal-overlay active';
+            modal.id = 'tradeHistoryModal';
+
+            const trades = [...tradeHistory].reverse();
+            let tradesHtml = '';
+
+            if (trades.length === 0) {
+                tradesHtml = `<div style="text-align: center; padding: 40px; color: var(--text-secondary);">
+                    <i class="fas fa-receipt" style="font-size: 32px; margin-bottom: 12px;"></i>
+                    <p>Henüz işlem geçmişi yok</p>
+                </div>`;
+            } else {
+                tradesHtml = trades.map(trade => {
+                    const isProfit = trade.realizedPL >= 0;
+                    const formatFn = trade.currency === 'USD' ? formatUSD : formatCur;
+                    const date = new Date(trade.date).toLocaleDateString('tr-TR', { day: 'numeric', month: 'short', year: 'numeric' });
+                    return `
+                        <div class="trade-history-item">
+                            <div class="trade-info">
+                                <div class="trade-symbol">${trade.symbol} <span style="color: var(--text-secondary); font-weight: normal;">${trade.name || ''}</span></div>
+                                <div class="trade-details">
+                                    ${trade.amount} adet • Alış: ${formatFn(trade.buyPrice)} → Satış: ${formatFn(trade.sellPrice)} • ${date}
+                                </div>
+                            </div>
+                            <div class="trade-pl" style="color: ${isProfit ? 'var(--profit)' : 'var(--loss)'}">
+                                ${isProfit ? '+' : ''}${formatFn(trade.realizedPL)}<br>
+                                <span style="font-size: 10px;">(${trade.realizedPLPct >= 0 ? '+' : ''}${trade.realizedPLPct.toFixed(1)}%)</span>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            modal.innerHTML = `
+                <div class="modal" style="max-height: 85vh;">
+                    <div class="modal-header">
+                        <div class="modal-handle"></div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                            <h3 class="modal-title">📋 İşlem Geçmişi</h3>
+                            <button class="modal-close" onclick="document.getElementById('tradeHistoryModal').remove()">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="modal-body" style="max-height: 65vh; overflow-y: auto;">
+                        ${tradesHtml}
+                    </div>
+                    ${trades.length > 0 ? `
+                        <div style="padding: 16px; border-top: 1px solid var(--border);">
+                            <button class="submit-btn" style="width: 100%; background: #ef4444;" onclick="confirmClearTradeHistory()">
+                                <i class="fas fa-trash"></i> Geçmişi Temizle
+                            </button>
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+
+            document.body.appendChild(modal);
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) modal.remove();
+            });
+        }
+
+        function confirmClearTradeHistory() {
+            const confirmModal = document.createElement('div');
+            confirmModal.className = 'modal-overlay active';
+            confirmModal.id = 'clearTradeConfirmModal';
+            confirmModal.innerHTML = `
+                <div class="modal" style="max-height: 300px;">
+                    <div class="modal-body" style="text-align: center; padding: 32px;">
+                        <i class="fas fa-exclamation-triangle" style="font-size: 48px; color: #ef4444; margin-bottom: 16px;"></i>
+                        <h3 style="margin-bottom: 12px;">İşlem Geçmişini Sil?</h3>
+                        <p style="color: var(--text-secondary); margin-bottom: 24px;">Tüm satış kayıtları silinecek. Bu işlem geri alınamaz.</p>
+                        <div style="display: flex; gap: 12px;">
+                            <button class="submit-btn" style="flex: 1; background: var(--text-secondary);" onclick="document.getElementById('clearTradeConfirmModal').remove()">
+                                İptal
+                            </button>
+                            <button class="submit-btn" style="flex: 1; background: #ef4444;" onclick="clearTradeHistory(); document.getElementById('clearTradeConfirmModal').remove(); document.getElementById('tradeHistoryModal').remove();">
+                                Evet, Sil
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(confirmModal);
         }
 
         function updateGainCard(elementId, value, pct, isTL) {
@@ -7587,7 +8275,7 @@
             selectedType = 'bist';
             document.getElementById('modalTitle').textContent = 'Varlık Ekle';
             document.getElementById('submitBtn').innerHTML = '<i class="fas fa-plus"></i> Varlık Ekle';
-            document.getElementById('deleteBtn').style.display = 'none';
+            document.getElementById('editActionsRow').style.display = 'none';
             resetForm();
             updateFormForType();
             document.getElementById('addModal').classList.add('active');
@@ -7862,7 +8550,8 @@
 
             try {
                 // Try to fetch price - if successful, symbol is valid
-                const price = await fetchPrice(symbol, selectedType);
+                const result = await fetchPrice(symbol, selectedType);
+                const price = result !== null ? (typeof result === 'object' ? result.price : result) : null;
 
                 if (price !== null) {
                     // Try to get company name from Yahoo Finance
@@ -8055,7 +8744,17 @@
 
             document.getElementById('modalTitle').textContent = 'Varlığı Düzenle';
             document.getElementById('submitBtn').innerHTML = '<i class="fas fa-save"></i> Kaydet';
-            document.getElementById('deleteBtn').style.display = 'block';
+
+            // Show sell/delete row for tradeable assets (not cash/deposit)
+            const editActionsRow = document.getElementById('editActionsRow');
+            const sellBtn = document.getElementById('sellBtn');
+            if (asset.type !== 'cash' && asset.type !== 'deposit') {
+                editActionsRow.style.display = 'flex';
+                sellBtn.style.display = 'flex';
+            } else {
+                editActionsRow.style.display = 'flex';
+                sellBtn.style.display = 'none'; // Hide sell for cash/deposit
+            }
 
             document.querySelectorAll('.type-btn').forEach(btn => {
                 btn.classList.toggle('active', btn.dataset.type === asset.type);
@@ -8095,6 +8794,7 @@
 
         function deleteAsset() {
             if (editingId) {
+                // Just delete, don't record as sale
                 portfolio = portfolio.filter(a => a.id !== editingId);
                 saveToDB(); // Save to IndexedDB
                 renderPortfolio();
@@ -8104,6 +8804,222 @@
             closeConfirm();
             closeModal();
             showToast('Varlık silindi!', 'success');
+        }
+
+        // ========== SELL ASSET ==========
+        let sellingAsset = null;
+
+        function openSellModal() {
+            if (!editingId) return;
+
+            const asset = portfolio.find(a => a.id === editingId);
+            if (!asset) return;
+
+            sellingAsset = asset;
+            const isUSD = asset.type === 'us' || asset.type === 'etf';
+            const formatFn = isUSD ? formatUSD : formatCur;
+
+            // Populate asset info
+            document.getElementById('sellAssetInfo').innerHTML = `
+                <div class="sell-asset-icon ${asset.type}" style="background: ${TYPE_LABELS[asset.type]?.color || '#666'}20; color: ${TYPE_LABELS[asset.type]?.color || '#666'};">
+                    ${asset.symbol.substring(0, 2)}
+                </div>
+                <div class="sell-asset-details">
+                    <h4>${asset.name || asset.symbol}</h4>
+                    <p>${asset.amount} adet • Alış: ${formatFn(asset.buyPrice)} • Güncel: ${formatFn(asset.currentPrice)}</p>
+                </div>
+            `;
+
+            // Set hints
+            document.getElementById('sellAmountHint').textContent = `Mevcut: ${asset.amount} adet`;
+            document.getElementById('sellPriceHint').textContent = `Güncel fiyat: ${formatFn(asset.currentPrice)}`;
+
+            // Reset inputs
+            document.getElementById('sellAmountInput').value = '';
+            document.getElementById('sellPriceInput').value = asset.currentPrice;
+
+            // Set max attribute
+            document.getElementById('sellAmountInput').max = asset.amount;
+
+            updateSellPreview();
+
+            // Close edit modal and open sell modal
+            closeModal();
+            document.getElementById('sellModal').classList.add('active');
+        }
+
+        function closeSellModal() {
+            document.getElementById('sellModal').classList.remove('active');
+            sellingAsset = null;
+        }
+
+        function setSellAll() {
+            if (sellingAsset) {
+                document.getElementById('sellAmountInput').value = sellingAsset.amount;
+                updateSellPreview();
+            }
+        }
+
+        function setCurrentPrice() {
+            if (sellingAsset) {
+                document.getElementById('sellPriceInput').value = sellingAsset.currentPrice;
+                updateSellPreview();
+            }
+        }
+
+        function updateSellPreview() {
+            if (!sellingAsset) return;
+
+            const amount = parseFloat(document.getElementById('sellAmountInput').value) || 0;
+            const price = parseFloat(document.getElementById('sellPriceInput').value) || 0;
+
+            const isUSD = sellingAsset.type === 'us' || sellingAsset.type === 'etf';
+            const formatFn = isUSD ? formatUSD : formatCur;
+
+            const revenue = amount * price;
+            const cost = amount * sellingAsset.buyPrice;
+            const pl = revenue - cost;
+            const isProfit = pl >= 0;
+
+            document.getElementById('sellTotal').textContent = formatFn(revenue);
+            document.getElementById('sellCost').textContent = formatFn(cost);
+
+            const plEl = document.getElementById('sellPL');
+            plEl.textContent = `${isProfit ? '+' : ''}${formatFn(pl)} (${cost > 0 ? (isProfit ? '+' : '') + ((pl / cost) * 100).toFixed(1) + '%' : '0%'})`;
+            plEl.style.color = isProfit ? 'var(--profit)' : 'var(--loss)';
+        }
+
+        function executeSell() {
+            if (!sellingAsset) return;
+
+            const sellAmount = parseFloat(document.getElementById('sellAmountInput').value) || 0;
+            const sellPrice = parseFloat(document.getElementById('sellPriceInput').value) || 0;
+
+            // Validation
+            if (sellAmount <= 0) {
+                showToast('Satış miktarı giriniz', 'error');
+                return;
+            }
+            if (sellAmount > sellingAsset.amount) {
+                showToast('Mevcut miktardan fazla satamazsınız', 'error');
+                return;
+            }
+            if (sellPrice <= 0) {
+                showToast('Satış fiyatı giriniz', 'error');
+                return;
+            }
+
+            const isUSD = sellingAsset.type === 'us' || sellingAsset.type === 'etf';
+
+            // Calculate P/L for the sold portion
+            const cost = sellAmount * sellingAsset.buyPrice;
+            const revenue = sellAmount * sellPrice;
+            const realizedPL = revenue - cost;
+
+            // Record the trade
+            const trade = {
+                id: Date.now().toString(),
+                symbol: sellingAsset.symbol,
+                name: sellingAsset.name,
+                type: sellingAsset.type,
+                amount: sellAmount,
+                buyPrice: sellingAsset.buyPrice,
+                sellPrice: sellPrice,
+                cost: cost,
+                revenue: revenue,
+                realizedPL: realizedPL,
+                realizedPLPct: cost > 0 ? (realizedPL / cost) * 100 : 0,
+                currency: isUSD ? 'USD' : 'TL',
+                date: new Date().toISOString(),
+                purchaseDate: sellingAsset.purchaseDate || null
+            };
+
+            tradeHistory.push(trade);
+            saveTradeHistory();
+
+            // Update portfolio
+            const assetIndex = portfolio.findIndex(a => a.id === sellingAsset.id);
+            if (assetIndex !== -1) {
+                if (sellAmount >= sellingAsset.amount) {
+                    // Sold all - remove from portfolio
+                    portfolio.splice(assetIndex, 1);
+                } else {
+                    // Partial sale - reduce amount
+                    portfolio[assetIndex].amount -= sellAmount;
+                }
+            }
+
+            saveToDB();
+            renderPortfolio();
+            updateSummary();
+            updatePerformance();
+
+            closeSellModal();
+
+            const formatFn = isUSD ? formatUSD : formatCur;
+            const plText = realizedPL >= 0 ? `+${formatFn(realizedPL)} kâr` : `${formatFn(realizedPL)} zarar`;
+            showToast(`${sellAmount} adet ${sellingAsset.symbol} satıldı! ${plText}`, realizedPL >= 0 ? 'success' : 'error');
+        }
+
+        // ========== TRADE HISTORY (Realized P/L) ==========
+        async function saveTradeHistory() {
+            if (!db) return;
+            try {
+                const tx = db.transaction(STORE_NAME, 'readwrite');
+                const store = tx.objectStore(STORE_NAME);
+                await store.put({ id: 'tradeHistory', data: tradeHistory });
+            } catch (e) {
+                console.log('Save trade history error:', e);
+            }
+        }
+
+        async function loadTradeHistory() {
+            if (!db) return;
+            try {
+                const tx = db.transaction(STORE_NAME, 'readonly');
+                const store = tx.objectStore(STORE_NAME);
+                const request = store.get('tradeHistory');
+
+                return new Promise((resolve) => {
+                    request.onsuccess = () => {
+                        if (request.result && request.result.data) {
+                            tradeHistory = request.result.data;
+                        }
+                        resolve();
+                    };
+                    request.onerror = () => resolve();
+                });
+            } catch (e) {
+                console.log('Load trade history error:', e);
+            }
+        }
+
+        function getTotalRealizedPL() {
+            const usdRate = cachedUSDTRY;
+            let totalTL = 0;
+            let totalUSD = 0;
+
+            tradeHistory.forEach(trade => {
+                if (trade.currency === 'USD') {
+                    totalUSD += trade.realizedPL;
+                } else {
+                    totalTL += trade.realizedPL;
+                }
+            });
+
+            return {
+                tl: totalTL,
+                usd: totalUSD,
+                totalInTL: totalTL + (totalUSD * usdRate),
+                totalInUSD: (totalTL / usdRate) + totalUSD
+            };
+        }
+
+        function clearTradeHistory() {
+            tradeHistory = [];
+            saveTradeHistory();
+            updatePerformance();
+            showToast('İşlem geçmişi temizlendi', 'success');
         }
 
         // ========== EXPORT ==========
